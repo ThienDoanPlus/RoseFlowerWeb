@@ -24,6 +24,7 @@ import { useStore } from '../store';
 import { FLOWERS } from '../data/mockData';
 import { Flower } from '../types';
 import { formatVND } from '../utils/calculations';
+import { ChatAPI } from '../services/api';
 
 interface ChatMessage {
   id: string;
@@ -71,7 +72,7 @@ export const ZaloChatWidget: React.FC = () => {
     }
   }, [messages, isOpen, isTyping]);
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const query = (textToSend || inputMsg).trim();
     if (!query) return;
 
@@ -87,7 +88,26 @@ export const ZaloChatWidget: React.FC = () => {
     if (!textToSend) setInputMsg('');
     setIsTyping(true);
 
-    // AI Floral Assistant reasoning
+    // 1. Thử gọi Groq AI Assistant từ Backend (Llama 3.3 70B)
+    try {
+      const historyPayload = messages.slice(-6).map((m) => ({ sender: m.sender, text: m.text }));
+      const aiRes = await ChatAPI.consultAI(query, historyPayload);
+      if (aiRes.reply && aiRes.source === 'groq') {
+        const botMsg: ChatMessage = {
+          id: `bot-${Date.now()}`,
+          sender: 'bot',
+          text: aiRes.reply,
+          time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages((prev) => [...prev, botMsg]);
+        setIsTyping(false);
+        return;
+      }
+    } catch {
+      // Fallback nếu offline hoặc chưa cấu hình Groq
+    }
+
+    // 2. Fallback sang AI Floral Assistant cục bộ
     setTimeout(() => {
       const q = query.toLowerCase();
       let botReply = "Dạ mình đã ghi nhận thông tin. Bạn có thể cho mình biết thêm đối tượng nhận hoa (người yêu, mẹ, bạn bè, đối tác) hoặc ngân sách dự kiến để mình gợi ý mẫu hoa sáp phù hợp nhất nhé!";

@@ -73,9 +73,16 @@ DATABASE_URL="postgresql://alex:Abc123xyz@ep-cool-flower-123456.ap-southeast-1.a
 CLOUDINARY_CLOUD_NAME="dam7flower"
 CLOUDINARY_API_KEY="123456789012345"
 CLOUDINARY_API_SECRET="abcdefgh12345678"
+CLOUDINARY_FOLDER="RoseFlowerWeb"
 
 CORS_ALLOWED_ORIGINS="http://localhost:3000,http://localhost:5173"
 ```
+
+> **Mẹo chỉ định thư mục tải lên:**
+> Khi điền `CLOUDINARY_FOLDER="roseflowerweb"`, mọi hình ảnh tải lên sẽ tự động được gom vào thư mục `roseflowerweb` trên Cloudinary Media Library. Bạn có thể chạy lệnh sau để tự động tải toàn bộ 78 bộ ảnh hoa sáp lên Cloudinary:
+> ```bash
+> python backend/upload_to_cloudinary.py
+> ```
 
 ---
 

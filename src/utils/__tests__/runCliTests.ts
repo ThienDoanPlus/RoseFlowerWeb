@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+declare const process: any;
 import { runAllUnitTests } from './unitTests';
 
 console.log('================================================================');

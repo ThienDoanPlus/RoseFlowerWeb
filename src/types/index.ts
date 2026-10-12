@@ -17,7 +17,7 @@ export interface Flower {
   botanicalName: string;
   categoryId: string;
   basePrice: number;
-  salePrice?: number;
+  salePrice?: number | null;
   imageUrl: string;
   gallery: string[];
   shortDescription: string;

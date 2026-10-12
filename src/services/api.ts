@@ -400,3 +400,38 @@ export const FlowerAPI = {
     };
   },
 };
+
+export const ChatAPI = {
+  /**
+   * POST /api/chat/ai-consult/
+   * Gửi câu hỏi của khách tới Backend Groq AI Assistant (Llama 3.3 70B)
+   */
+  async consultAI(
+    message: string,
+    history?: Array<{ sender: string; text: string }>
+  ): Promise<{ reply: string; source: string; model?: string }> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/chat/ai-consult/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, history }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return {
+          reply: json.reply,
+          source: json.source || 'groq',
+          model: json.model,
+        };
+      }
+    } catch {
+      // Fallback
+    }
+
+    return {
+      reply: '',
+      source: 'offline',
+    };
+  },
+};
+
