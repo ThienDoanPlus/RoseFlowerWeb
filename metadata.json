@@ -1,0 +1,6 @@
+{
+  "name": "Rose Flowers - Tiệm Hoa Tươi Trực Tuyến",
+  "description": "Nền tảng đặt hoa tươi trực tuyến cao cấp với giỏ hàng thông minh, thanh toán VietQR, MoMo, VNPay, ZaloPay, tích hợp bản đồ giao hàng và theo dõi đơn hàng thời gian thực.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
