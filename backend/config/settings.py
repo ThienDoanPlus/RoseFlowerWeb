@@ -8,6 +8,13 @@ import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env')
+except ImportError:
+    pass
+
 # Add backend directory to sys.path so apps can be imported directly
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
@@ -89,9 +96,16 @@ if DATABASE_URL:
     if 'mysql' in DATABASES['default'].get('ENGINE', ''):
         DATABASES['default'].setdefault('OPTIONS', {})
         DATABASES['default']['OPTIONS'].setdefault('charset', 'utf8mb4')
-        # Bật SSL cho TiDB Cloud nếu URL có sslmode hoặc connect to cloud gateway
+        # Bật SSL cho TiDB Cloud nếu connect to cloud gateway
         if 'tidbcloud.com' in DATABASE_URL:
-            DATABASES['default']['OPTIONS'].setdefault('ssl', {'ca': '/etc/ssl/cert.pem'})
+            ssl_candidates = [
+                '/etc/ssl/certs/ca-certificates.crt',  # Debian / Ubuntu (Render)
+                '/etc/pki/tls/certs/ca-bundle.crt',    # RHEL / CentOS
+                '/etc/ssl/ca-bundle.pem',              # OpenSUSE
+                '/etc/ssl/cert.pem',                   # macOS / Alpine
+            ]
+            ca_path = next((p for p in ssl_candidates if os.path.exists(p)), None)
+            DATABASES['default']['OPTIONS'].setdefault('ssl', {'ca': ca_path} if ca_path else {})
 else:
     DATABASES = {
         'default': {
