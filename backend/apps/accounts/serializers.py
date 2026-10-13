@@ -16,3 +16,16 @@ class GoogleAuthSerializer(serializers.Serializer):
     name = serializers.CharField(required=False, default='')
     role = serializers.ChoiceField(choices=Role.choices, required=False, default=Role.CUSTOMER)
     avatar_url = serializers.CharField(required=False, default='')
+
+class RegisterSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(min_length=6, write_only=True)
+    full_name = serializers.CharField(required=False, default='')
+    phone_number = serializers.CharField(required=False, default='')
+
+class SocialAuthSerializer(serializers.Serializer):
+    provider = serializers.ChoiceField(choices=['google', 'facebook'], default='google')
+    email = serializers.EmailField()
+    name = serializers.CharField(required=False, default='')
+    avatar_url = serializers.CharField(required=False, default='')
+

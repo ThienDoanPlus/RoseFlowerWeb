@@ -350,6 +350,58 @@ export const FlowerAPI = {
   },
 
   /**
+   * POST /api/auth/login/
+   * Đăng nhập tài khoản hệ thống (Admin, Staff, Customer)
+   */
+  async login(email: string, password?: string): Promise<DRFResponse<User>> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password,
+        }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return { data: json.user, status: 200, message: json.message };
+      } else {
+        const err = await res.json();
+        throw new Error(err.error || 'Đăng nhập không thành công');
+      }
+    } catch (e: any) {
+      if (e.message && !e.message.includes('fetch')) {
+        throw e;
+      }
+      // Fallback
+      await delay(150);
+      const role: Role = email.includes('admin') ? 'ADMIN' : email.includes('florist') || email.includes('staff') ? 'STAFF' : 'CUSTOMER';
+      const user: User = {
+        id: `usr-${Date.now()}`,
+        email,
+        name: role === 'ADMIN' ? 'Lê Quốc Hưng (Admin)' : role === 'STAFF' ? 'Trần Thị Mai (Florist)' : email.split('@')[0],
+        role,
+        avatarUrl: role === 'ADMIN'
+          ? 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
+          : role === 'STAFF'
+          ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
+          : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+        phone: '0888208306',
+        savedAddress: '294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM',
+        district: 'Phường Tân Sơn',
+        city: 'TP. Hồ Chí Minh',
+        dateJoined: '2026-01-10',
+      };
+      return {
+        data: user,
+        status: 200,
+        message: `Đăng nhập thành công với vai trò ${role}!`,
+      };
+    }
+  },
+
+  /**
    * POST /api/accounts/google/
    * Xác thực Google OAuth & Nhận thông tin Role từ Backend
    */
@@ -399,32 +451,110 @@ export const FlowerAPI = {
   },
 
   /**
-   * POST /api/auth/login/
-   * Đăng nhập xác thực tài khoản chuyên nghiệp với Email và Mật khẩu
+   * POST /api/auth/register/
+   * Đăng ký tài khoản khách hàng mới
    */
-  async login(email: string, password?: string): Promise<DRFResponse<User>> {
+  async register(params: {
+    email: string;
+    password: string;
+    fullName?: string;
+    phone?: string;
+  }): Promise<DRFResponse<User>> {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/login/`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email: params.email,
+          password: params.password,
+          full_name: params.fullName || '',
+          phone_number: params.phone || '',
+        }),
       });
       if (res.ok) {
         const json = await res.json();
-        return { data: json.user, status: 200, message: json.message };
+        return { data: json.user, status: 201, message: json.message };
       } else {
         const err = await res.json();
-        throw new Error(err.error || 'Đăng nhập không thành công');
+        throw new Error(err.error || 'Đăng ký tài khoản không thành công');
       }
     } catch (e: any) {
       if (e.message && !e.message.includes('fetch')) {
         throw e;
       }
-      // Offline fallback
-      return this.loginWithGoogle(email);
+      await delay(150);
+      const user: User = {
+        id: `usr-${Date.now()}`,
+        email: params.email,
+        name: params.fullName || params.email.split('@')[0],
+        role: 'CUSTOMER',
+        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+        phone: params.phone || '',
+        savedAddress: '294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM',
+        dateJoined: new Date().toISOString(),
+      };
+      return {
+        data: user,
+        status: 201,
+        message: 'Đăng ký tài khoản thành công!',
+      };
     }
   },
+
+  /**
+   * POST /api/auth/social/
+   * Đăng nhập hoặc Liên kết tạo tài khoản nhanh qua Google (Gmail) hoặc Facebook
+   */
+  async loginSocial(provider: 'google' | 'facebook', emailOverride?: string, nameOverride?: string): Promise<DRFResponse<User>> {
+    const email = emailOverride || (provider === 'google' ? 'nguyenthiendoan2@gmail.com' : 'user.facebook@example.com');
+    const name = nameOverride || (provider === 'google' ? 'Nguyễn Thiên Đoan (Gmail)' : 'Khách Hàng Facebook');
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/social/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider,
+          email,
+          name,
+        }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return { data: json.user, status: 200, message: json.message };
+      }
+    } catch {
+      // Fallback
+    }
+
+    await delay(150);
+    const role: Role = email.includes('admin') ? 'ADMIN' : email.includes('florist') || email.includes('staff') ? 'STAFF' : 'CUSTOMER';
+    const user: User = {
+      id: `usr-${Date.now()}`,
+      email,
+      name: role === 'ADMIN' ? 'Lê Quốc Hưng (Admin)' : role === 'STAFF' ? 'Trần Thị Mai (Florist)' : name,
+      role,
+      avatarUrl: provider === 'facebook'
+        ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80'
+        : (role === 'ADMIN'
+            ? 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
+            : role === 'STAFF'
+            ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
+            : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'),
+      phone: '0888208306',
+      savedAddress: '294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM',
+      district: 'Phường Tân Sơn',
+      city: 'TP. Hồ Chí Minh',
+      dateJoined: new Date().toISOString(),
+    };
+    return {
+      data: user,
+      status: 200,
+      message: `Đăng nhập thành công qua ${provider === 'google' ? 'Google' : 'Facebook'}!`,
+    };
+  },
 };
+
 
 
 export const ChatAPI = {
