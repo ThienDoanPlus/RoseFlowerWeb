@@ -9,35 +9,24 @@ import {
   Bell,
   Mail,
   User as UserIcon,
-  FlaskConical,
   Menu,
   X,
-  ArrowRight,
   MapPin,
   Tag,
   Phone,
   Sparkles,
   ShieldCheck,
   LayoutDashboard,
-  UserCheck,
-  ChevronDown,
   Store,
 } from 'lucide-react';
 import { useStore } from '../store';
-import { Role } from '../types';
 
 export const Navbar: React.FC = () => {
   const { state, dispatch, totalQuantity, unreadNotifsCount } = useStore();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
 
   const gmailCount = state.gmailEmails.length;
-
-  const handleRoleSelect = (role: Role) => {
-    dispatch({ type: 'SET_CURRENT_ROLE', payload: role });
-    setIsRoleDropdownOpen(false);
-  };
 
   return (
     <header className="sticky top-0 z-40 bg-[#FFF5F7]/95 backdrop-blur-md border-b border-rose-200/70 transition-all">
@@ -106,28 +95,28 @@ export const Navbar: React.FC = () => {
                 Tra Cứu Đơn
               </button>
 
-              {/* Quick links to Staff & Admin views for pair-programming & evaluation */}
-              <button
-                onClick={() => {
-                  dispatch({ type: 'SET_CURRENT_ROLE', payload: 'STAFF' });
-                  dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' });
-                }}
-                className="px-2.5 py-1 rounded-md text-xs font-semibold text-rose-800 bg-rose-100 hover:bg-rose-200 transition-colors cursor-pointer border border-rose-300"
-                title="Chuyển sang Bảng Kanban của Nhân viên tư vấn & Florist"
-              >
-                Kanban Florist
-              </button>
+              {/* Chỉ hiển thị điều hướng đặc quyền nếu tài khoản đã đăng nhập có vai trò STAFF hoặc ADMIN */}
+              {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') && (
+                <button
+                  onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' })}
+                  className="px-2.5 py-1 rounded-md text-xs font-semibold text-rose-800 bg-rose-100 hover:bg-rose-200 transition-colors cursor-pointer border border-rose-300 flex items-center gap-1.5"
+                  title="Bảng Kanban điều phối hoa của Florist"
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5 text-rose-700" />
+                  <span>Kanban Florist</span>
+                </button>
+              )}
 
-              <button
-                onClick={() => {
-                  dispatch({ type: 'SET_CURRENT_ROLE', payload: 'ADMIN' });
-                  dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' });
-                }}
-                className="px-2.5 py-1 rounded-md text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 transition-colors cursor-pointer border border-amber-300"
-                title="Chuyển sang Bảng điều khiển Quản lý Admin"
-              >
-                Admin Tiệm
-              </button>
+              {state.currentRole === 'ADMIN' && (
+                <button
+                  onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' })}
+                  className="px-2.5 py-1 rounded-md text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 transition-colors cursor-pointer border border-amber-300 flex items-center gap-1.5"
+                  title="Bảng điều khiển Quản lý Admin"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Admin Tiệm</span>
+                </button>
+              )}
             </>
           ) : (
             <div className="flex items-center gap-3">
@@ -157,81 +146,19 @@ export const Navbar: React.FC = () => {
         {/* Zone 3: Actions Cluster */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           
-          {/* RBAC Role Selector Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer shadow-2xs bg-white text-stone-800 border-rose-300 hover:bg-rose-50"
-              title="Chuyển đổi vai trò người dùng (CUSTOMER, STAFF, ADMIN)"
-            >
-              {state.currentRole === 'ADMIN' ? (
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-              ) : state.currentRole === 'STAFF' ? (
-                <UserCheck className="w-3.5 h-3.5 text-rose-600" />
-              ) : (
-                <UserIcon className="w-3.5 h-3.5 text-blue-600" />
-              )}
-              <span className="hidden sm:inline">Role:</span>
-              <span className="font-bold text-rose-900">{state.currentRole}</span>
-              <ChevronDown className="w-3 h-3 text-stone-400" />
-            </button>
-
-            {isRoleDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-stone-200 p-2 z-50 animate-in fade-in slide-in-from-top-2 text-xs">
-                <span className="text-[10px] uppercase font-bold text-stone-400 px-2 py-1 block">
-                  Chọn vai trò trải nghiệm:
-                </span>
-                <button
-                  onClick={() => handleRoleSelect('CUSTOMER')}
-                  className={`w-full text-left p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-between ${
-                    state.currentRole === 'CUSTOMER' ? 'bg-rose-50 text-rose-950 font-bold' : 'hover:bg-stone-50 text-stone-700'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <UserIcon className="w-3.5 h-3.5 text-blue-600" />
-                    Khách Hàng (CUSTOMER)
-                  </span>
-                  {state.currentRole === 'CUSTOMER' && <span className="w-2 h-2 rounded-full bg-rose-600" />}
-                </button>
-
-                <button
-                  onClick={() => handleRoleSelect('STAFF')}
-                  className={`w-full text-left p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-between ${
-                    state.currentRole === 'STAFF' ? 'bg-rose-50 text-rose-950 font-bold' : 'hover:bg-stone-50 text-stone-700'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <UserCheck className="w-3.5 h-3.5 text-rose-600" />
-                    Florist (STAFF)
-                  </span>
-                  {state.currentRole === 'STAFF' && <span className="w-2 h-2 rounded-full bg-rose-600" />}
-                </button>
-
-                <button
-                  onClick={() => handleRoleSelect('ADMIN')}
-                  className={`w-full text-left p-2 rounded-lg transition-colors cursor-pointer flex items-center justify-between ${
-                    state.currentRole === 'ADMIN' ? 'bg-rose-50 text-rose-950 font-bold' : 'hover:bg-stone-50 text-stone-700'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-                    Quản Lý Tiệm (ADMIN)
-                  </span>
-                  {state.currentRole === 'ADMIN' && <span className="w-2 h-2 rounded-full bg-rose-600" />}
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Unit Test Runner Suite Trigger */}
-          <button
-            onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isTestRunnerOpen', isOpen: true } })}
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-stone-700 bg-white hover:bg-stone-100 rounded-lg transition-colors cursor-pointer border border-stone-200 shadow-2xs"
-            title="Quy trình kiểm thử đơn vị tự động (Unit Tests)"
-          >
-            <FlaskConical className="w-3.5 h-3.5 text-emerald-700" />
-            <span className="whitespace-nowrap">Unit Tests</span>
-          </button>
+          {/* Hiển thị vai trò tài khoản nếu là Staff/Admin */}
+          {state.user && state.currentRole === 'ADMIN' && (
+            <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
+              <span>Quản Lý (Admin)</span>
+            </span>
+          )}
+          {state.user && state.currentRole === 'STAFF' && (
+            <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-rose-100 text-rose-900 border border-rose-300">
+              <LayoutDashboard className="w-3.5 h-3.5 text-rose-700" />
+              <span>Florist (Staff)</span>
+            </span>
+          )}
 
           {/* Simulated Gmail Order Confirmation Inbox */}
           <button
@@ -364,44 +291,33 @@ export const Navbar: React.FC = () => {
               <Store className="w-4 h-4 text-rose-700" />
             </button>
 
-            <button
-              onClick={() => {
-                dispatch({ type: 'SET_CURRENT_ROLE', payload: 'STAFF' });
-                dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' });
-                setIsMobileMenuOpen(false);
-              }}
-              className="p-3 hover:bg-rose-50 rounded-xl transition-colors flex items-center justify-between text-left font-semibold text-rose-900"
-            >
-              <span>Bảng Kanban Florist (Staff)</span>
-              <LayoutDashboard className="w-4 h-4 text-rose-700" />
-            </button>
+            {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') && (
+              <button
+                onClick={() => {
+                  dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' });
+                  setIsMobileMenuOpen(false);
+                }}
+                className="p-3 hover:bg-rose-50 rounded-xl transition-colors flex items-center justify-between text-left font-semibold text-rose-900"
+              >
+                <span>Bảng Kanban Florist (Staff)</span>
+                <LayoutDashboard className="w-4 h-4 text-rose-700" />
+              </button>
+            )}
 
-            <button
-              onClick={() => {
-                dispatch({ type: 'SET_CURRENT_ROLE', payload: 'ADMIN' });
-                dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' });
-                setIsMobileMenuOpen(false);
-              }}
-              className="p-3 hover:bg-amber-50 rounded-xl transition-colors flex items-center justify-between text-left font-semibold text-amber-900"
-            >
-              <span>Admin Portal Quản Trị Tiệm</span>
-              <ShieldCheck className="w-4 h-4 text-amber-700" />
-            </button>
-
-            <button
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                dispatch({ type: 'SET_MODAL', payload: { modal: 'isTestRunnerOpen', isOpen: true } });
-              }}
-              className="p-3 hover:bg-rose-50 rounded-xl transition-colors text-left flex items-center justify-between cursor-pointer text-xs font-semibold text-emerald-800"
-            >
-              <span className="flex items-center gap-2">
-                <FlaskConical className="w-4 h-4 text-emerald-700" />
-                Kiểm Thử Đơn Vị Tự Động (Unit Tests)
-              </span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            {state.currentRole === 'ADMIN' && (
+              <button
+                onClick={() => {
+                  dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' });
+                  setIsMobileMenuOpen(false);
+                }}
+                className="p-3 hover:bg-amber-50 rounded-xl transition-colors flex items-center justify-between text-left font-semibold text-amber-900"
+              >
+                <span>Admin Portal Quản Trị Tiệm</span>
+                <ShieldCheck className="w-4 h-4 text-amber-700" />
+              </button>
+            )}
           </div>
+
 
           <div className="pt-3 border-t border-rose-100 flex items-center justify-between text-xs text-stone-600">
             <span>Hotline/Zalo: <strong>0888 208 306</strong></span>

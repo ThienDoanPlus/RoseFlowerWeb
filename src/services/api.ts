@@ -353,23 +353,16 @@ export const FlowerAPI = {
    * POST /api/accounts/google/
    * Xác thực Google OAuth & Nhận thông tin Role từ Backend
    */
-  async loginWithGoogle(emailOverride?: string, roleOverride?: Role): Promise<DRFResponse<User>> {
+  async loginWithGoogle(emailOverride?: string): Promise<DRFResponse<User>> {
     const email = emailOverride || 'nguyenthiendoan2@gmail.com';
-    let role: Role = roleOverride || 'CUSTOMER';
-    if (!roleOverride) {
-      if (email.includes('admin')) role = 'ADMIN';
-      else if (email.includes('staff') || email.includes('florist')) role = 'STAFF';
-    }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/accounts/google/`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/google/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          credential: 'mock-google-token',
           email,
-          name: role === 'ADMIN' ? 'Lê Quốc Hưng (Admin)' : role === 'STAFF' ? 'Trần Thị Mai (Florist)' : 'Nguyễn Thiên Đoan',
-          role,
+          name: email.split('@')[0],
         }),
       });
       if (res.ok) {
@@ -380,13 +373,18 @@ export const FlowerAPI = {
       // Fallback
     }
 
-    await delay(200);
+    await delay(150);
+    const role: Role = email.includes('admin') ? 'ADMIN' : email.includes('florist') || email.includes('staff') ? 'STAFF' : 'CUSTOMER';
     const user: User = {
-      id: 'usr-google-8899',
+      id: `usr-${Date.now()}`,
       email,
       name: role === 'ADMIN' ? 'Lê Quốc Hưng (Admin)' : role === 'STAFF' ? 'Trần Thị Mai (Florist)' : 'Nguyễn Thiên Đoan',
       role,
-      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      avatarUrl: role === 'ADMIN'
+        ? 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80'
+        : role === 'STAFF'
+        ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
+        : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       phone: '0888208306',
       savedAddress: '294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM',
       district: 'Phường Tân Sơn',
@@ -399,7 +397,35 @@ export const FlowerAPI = {
       message: `Đăng nhập thành công với vai trò ${role}!`,
     };
   },
+
+  /**
+   * POST /api/auth/login/
+   * Đăng nhập xác thực tài khoản chuyên nghiệp với Email và Mật khẩu
+   */
+  async login(email: string, password?: string): Promise<DRFResponse<User>> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return { data: json.user, status: 200, message: json.message };
+      } else {
+        const err = await res.json();
+        throw new Error(err.error || 'Đăng nhập không thành công');
+      }
+    } catch (e: any) {
+      if (e.message && !e.message.includes('fetch')) {
+        throw e;
+      }
+      // Offline fallback
+      return this.loginWithGoogle(email);
+    }
+  },
 };
+
 
 export const ChatAPI = {
   /**

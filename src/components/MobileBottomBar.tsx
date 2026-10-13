@@ -16,7 +16,7 @@ export const MobileBottomBar: React.FC = () => {
       className="md:hidden fixed bottom-0 left-0 right-0 z-35 bg-white/95 backdrop-blur-md border-t border-rose-200/80 px-2 py-1.5 shadow-[0_-4px_16px_rgba(0,0,0,0.06)]"
     >
       <div className="grid grid-cols-5 items-center text-center">
-        {/* Home / Storefront */}
+        {/* 1. Home / Storefront */}
         <button
           onClick={() => {
             dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
@@ -30,21 +30,28 @@ export const MobileBottomBar: React.FC = () => {
           <span className="text-[10px] mt-0.5">Cửa Hàng</span>
         </button>
 
-        {/* Staff Kanban Board */}
-        <button
-          onClick={() => {
-            dispatch({ type: 'SET_CURRENT_ROLE', payload: 'STAFF' });
-            dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' });
-          }}
-          className={`flex flex-col items-center justify-center py-1 transition-colors cursor-pointer ${
-            state.activeView === 'staff' ? 'text-rose-900 font-bold' : 'text-stone-600 hover:text-rose-900'
-          }`}
-        >
-          <LayoutDashboard className={`w-5 h-5 ${state.activeView === 'staff' ? 'text-rose-900' : 'text-stone-600'}`} />
-          <span className="text-[10px] mt-0.5">Kanban Florist</span>
-        </button>
+        {/* 2. Slot 2: Staff Kanban (nếu là Staff/Admin) hoặc Danh mục hoa (nếu là Khách) */}
+        {state.currentRole === 'STAFF' || state.currentRole === 'ADMIN' ? (
+          <button
+            onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' })}
+            className={`flex flex-col items-center justify-center py-1 transition-colors cursor-pointer ${
+              state.activeView === 'staff' ? 'text-rose-900 font-bold' : 'text-stone-600 hover:text-rose-900'
+            }`}
+          >
+            <LayoutDashboard className={`w-5 h-5 ${state.activeView === 'staff' ? 'text-rose-900' : 'text-stone-600'}`} />
+            <span className="text-[10px] mt-0.5">Kanban</span>
+          </button>
+        ) : (
+          <a
+            href="#collection"
+            className="flex flex-col items-center justify-center py-1 text-stone-600 hover:text-rose-900 transition-colors"
+          >
+            <Flower2 className="w-5 h-5 text-stone-600" />
+            <span className="text-[10px] mt-0.5">Mẫu Hoa</span>
+          </a>
+        )}
 
-        {/* Shopping Cart Bag */}
+        {/* 3. Shopping Cart Bag */}
         <button
           onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isCartOpen', isOpen: true } })}
           className="flex flex-col items-center justify-center py-1 text-stone-600 hover:text-rose-900 transition-colors relative cursor-pointer"
@@ -60,29 +67,47 @@ export const MobileBottomBar: React.FC = () => {
           <span className="text-[10px] font-medium mt-0.5">Giỏ hàng</span>
         </button>
 
-        {/* Admin Dashboard */}
-        <button
-          onClick={() => {
-            dispatch({ type: 'SET_CURRENT_ROLE', payload: 'ADMIN' });
-            dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' });
-          }}
-          className={`flex flex-col items-center justify-center py-1 transition-colors cursor-pointer ${
-            state.activeView === 'admin' ? 'text-rose-900 font-bold' : 'text-stone-600 hover:text-rose-900'
-          }`}
-        >
-          <ShieldCheck className={`w-5 h-5 ${state.activeView === 'admin' ? 'text-rose-900' : 'text-stone-600'}`} />
-          <span className="text-[10px] mt-0.5">Admin Tiệm</span>
-        </button>
+        {/* 4. Slot 4: Admin Portal (nếu là Admin) hoặc Tư vấn Chatbot */}
+        {state.currentRole === 'ADMIN' ? (
+          <button
+            onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' })}
+            className={`flex flex-col items-center justify-center py-1 transition-colors cursor-pointer ${
+              state.activeView === 'admin' ? 'text-rose-900 font-bold' : 'text-stone-600 hover:text-rose-900'
+            }`}
+          >
+            <ShieldCheck className={`w-5 h-5 ${state.activeView === 'admin' ? 'text-rose-900' : 'text-stone-600'}`} />
+            <span className="text-[10px] mt-0.5">Admin</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isCustomerChatOpen', isOpen: true } })}
+            className="flex flex-col items-center justify-center py-1 text-rose-700 hover:text-rose-900 transition-colors cursor-pointer"
+          >
+            <MessageSquare className="w-5 h-5 text-rose-700" />
+            <span className="text-[10px] font-medium mt-0.5">Tư vấn</span>
+          </button>
+        )}
 
-        {/* Live Chat */}
+        {/* 5. User Account / Login */}
         <button
-          onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isCustomerChatOpen', isOpen: true } })}
-          className="flex flex-col items-center justify-center py-1 text-rose-700 hover:text-rose-900 transition-colors cursor-pointer"
+          onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isAuthOpen', isOpen: true } })}
+          className="flex flex-col items-center justify-center py-1 text-stone-600 hover:text-rose-900 transition-colors cursor-pointer"
         >
-          <MessageSquare className="w-5 h-5 text-rose-700" />
-          <span className="text-[10px] font-medium mt-0.5">Tư vấn</span>
+          {state.user ? (
+            <img
+              src={state.user.avatarUrl}
+              alt={state.user.name}
+              className="w-5 h-5 rounded-full object-cover border border-rose-300"
+            />
+          ) : (
+            <Phone className="w-5 h-5 text-stone-600" />
+          )}
+          <span className="text-[10px] font-medium mt-0.5">
+            {state.user ? (state.currentRole === 'ADMIN' ? 'Admin' : state.currentRole === 'STAFF' ? 'Florist' : 'Tôi') : 'Đăng nhập'}
+          </span>
         </button>
       </div>
+
     </nav>
   );
 };

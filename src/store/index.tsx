@@ -100,7 +100,6 @@ export interface AppState {
   isTrackingOpen: boolean;
   isGmailOpen: boolean;
   isAuthOpen: boolean;
-  isTestRunnerOpen: boolean;
   isZaloOpen: boolean;
   isPrintCardOpen: boolean;
   isStatusUpdaterOpen: boolean;
@@ -464,7 +463,6 @@ const initialState: AppState = {
   isTrackingOpen: false,
   isGmailOpen: false,
   isAuthOpen: false,
-  isTestRunnerOpen: false,
   isZaloOpen: false,
   isPrintCardOpen: false,
   isStatusUpdaterOpen: false,
@@ -474,32 +472,36 @@ const initialState: AppState = {
 function appReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'SET_CURRENT_ROLE': {
-      const nextRole = action.payload;
-      let nextView: AppView = state.activeView;
-      if (nextRole === 'STAFF') nextView = 'staff';
-      else if (nextRole === 'ADMIN') nextView = 'admin';
-      else nextView = 'storefront';
-
-      return {
-        ...state,
-        currentRole: nextRole,
-        activeView: nextView,
-        user: state.user ? { ...state.user, role: nextRole } : state.user,
-        toast: {
-          message: `Đã chuyển sang vai trò: ${
-            nextRole === 'ADMIN'
-              ? 'Quản lý tiệm (ADMIN)'
-              : nextRole === 'STAFF'
-              ? 'Nhân viên tư vấn & Florist (STAFF)'
-              : 'Khách hàng mua hoa (CUSTOMER)'
-          }`,
-          type: 'info',
-        },
-      };
+      // Role is now strictly determined by the logged-in user account.
+      return state;
     }
 
-    case 'SET_ACTIVE_VIEW':
-      return { ...state, activeView: action.payload };
+    case 'SET_ACTIVE_VIEW': {
+      const targetView = action.payload;
+      if (targetView === 'admin' && state.currentRole !== 'ADMIN') {
+        return {
+          ...state,
+          activeView: 'storefront',
+          isAuthOpen: true,
+          toast: {
+            message: 'Khu vực quản trị chỉ dành cho Quản lý (ADMIN). Vui lòng đăng nhập tài khoản Quản trị!',
+            type: 'error',
+          },
+        };
+      }
+      if (targetView === 'staff' && state.currentRole !== 'STAFF' && state.currentRole !== 'ADMIN') {
+        return {
+          ...state,
+          activeView: 'storefront',
+          isAuthOpen: true,
+          toast: {
+            message: 'Bảng Florist chỉ dành cho Nhân viên hoặc Quản lý. Vui lòng đăng nhập tài khoản!',
+            type: 'error',
+          },
+        };
+      }
+      return { ...state, activeView: targetView };
+    }
 
     case 'SET_STAFF_TAB':
       return { ...state, staffActiveTab: action.payload };
@@ -678,11 +680,14 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'SET_CARD_MESSAGE':
       return { ...state, greetingCardMessage: action.payload };
 
-    case 'LOGIN_USER':
+    case 'LOGIN_USER': {
+      const userRole = action.payload.role || 'CUSTOMER';
+      const targetView = userRole === 'ADMIN' ? 'admin' : userRole === 'STAFF' ? 'staff' : 'storefront';
       return {
         ...state,
         user: action.payload,
-        currentRole: action.payload.role || 'CUSTOMER',
+        currentRole: userRole,
+        activeView: targetView,
         isAuthOpen: false,
         deliveryInfo: {
           ...state.deliveryInfo,
@@ -690,8 +695,15 @@ function appReducer(state: AppState, action: Action): AppState {
           recipientName: action.payload.name,
           recipientPhone: action.payload.phone || state.deliveryInfo.recipientPhone,
         },
-        toast: { message: `Xin chào, ${action.payload.name} (${action.payload.role})!`, type: 'success' },
+        toast: {
+          message: `Xin chào, ${action.payload.name}! Bạn đang ở giao diện ${
+            userRole === 'ADMIN' ? 'Quản lý tiệm (Admin)' : userRole === 'STAFF' ? 'Bảng Florist (Staff)' : 'Cửa hàng'
+          }`,
+          type: 'success',
+        },
       };
+    }
+
 
     case 'LOGOUT_USER':
       return {

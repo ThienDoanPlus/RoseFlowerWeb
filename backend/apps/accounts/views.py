@@ -37,6 +37,34 @@ class GoogleAuthView(APIView):
             'role': user.role,
         }, status=status.HTTP_200_OK if not created else status.HTTP_201_CREATED)
 
+class LoginView(APIView):
+    """
+    POST /api/auth/login/
+    Đăng nhập bằng Email & Mật khẩu
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email', '').strip()
+        password = request.data.get('password', '')
+
+        if not email:
+            return Response({'error': 'Vui lòng cung cấp email'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'error': 'Tài khoản không tồn tại trong hệ thống'}, status=status.HTTP_404_NOT_FOUND)
+
+        if password and not user.check_password(password):
+            return Response({'error': 'Mật khẩu không chính xác'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response({
+            'message': f'Đăng nhập thành công với vai trò {user.get_role_display()}!',
+            'user': UserSerializer(user).data,
+            'role': user.role,
+        }, status=status.HTTP_200_OK)
+
 class StaffManagementView(APIView):
     """
     GET, POST, PUT /api/auth/staff-management/
