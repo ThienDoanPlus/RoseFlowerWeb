@@ -404,6 +404,42 @@ const loadStoredUser = (): User | null => {
   return null;
 };
 
+const loadStoredCart = (): CartItem[] => {
+  try {
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem('rose_cart');
+      if (raw) return JSON.parse(raw);
+    }
+  } catch {
+    // ignore
+  }
+  return [];
+};
+
+const loadStoredNotifications = (): PushNotification[] => {
+  try {
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem('rose_notifications');
+      if (raw) return JSON.parse(raw);
+    }
+  } catch {
+    // ignore
+  }
+  return [];
+};
+
+const loadStoredVoucher = (): Voucher | null => {
+  try {
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem('rose_active_voucher');
+      if (raw) return JSON.parse(raw);
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+};
+
 const storedUser = loadStoredUser();
 
 const initialState: AppState = {
@@ -426,19 +462,10 @@ const initialState: AppState = {
   sortBy: 'popular',
   selectedFlower: null,
 
-  cart: [
-    {
-      id: `${FLOWERS[0]?.id || 'rose-189k-flower1'}-standard`,
-      flower: FLOWERS[0],
-      sizeVariant: 'standard',
-      unitPrice: FLOWERS[0]?.salePrice || FLOWERS[0]?.basePrice || 189000,
-      quantity: 1,
-      cardMessage: 'Chúc em một đời an yên và hạnh phúc bên anh!',
-    },
-  ],
+  cart: loadStoredCart(),
   selectedBranch: BRANCHES[0],
   vouchers: VOUCHERS,
-  activeVoucher: VOUCHERS[0], // ROSE10
+  activeVoucher: loadStoredVoucher(),
   greetingCardMessage: 'Chúc em một tuổi mới ngập tràn niềm vui, luôn xinh đẹp và rạng rỡ như những đóa hoa sáp vĩnh cửu!',
   senderName: storedUser?.name || '',
   deliveryDate: new Date().toISOString().split('T')[0],
@@ -463,16 +490,7 @@ const initialState: AppState = {
 
   chatMessages: initialChatMessages,
 
-  notifications: [
-    {
-      id: 'notif-1',
-      title: "Chào mừng bạn đến với Tiệm Hoa Rose Flowers!",
-      message: 'Tặng bạn mã ROSE10 giảm 10% tại cửa hàng 294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM.',
-      timestamp: 'Vừa xong',
-      type: 'promo',
-      read: false,
-    },
-  ],
+  notifications: loadStoredNotifications(),
   toast: null,
 
   gmailEmails: [],
@@ -630,6 +648,14 @@ function appReducer(state: AppState, action: Action): AppState {
         });
       }
 
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rose_cart', JSON.stringify(newCart));
+        }
+      } catch {
+        // ignore
+      }
+
       return {
         ...state,
         cart: newCart,
@@ -640,29 +666,63 @@ function appReducer(state: AppState, action: Action): AppState {
 
     case 'UPDATE_CART_QTY': {
       const { itemId, quantity } = action.payload;
-      if (quantity <= 0) {
-        return {
-          ...state,
-          cart: state.cart.filter((item) => item.id !== itemId),
-        };
+      const newCart =
+        quantity <= 0
+          ? state.cart.filter((item) => item.id !== itemId)
+          : state.cart.map((item) => (item.id === itemId ? { ...item, quantity } : item));
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rose_cart', JSON.stringify(newCart));
+        }
+      } catch {
+        // ignore
       }
       return {
         ...state,
-        cart: state.cart.map((item) => (item.id === itemId ? { ...item, quantity } : item)),
+        cart: newCart,
       };
     }
 
-    case 'REMOVE_FROM_CART':
+    case 'REMOVE_FROM_CART': {
+      const newCart = state.cart.filter((item) => item.id !== action.payload.itemId);
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rose_cart', JSON.stringify(newCart));
+        }
+      } catch {
+        // ignore
+      }
       return {
         ...state,
-        cart: state.cart.filter((item) => item.id !== action.payload.itemId),
+        cart: newCart,
       };
+    }
 
-    case 'CLEAR_CART':
+    case 'CLEAR_CART': {
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('rose_cart');
+        }
+      } catch {
+        // ignore
+      }
       return { ...state, cart: [] };
+    }
 
-    case 'APPLY_VOUCHER':
+    case 'APPLY_VOUCHER': {
+      try {
+        if (typeof window !== 'undefined') {
+          if (action.payload) {
+            localStorage.setItem('rose_active_voucher', JSON.stringify(action.payload));
+          } else {
+            localStorage.removeItem('rose_active_voucher');
+          }
+        }
+      } catch {
+        // ignore
+      }
       return { ...state, activeVoucher: action.payload };
+    }
 
     case 'ADD_VOUCHER':
       return {
@@ -826,12 +886,22 @@ function appReducer(state: AppState, action: Action): AppState {
         isStatusUpdaterOpen: !!action.payload,
       };
 
-    case 'SET_TRACKING_ORDER_ID':
+    case 'SET_TRACKING_ORDER_ID': {
+      if (state.currentRole !== 'STAFF' && state.currentRole !== 'ADMIN') {
+        return {
+          ...state,
+          toast: {
+            message: 'Tính năng tra cứu và điều phối đơn chỉ dành cho tài khoản nhân viên (STAFF).',
+            type: 'info',
+          },
+        };
+      }
       return {
         ...state,
         trackingOrderId: action.payload,
         isTrackingOpen: true,
       };
+    }
 
     case 'SEND_CHAT_MESSAGE':
       return {
@@ -839,17 +909,35 @@ function appReducer(state: AppState, action: Action): AppState {
         chatMessages: [...state.chatMessages, action.payload],
       };
 
-    case 'ADD_PUSH_NOTIFICATION':
+    case 'ADD_PUSH_NOTIFICATION': {
+      const newNotifs = [action.payload, ...state.notifications];
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rose_notifications', JSON.stringify(newNotifs));
+        }
+      } catch {
+        // ignore
+      }
       return {
         ...state,
-        notifications: [action.payload, ...state.notifications],
+        notifications: newNotifs,
       };
+    }
 
-    case 'MARK_NOTIFICATIONS_READ':
+    case 'MARK_NOTIFICATIONS_READ': {
+      const newNotifs = state.notifications.map((n) => ({ ...n, read: true }));
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rose_notifications', JSON.stringify(newNotifs));
+        }
+      } catch {
+        // ignore
+      }
       return {
         ...state,
-        notifications: state.notifications.map((n) => ({ ...n, read: true })),
+        notifications: newNotifs,
       };
+    }
 
     case 'ADD_GMAIL_EMAIL':
       return {

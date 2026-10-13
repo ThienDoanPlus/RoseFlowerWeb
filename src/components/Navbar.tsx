@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   LayoutDashboard,
   Store,
+  Truck,
 } from 'lucide-react';
 import { useStore } from '../store';
 
@@ -79,32 +80,37 @@ export const Navbar: React.FC = () => {
               <a href="#branches" className="hover:text-rose-900 transition-colors whitespace-nowrap">
                 Chi Nhánh 294 Phạm Văn Bạch
               </a>
-              <button
-                onClick={() => {
-                  if (state.orders.length > 0) {
-                    dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: state.orders[0].id });
-                  } else {
-                    dispatch({
-                      type: 'SHOW_TOAST',
-                      payload: { message: 'Chưa có đơn hàng nào cần tra cứu. Hãy chọn bó hoa sáp ưng ý ngay!', type: 'info' },
-                    });
-                  }
-                }}
-                className="hover:text-rose-900 transition-colors whitespace-nowrap cursor-pointer text-stone-700"
-              >
-                Tra Cứu Đơn
-              </button>
 
-              {/* Chỉ hiển thị điều hướng đặc quyền nếu tài khoản đã đăng nhập có vai trò STAFF hoặc ADMIN */}
+              {/* Chỉ hiển thị tra cứu đơn và điều phối nếu tài khoản đã đăng nhập có vai trò STAFF hoặc ADMIN */}
               {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') && (
-                <button
-                  onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' })}
-                  className="px-2.5 py-1 rounded-md text-xs font-semibold text-rose-800 bg-rose-100 hover:bg-rose-200 transition-colors cursor-pointer border border-rose-300 flex items-center gap-1.5"
-                  title="Bảng Kanban điều phối hoa của Florist"
-                >
-                  <LayoutDashboard className="w-3.5 h-3.5 text-rose-700" />
-                  <span>Kanban Florist</span>
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      if (state.orders.length > 0) {
+                        dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: state.orders[0].id });
+                      } else {
+                        dispatch({
+                          type: 'SHOW_TOAST',
+                          payload: { message: 'Chưa có đơn hàng nào cần tra cứu.', type: 'info' },
+                        });
+                      }
+                    }}
+                    className="hover:text-rose-900 transition-colors whitespace-nowrap cursor-pointer text-stone-700 flex items-center gap-1 font-medium"
+                    title="Tra cứu tiến độ đơn hàng nội bộ (Dành cho STAFF)"
+                  >
+                    <Truck className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Tra Cứu Đơn</span>
+                  </button>
+
+                  <button
+                    onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' })}
+                    className="px-2.5 py-1 rounded-md text-xs font-semibold text-rose-800 bg-rose-100 hover:bg-rose-200 transition-colors cursor-pointer border border-rose-300 flex items-center gap-1.5"
+                    title="Bảng Kanban điều phối hoa của Florist"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5 text-rose-700" />
+                    <span>Kanban Florist</span>
+                  </button>
+                </>
               )}
 
               {state.currentRole === 'ADMIN' && (

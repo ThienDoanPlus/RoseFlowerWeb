@@ -183,19 +183,21 @@ export const GmailModal: React.FC = () => {
                       </table>
                     </div>
 
-                    {/* Action link inside email */}
-                    <div className="text-center pt-2">
-                      <button
-                        onClick={() => {
-                          dispatch({ type: 'SET_MODAL', payload: { modal: 'isGmailOpen', isOpen: false } });
-                          dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: selectedEmail.orderId });
-                        }}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        <span>Xem Trực Tuyến Tiến Độ Giao Hoa</span>
-                      </button>
-                    </div>
+                    {/* Action link inside email (Chỉ hiển thị nút điều phối cho STAFF) */}
+                    {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') && (
+                      <div className="text-center pt-2">
+                        <button
+                          onClick={() => {
+                            dispatch({ type: 'SET_MODAL', payload: { modal: 'isGmailOpen', isOpen: false } });
+                            dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: selectedEmail.orderId });
+                          }}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>Điều Phối Tiến Độ Đơn (STAFF)</span>
+                        </button>
+                      </div>
+                    )}
 
                     {/* Footer */}
                     <div className="text-center pt-6 border-t border-rose-200 text-[11px] text-stone-500 space-y-1">

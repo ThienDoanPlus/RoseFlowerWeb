@@ -93,16 +93,27 @@ export const OrderSuccessModal: React.FC = () => {
             <span>Xem email xác nhận gửi về Gmail ({order.deliveryInfo.recipientEmail})</span>
           </button>
 
-          <button
-            onClick={() => {
-              dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } });
-              dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: order.id });
-            }}
-            className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <Navigation className="w-4 h-4" />
-            <span>Theo dõi hành trình đơn hàng thời gian thực</span>
-          </button>
+          {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') ? (
+            <button
+              onClick={() => {
+                dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } });
+                dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: order.id });
+              }}
+              className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Navigation className="w-4 h-4" />
+              <span>Theo dõi tiến độ điều phối đơn (STAFF)</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } });
+              }}
+              className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Tiếp tục dạo xem hoa tươi</span>
+            </button>
+          )}
         </div>
 
       </div>

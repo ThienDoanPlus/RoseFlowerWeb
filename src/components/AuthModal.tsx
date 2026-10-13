@@ -25,6 +25,7 @@ import { useStore } from '../store';
 import { FlowerAPI } from '../services/api';
 
 type AuthTab = 'login' | 'register';
+type SocialProviderView = 'google' | 'facebook' | null;
 
 export const AuthModal: React.FC = () => {
   const { state, dispatch } = useStore();
@@ -48,13 +49,8 @@ export const AuthModal: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Social linking dialog state (when user clicks Google or Facebook)
-  const [socialModal, setSocialModal] = useState<{
-    isOpen: boolean;
-    provider: 'google' | 'facebook';
-    email: string;
-    name: string;
-  } | null>(null);
+  // Social linking view state: 'google' | 'facebook' | null
+  const [socialView, setSocialView] = useState<SocialProviderView>(null);
 
   if (!state.isAuthOpen) return null;
 
@@ -62,7 +58,26 @@ export const AuthModal: React.FC = () => {
     dispatch({ type: 'SET_MODAL', payload: { modal: 'isAuthOpen', isOpen: false } });
     setErrorMessage('');
     setSuccessMessage('');
-    setSocialModal(null);
+    setSocialView(null);
+  };
+
+  const grantWelcomeBonus = () => {
+    const welcomeVoucher = state.vouchers.find((v) => v.code === 'ROSE10') || state.vouchers[0];
+    if (welcomeVoucher) {
+      dispatch({ type: 'APPLY_VOUCHER', payload: welcomeVoucher });
+    }
+
+    dispatch({
+      type: 'ADD_PUSH_NOTIFICATION',
+      payload: {
+        id: `notif-${Date.now()}`,
+        title: '🎉 Chào Bạn Mới Tiệm Hoa Rose!',
+        message: 'Chúc mừng bạn đã gia nhập Rose Flowers. Ưu đãi "Chào Bạn Mới Tiệm Hoa Rose" (Mã: ROSE10) giảm 10% đã được tự động áp dụng cho đơn hàng đầu tiên của bạn!',
+        timestamp: 'Vừa xong',
+        type: 'promo',
+        read: false,
+      },
+    });
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -115,7 +130,11 @@ export const AuthModal: React.FC = () => {
         fullName: fullName.trim(),
         phone: phoneNumber.trim(),
       });
-      setSuccessMessage('Đăng ký tài khoản thành công! Đang chuyển hướng...');
+
+      // Tự động kích hoạt ưu đãi Chào Bạn Mới Tiệm Hoa Rose
+      grantWelcomeBonus();
+
+      setSuccessMessage('Đăng ký tài khoản thành công! Tặng bạn ưu đãi "Chào Bạn Mới Tiệm Hoa Rose" (Mã: ROSE10)!');
       setTimeout(() => {
         dispatch({ type: 'LOGIN_USER', payload: res.data });
       }, 500);
@@ -126,34 +145,19 @@ export const AuthModal: React.FC = () => {
     }
   };
 
-  const handleSocialClick = (provider: 'google' | 'facebook') => {
-    // If the user already filled an email in the active tab, prefill or use it
-    const prefilledEmail = activeTab === 'login' ? loginEmail.trim() : registerEmail.trim();
-    const prefilledName = activeTab === 'register' ? fullName.trim() : '';
-
-    if (prefilledEmail && prefilledEmail.includes('@')) {
-      // Connect directly using the provided email
-      executeSocialAuth(provider, prefilledEmail, prefilledName);
-    } else {
-      // Open the interactive social linking dialog so user can enter or confirm their Gmail / Facebook email
-      setSocialModal({
-        isOpen: true,
-        provider,
-        email: '',
-        name: prefilledName || '',
-      });
-    }
-  };
-
   const executeSocialAuth = async (provider: 'google' | 'facebook', email: string, name?: string) => {
     setIsLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
     try {
       const res = await FlowerAPI.loginSocial(provider, email, name);
+
+      // Kích hoạt ưu đãi chào bạn mới
+      grantWelcomeBonus();
+
       setSuccessMessage(res.message || 'Xác thực thành công!');
       setTimeout(() => {
-        setSocialModal(null);
+        setSocialView(null);
         dispatch({ type: 'LOGIN_USER', payload: res.data });
       }, 400);
     } catch (err: any) {
@@ -169,7 +173,7 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="relative bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-stone-200 overflow-hidden">
+      <div className="relative bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-stone-200 overflow-hidden min-h-[440px]">
         
         {/* Close Button */}
         <button
@@ -293,7 +297,7 @@ export const AuthModal: React.FC = () => {
               <p className="text-xs text-stone-500 max-w-xs mx-auto mt-1">
                 {activeTab === 'login'
                   ? 'Đăng nhập để nhận ưu đãi và trải nghiệm dịch vụ tốt nhất.'
-                  : 'Tạo tài khoản khách hàng để nhận ưu đãi và tích điểm.'}
+                  : 'Tạo tài khoản khách hàng để nhận ngay ưu đãi "Chào Bạn Mới" (ROSE10).'}
               </p>
             </div>
 
@@ -509,13 +513,13 @@ export const AuthModal: React.FC = () => {
                       <span>Đang tạo tài khoản...</span>
                     </>
                   ) : (
-                    <span>Tạo Tài Khoản Khách Hàng</span>
+                    <span>Tạo Tài Khoản Khách Hàng (Nhận ROSE10)</span>
                   )}
                 </button>
               </form>
             )}
 
-            {/* SOCIAL LOGIN / REGISTRATION SECTION */}
+            {/* SOCIAL LOGIN / REGISTRATION BUTTONS */}
             <div className="pt-2">
               <div className="relative my-3">
                 <div className="absolute inset-0 flex items-center">
@@ -523,7 +527,7 @@ export const AuthModal: React.FC = () => {
                 </div>
                 <div className="relative flex justify-center text-[10px] uppercase">
                   <span className="bg-white px-2.5 text-stone-400 font-semibold tracking-wider">
-                    Hoặc liên kết qua
+                    Hoặc liên kết nhanh qua
                   </span>
                 </div>
               </div>
@@ -532,9 +536,9 @@ export const AuthModal: React.FC = () => {
                 {/* Google Button */}
                 <button
                   type="button"
-                  onClick={() => handleSocialClick('google')}
+                  onClick={() => setSocialView('google')}
                   disabled={isLoading}
-                  className="w-full py-2 px-3 border border-stone-300 hover:bg-stone-50 rounded-lg text-xs font-medium text-stone-700 flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                  className="w-full py-2.5 px-3 border border-stone-300 hover:bg-stone-50 rounded-lg text-xs font-medium text-stone-700 flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
                 >
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                     <path
@@ -554,15 +558,15 @@ export const AuthModal: React.FC = () => {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                     />
                   </svg>
-                  <span>Google</span>
+                  <span>Google / Gmail</span>
                 </button>
 
                 {/* Facebook Button */}
                 <button
                   type="button"
-                  onClick={() => handleSocialClick('facebook')}
+                  onClick={() => setSocialView('facebook')}
                   disabled={isLoading}
-                  className="w-full py-2 px-3 border border-stone-300 hover:bg-stone-50 rounded-lg text-xs font-medium text-stone-700 flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                  className="w-full py-2.5 px-3 border border-stone-300 hover:bg-stone-50 rounded-lg text-xs font-medium text-stone-700 flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
                 >
                   <svg className="w-4 h-4 shrink-0 fill-[#1877F2]" viewBox="0 0 24 24">
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -578,116 +582,162 @@ export const AuthModal: React.FC = () => {
           </div>
         )}
 
-        {/* INTERACTIVE SOCIAL AUTH DIALOG OVERLAY */}
-        {socialModal && socialModal.isOpen && (
-          <div className="absolute inset-0 bg-white/95 backdrop-blur-md p-6 flex flex-col justify-center rounded-2xl z-20 animate-in fade-in duration-150">
-            <div className="text-center mb-4">
-              <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-2 shadow-inner">
-                {socialModal.provider === 'google' ? (
-                  <svg className="w-6 h-6" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                    />
-                  </svg>
-                ) : (
-                  <svg className="w-6 h-6 fill-[#1877F2]" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
-                )}
+        {/* GIAO DIỆN LIÊN KẾT GOOGLE / GMAIL */}
+        {socialView === 'google' && (
+          <div className="absolute inset-0 bg-white p-6 flex flex-col justify-between rounded-2xl z-20 animate-in fade-in duration-200">
+            <div>
+              {/* Google Header */}
+              <div className="text-center pt-2 pb-4 border-b border-stone-100">
+                <svg className="w-8 h-8 mx-auto mb-2" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                </svg>
+                <h4 className="font-semibold text-lg text-stone-900">
+                  Đăng nhập bằng Google
+                </h4>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Tiếp tục tới ứng dụng <strong>Rose Flowers</strong>
+                </p>
               </div>
-              <h4 className="font-display font-medium text-lg text-stone-900">
-                Liên kết {socialModal.provider === 'google' ? 'Google / Gmail' : 'Facebook'}
-              </h4>
-              <p className="text-xs text-stone-500 max-w-xs mx-auto mt-1">
-                Nhập hoặc xác nhận tài khoản email để hệ thống liên kết và lưu trữ hồ sơ của bạn.
-              </p>
+
+              {/* Account Card Selection */}
+              <div className="mt-5 space-y-3">
+                <p className="text-xs text-stone-600 font-medium">
+                  Chọn tài khoản liên kết một chạm:
+                </p>
+
+                <div
+                  onClick={() => executeSocialAuth('google', 'customer.google@gmail.com', 'Khách Hàng Google')}
+                  className="p-3 bg-stone-50 hover:bg-stone-100/90 border border-stone-200 rounded-xl flex items-center justify-between cursor-pointer transition-colors shadow-xs group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shadow-xs">
+                      G
+                    </div>
+                    <div className="text-left">
+                      <span className="font-semibold text-xs text-stone-900 block group-hover:text-blue-600 transition-colors">
+                        Tài khoản Google (Gmail)
+                      </span>
+                      <span className="text-[11px] text-stone-500 font-mono block">
+                        customer.google@gmail.com
+                      </span>
+                    </div>
+                  </div>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                </div>
+
+                <div className="p-3 bg-blue-50/70 border border-blue-200/70 rounded-xl text-[11px] text-blue-900 leading-relaxed">
+                  🎁 Sau khi liên kết thành công, hệ thống tự động kích hoạt mã ưu đãi <strong>"Chào Bạn Mới Tiệm Hoa Rose" (ROSE10)</strong> giảm 10% cho bạn!
+                </div>
+              </div>
             </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                executeSocialAuth(socialModal.provider, socialModal.email, socialModal.name);
-              }}
-              className="space-y-3"
-            >
-              <div>
-                <label className="block text-[11px] font-medium text-stone-700 mb-1">
-                  Địa chỉ Email {socialModal.provider === 'google' ? 'Gmail' : 'Facebook'}
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
-                  <input
-                    type="email"
-                    required
-                    value={socialModal.email}
-                    onChange={(e) =>
-                      setSocialModal({ ...socialModal, email: e.target.value })
-                    }
-                    placeholder={
-                      socialModal.provider === 'google'
-                        ? 'name@gmail.com'
-                        : 'name@facebook.com'
-                    }
-                    className="w-full text-xs pl-9 pr-3 py-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
-                  />
+            <div className="space-y-2 pt-4 border-t border-stone-100">
+              <button
+                type="button"
+                onClick={() => executeSocialAuth('google', 'customer.google@gmail.com', 'Khách Hàng Google')}
+                disabled={isLoading}
+                className="w-full py-2.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Đang kết nối Google...</span>
+                  </>
+                ) : (
+                  <span>Tiếp tục với Google</span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSocialView(null)}
+                disabled={isLoading}
+                className="w-full py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                Quay lại
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* GIAO DIỆN LIÊN KẾT FACEBOOK */}
+        {socialView === 'facebook' && (
+          <div className="absolute inset-0 bg-white p-6 flex flex-col justify-between rounded-2xl z-20 animate-in fade-in duration-200">
+            <div>
+              {/* Facebook Header */}
+              <div className="text-center pt-2 pb-4 border-b border-stone-100">
+                <div className="w-12 h-12 bg-[#1877F2] text-white rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
+                  <svg className="w-7 h-7 fill-white" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
                 </div>
+                <h4 className="font-semibold text-lg text-stone-900">
+                  Đăng nhập bằng Facebook
+                </h4>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Đồng bộ hồ sơ thành viên với <strong>Rose Flowers</strong>
+                </p>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-medium text-stone-700 mb-1">
-                  Họ và tên hiển thị
-                </label>
-                <div className="relative">
-                  <UserIcon className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    value={socialModal.name}
-                    onChange={(e) =>
-                      setSocialModal({ ...socialModal, name: e.target.value })
-                    }
-                    placeholder="Nguyễn Thiên Đoan"
-                    className="w-full text-xs pl-9 pr-3 py-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
-                  />
+              {/* Profile Card */}
+              <div className="mt-5 space-y-3">
+                <div
+                  onClick={() => executeSocialAuth('facebook', 'customer.facebook@example.com', 'Khách Hàng Facebook')}
+                  className="p-3 bg-stone-50 hover:bg-stone-100/90 border border-stone-200 rounded-xl flex items-center justify-between cursor-pointer transition-colors shadow-xs group"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80"
+                      alt="Facebook User"
+                      className="w-10 h-10 rounded-full object-cover border-2 border-[#1877F2]"
+                    />
+                    <div className="text-left">
+                      <span className="font-semibold text-xs text-stone-900 block group-hover:text-[#1877F2] transition-colors">
+                        Khách Hàng Facebook
+                      </span>
+                      <span className="text-[11px] text-stone-500 font-mono block">
+                        Đăng nhập một chạm qua Facebook
+                      </span>
+                    </div>
+                  </div>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                </div>
+
+                <div className="p-3 bg-rose-50/70 border border-rose-200/70 rounded-xl text-[11px] text-rose-900 leading-relaxed">
+                  🎉 Tặng ngay ưu đãi <strong>"Chào Bạn Mới Tiệm Hoa Rose" (ROSE10)</strong> giảm 10% tự động áp dụng ngay khi hoàn tất liên kết!
                 </div>
               </div>
+            </div>
 
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setSocialModal(null)}
-                  className="flex-1 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="flex-1 py-2.5 bg-rose-900 hover:bg-rose-800 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Đang kết nối...</span>
-                    </>
-                  ) : (
-                    <span>Xác Nhận & Tiếp Tục</span>
-                  )}
-                </button>
-              </div>
-            </form>
+            <div className="space-y-2 pt-4 border-t border-stone-100">
+              <button
+                type="button"
+                onClick={() => executeSocialAuth('facebook', 'customer.facebook@example.com', 'Khách Hàng Facebook')}
+                disabled={isLoading}
+                className="w-full py-2.5 bg-[#1877F2] hover:bg-[#166fe5] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Đang kết nối Facebook...</span>
+                  </>
+                ) : (
+                  <span>Tiếp tục dưới tên Khách Hàng Facebook</span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSocialView(null)}
+                disabled={isLoading}
+                className="w-full py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                Hủy bỏ
+              </button>
+            </div>
           </div>
         )}
 

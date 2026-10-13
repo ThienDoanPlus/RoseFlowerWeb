@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { X, CheckCircle2, Clock, Truck, Flower2, HeartHandshake, Phone, ArrowRight } from 'lucide-react';
+import { X, CheckCircle2, Clock, Truck, Flower2, HeartHandshake, Phone, ArrowRight, Lock } from 'lucide-react';
 import { useStore } from '../store';
 import { OrderStatus } from '../types';
 import { formatVND } from '../utils/calculations';
@@ -14,7 +14,41 @@ export const OrderTrackingModal: React.FC = () => {
   const orderId = state.trackingOrderId;
   const order = state.orders.find((o) => o.id === orderId) || state.currentOrder;
 
-  if (!state.isTrackingOpen || !order) return null;
+  if (!state.isTrackingOpen) return null;
+
+  const isStaffOrAdmin = state.currentRole === 'STAFF' || state.currentRole === 'ADMIN';
+
+  if (!isStaffOrAdmin) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="relative bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl border border-stone-200">
+          <button
+            onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isTrackingOpen', isOpen: false } })}
+            className="absolute top-4 right-4 p-1.5 text-stone-400 hover:text-stone-900 rounded-full transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center mx-auto mb-3">
+            <Lock className="w-6 h-6" />
+          </div>
+          <h3 className="font-display font-medium text-lg text-stone-900 mb-1">
+            Quyền Truy Cập Dành Riêng Cho STAFF
+          </h3>
+          <p className="text-xs text-stone-500 mb-4">
+            Tính năng tra cứu và điều phối tiến độ đơn hàng nội bộ chỉ dành riêng cho tài khoản có vai trò <strong>Thợ Cắm Hoa / Florist (STAFF)</strong> hoặc Quản lý.
+          </p>
+          <button
+            onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isTrackingOpen', isOpen: false } })}
+            className="w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+          >
+            Đóng bảng tra cứu
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!order) return null;
 
   const steps: { key: OrderStatus; label: string; desc: string; icon: React.ReactNode }[] = [
     {
