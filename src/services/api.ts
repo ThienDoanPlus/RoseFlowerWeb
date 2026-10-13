@@ -406,7 +406,7 @@ export const FlowerAPI = {
    * Xác thực Google OAuth & Nhận thông tin Role từ Backend
    */
   async loginWithGoogle(emailOverride?: string): Promise<DRFResponse<User>> {
-    const email = emailOverride || 'nguyenthiendoan2@gmail.com';
+    const email = emailOverride || 'customer@gmail.com';
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/google/`, {
@@ -506,8 +506,8 @@ export const FlowerAPI = {
    * Đăng nhập hoặc Liên kết tạo tài khoản nhanh qua Google (Gmail) hoặc Facebook
    */
   async loginSocial(provider: 'google' | 'facebook', emailOverride?: string, nameOverride?: string): Promise<DRFResponse<User>> {
-    const email = emailOverride || (provider === 'google' ? 'nguyenthiendoan2@gmail.com' : 'user.facebook@example.com');
-    const name = nameOverride || (provider === 'google' ? 'Nguyễn Thiên Đoan (Gmail)' : 'Khách Hàng Facebook');
+    const email = emailOverride || (provider === 'google' ? 'customer@gmail.com' : 'user.facebook@example.com');
+    const name = nameOverride || (provider === 'google' ? 'Khách Hàng Google' : 'Khách Hàng Facebook');
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/social/`, {

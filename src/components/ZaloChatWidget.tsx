@@ -144,7 +144,7 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
 - **Freeship hỏa tốc** trong bán kính < 3 km (quanh khu vực Phạm Văn Bạch, Tân Sơn, Tân Bình).
 - Khu vực Gò Vấp, Quận 12, Phú Nhuận: Giao 30-45 phút, phí ship chỉ 25.000 ₫.
 - Hotline/Zalo giao nhanh: **0888 208 306**
-- Email: **nguyenthiendoan2@gmail.com**`;
+- Email: **contact@roseflowers.vn**`;
       } else if (q.includes('bảo quản') || q.includes('độ bền') || q.includes('hoa sáp')) {
         botReply = `Dạ hoa sáp thơm Rose có độ bền **3 đến 5 năm**:
 1. Để nơi khô ráo, thoáng mát (tránh tiếp xúc trực tiếp với nước vì cánh làm từ phôi sáp xà phòng tự nhiên).
@@ -161,7 +161,7 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
         botReply = `Dạ bạn có thể liên hệ trực tiếp với tiệm Rose qua:
 - Zalo: **0888208306** (Nhắn tin xem ảnh mẫu hoa thực tế)
 - Hotline: **0888 208 306**
-- Email: **nguyenthiendoan2@gmail.com**
+- Email: **contact@roseflowers.vn**
 - Địa chỉ: **294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM**`;
       }
 
@@ -422,7 +422,7 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
 
                 {/* Email Direct */}
                 <a
-                  href="mailto:nguyenthiendoan2@gmail.com"
+                  href="mailto:contact@roseflowers.vn"
                   className="p-3.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl flex items-center justify-between transition-colors text-xs text-rose-950 group"
                 >
                   <div className="flex items-center gap-3">
@@ -430,7 +430,7 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
                       <Mail className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-bold text-sm block">Email: nguyenthiendoan2@gmail.com</span>
+                      <span className="font-bold text-sm block">Email: contact@roseflowers.vn</span>
                       <span className="text-[11px] text-rose-700">Hỗ trợ doanh nghiệp & đơn hàng số lượng lớn</span>
                     </div>
                   </div>

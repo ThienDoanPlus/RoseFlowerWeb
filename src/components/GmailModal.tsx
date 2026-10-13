@@ -31,7 +31,7 @@ export const GmailModal: React.FC = () => {
                 <span>Google Mail · Hộp thư điện tử</span>
               </h3>
               <p className="text-[11px] text-stone-500 font-mono">
-                {state.user?.email || 'nguyenthiendoan2@gmail.com'}
+                {state.user?.email || 'nguyenvanA@gmail.com'}
               </p>
             </div>
           </div>
@@ -53,7 +53,7 @@ export const GmailModal: React.FC = () => {
               </div>
               <h4 className="text-stone-800 text-sm font-semibold mb-1">Hộp thư Gmail chưa có thư mới</h4>
               <p className="text-xs text-stone-500 max-w-sm mx-auto mb-4">
-                Khi bạn hoàn tất đặt hoa, thư xác nhận điện tử chính thức kèm hóa đơn chi tiết sẽ được tự động gửi đến <strong>nguyenthiendoan2@gmail.com</strong>.
+                Khi bạn hoàn tất đặt hoa, thư xác nhận điện tử chính thức kèm hóa đơn chi tiết sẽ được tự động gửi đến <strong>{state.user?.email || 'email nhận thông báo của bạn'}</strong>.
               </p>
               <button
                 onClick={() => {
@@ -97,7 +97,7 @@ export const GmailModal: React.FC = () => {
                     <div className="flex flex-wrap items-center justify-between text-xs text-stone-500 gap-2">
                       <div className="flex items-center gap-1.5">
                         <span className="font-semibold text-rose-950">Rose Atelier</span>
-                        <span>&lt;nguyenthiendoan2@gmail.com&gt;</span>
+                        <span>&lt;contact@roseflowers.vn&gt;</span>
                       </div>
                       <span>{selectedEmail.date}</span>
                     </div>
@@ -199,7 +199,7 @@ export const GmailModal: React.FC = () => {
 
                     {/* Footer */}
                     <div className="text-center pt-6 border-t border-rose-200 text-[11px] text-stone-500 space-y-1">
-                      <p>Hotline/Zalo 24/7: 0888 208 306 · Email: nguyenthiendoan2@gmail.com</p>
+                      <p>Hotline/Zalo 24/7: 0888 208 306 · Email: contact@roseflowers.vn</p>
                       <p>© 2026 Rose - Tiệm Hoa Sáp Thơm (294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM).</p>
                     </div>
                   </div>

@@ -139,8 +139,8 @@ export const AuthModal: React.FC = () => {
       setSocialModal({
         isOpen: true,
         provider,
-        email: provider === 'google' ? 'nguyenthiendoan2@gmail.com' : 'user.fb@gmail.com',
-        name: prefilledName || (provider === 'google' ? 'Nguyễn Thiên Đoan' : 'Khách Hàng Facebook'),
+        email: '',
+        name: prefilledName || '',
       });
     }
   };
@@ -288,11 +288,11 @@ export const AuthModal: React.FC = () => {
             {/* Header */}
             <div className="text-center pt-1">
               <h3 className="font-display font-medium text-2xl text-stone-900">
-                Tài Khoản Rose Flowers
+                Rose Flowers Xin chào!
               </h3>
               <p className="text-xs text-stone-500 max-w-xs mx-auto mt-1">
                 {activeTab === 'login'
-                  ? 'Đăng nhập để theo dõi đơn hoa hoặc quản lý hệ thống.'
+                  ? 'Đăng nhập để nhận ưu đãi và trải nghiệm dịch vụ tốt nhất.'
                   : 'Tạo tài khoản khách hàng để nhận ưu đãi và tích điểm.'}
               </p>
             </div>
@@ -523,7 +523,7 @@ export const AuthModal: React.FC = () => {
                 </div>
                 <div className="relative flex justify-center text-[10px] uppercase">
                   <span className="bg-white px-2.5 text-stone-400 font-semibold tracking-wider">
-                    Hoặc liên kết nhanh qua
+                    Hoặc liên kết qua
                   </span>
                 </div>
               </div>
@@ -638,8 +638,8 @@ export const AuthModal: React.FC = () => {
                     }
                     placeholder={
                       socialModal.provider === 'google'
-                        ? 'nguyenthiendoan2@gmail.com'
-                        : 'user@facebook.com'
+                        ? 'name@gmail.com'
+                        : 'name@facebook.com'
                     }
                     className="w-full text-xs pl-9 pr-3 py-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
                   />

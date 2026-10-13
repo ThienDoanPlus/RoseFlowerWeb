@@ -156,9 +156,9 @@ export type Action =
   | { type: 'SET_MODAL'; payload: { modal: keyof AppState; isOpen: boolean } };
 
 const initialDeliveryInfo: DeliveryInfo = {
-  recipientName: 'Nguyễn Thiên Đoan',
-  recipientPhone: '0908123456',
-  recipientEmail: 'nguyenthiendoan2@gmail.com',
+  recipientName: '',
+  recipientPhone: '',
+  recipientEmail: '',
   address: '294 Phạm Văn Bạch',
   district: 'Phường Tân Sơn',
   city: 'TP. Hồ Chí Minh',
@@ -167,14 +167,14 @@ const initialDeliveryInfo: DeliveryInfo = {
   deliveryDate: new Date().toISOString().split('T')[0],
   deliveryTimeSlot: 'Giao hỏa tốc 45-60 phút',
   cardMessage: 'Chúc em mãi luôn xinh đẹp, rạng rỡ và hạnh phúc như đóa hoa sáp vĩnh cửu này!',
-  senderName: 'Người gửi ẩn danh',
+  senderName: '',
 };
 
 const initialUsersList: User[] = [
   {
     id: 'usr-8899',
-    name: 'Nguyễn Thiên Đoan',
-    email: 'nguyenthiendoan2@gmail.com',
+    name: 'Nguyễn Văn Nam',
+    email: 'customer@gmail.com',
     role: 'CUSTOMER',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
     phone: '0908123456',
@@ -392,9 +392,23 @@ const initialChatMessages: ChatMessage[] = [
   },
 ];
 
+const loadStoredUser = (): User | null => {
+  try {
+    if (typeof window !== 'undefined') {
+      const raw = localStorage.getItem('rose_auth_user');
+      if (raw) return JSON.parse(raw);
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+};
+
+const storedUser = loadStoredUser();
+
 const initialState: AppState = {
-  currentRole: 'CUSTOMER',
-  activeView: 'storefront',
+  currentRole: storedUser ? storedUser.role : 'CUSTOMER',
+  activeView: storedUser ? (storedUser.role === 'ADMIN' ? 'admin' : storedUser.role === 'STAFF' ? 'staff' : 'storefront') : 'storefront',
   staffActiveTab: 'kanban',
   adminActiveTab: 'overview',
 
@@ -426,12 +440,19 @@ const initialState: AppState = {
   vouchers: VOUCHERS,
   activeVoucher: VOUCHERS[0], // ROSE10
   greetingCardMessage: 'Chúc em một tuổi mới ngập tràn niềm vui, luôn xinh đẹp và rạng rỡ như những đóa hoa sáp vĩnh cửu!',
-  senderName: 'Nguyễn Thiên Đoan',
+  senderName: storedUser?.name || '',
   deliveryDate: new Date().toISOString().split('T')[0],
   deliveryTimeSlot: 'Giao hỏa tốc 45-60 phút',
 
-  deliveryInfo: initialDeliveryInfo,
-  user: initialUsersList[0],
+  deliveryInfo: storedUser
+    ? {
+        ...initialDeliveryInfo,
+        recipientEmail: storedUser.email,
+        recipientName: storedUser.name,
+        recipientPhone: storedUser.phone || '',
+      }
+    : initialDeliveryInfo,
+  user: storedUser,
   usersList: initialUsersList,
 
   orders: initialOrders,
@@ -683,6 +704,13 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'LOGIN_USER': {
       const userRole = action.payload.role || 'CUSTOMER';
       const targetView = userRole === 'ADMIN' ? 'admin' : userRole === 'STAFF' ? 'staff' : 'storefront';
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rose_auth_user', JSON.stringify(action.payload));
+        }
+      } catch {
+        // ignore
+      }
       return {
         ...state,
         user: action.payload,
@@ -704,20 +732,42 @@ function appReducer(state: AppState, action: Action): AppState {
       };
     }
 
-
-    case 'LOGOUT_USER':
+    case 'LOGOUT_USER': {
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('rose_auth_user');
+        }
+      } catch {
+        // ignore
+      }
       return {
         ...state,
         user: null,
         currentRole: 'CUSTOMER',
         activeView: 'storefront',
-        toast: { message: 'Đã đăng xuất tài khoản', type: 'info' },
+        deliveryInfo: {
+          ...state.deliveryInfo,
+          recipientEmail: '',
+          recipientName: '',
+          recipientPhone: '',
+        },
+        toast: { message: 'Đã đăng xuất tài khoản thành công', type: 'info' },
       };
+    }
 
     case 'UPDATE_USER_ROLE': {
       const { userId, role } = action.payload;
       const updatedList = state.usersList.map((u) => (u.id === userId ? { ...u, role } : u));
       const updatedUser = state.user?.id === userId ? { ...state.user, role } : state.user;
+      if (updatedUser && state.user?.id === userId) {
+        try {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('rose_auth_user', JSON.stringify(updatedUser));
+          }
+        } catch {
+          // ignore
+        }
+      }
       return {
         ...state,
         usersList: updatedList,

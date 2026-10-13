@@ -141,7 +141,7 @@ export const CheckoutModal: React.FC = () => {
       type: 'ADD_GMAIL_EMAIL',
       payload: {
         id: `mail-${Date.now()}`,
-        to: recipientEmail || 'nguyenthiendoan2@gmail.com',
+        to: recipientEmail || state.user?.email || 'customer@example.com',
         subject: `[Rose] Xác nhận đặt hoa sáp thành công - Mã đơn #${orderId}`,
         date: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         orderId,
@@ -273,7 +273,7 @@ export const CheckoutModal: React.FC = () => {
                       type="email"
                       value={recipientEmail}
                       onChange={(e) => setRecipientEmail(e.target.value)}
-                      placeholder="nguyenthiendoan2@gmail.com"
+                      placeholder="name@example.com"
                       className="w-full text-xs p-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900"
                     />
                   </div>
