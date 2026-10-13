@@ -19,6 +19,7 @@ import {
   LayoutDashboard,
   Store,
   Truck,
+  Settings,
 } from 'lucide-react';
 import { useStore } from '../store';
 
@@ -242,28 +243,41 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* User Account Button (Google Login) */}
-          <button
-            onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isAuthOpen', isOpen: true } })}
-            className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 text-stone-700 hover:text-stone-950 hover:bg-rose-100/60 rounded-full sm:rounded-lg transition-colors cursor-pointer text-xs font-medium border border-transparent sm:border-rose-200 bg-white"
-            title={state.user ? `Tài khoản: ${state.user.name}` : 'Đăng nhập / Đăng ký tài khoản'}
-          >
-            {state.user ? (
-              <>
-                <img
-                  src={state.user.avatarUrl}
-                  alt={state.user.name}
-                  className="w-6 h-6 rounded-full object-cover border border-rose-300"
-                />
-                <span className="hidden sm:inline font-medium max-w-[90px] truncate">{state.user.name}</span>
-              </>
-            ) : (
-              <>
-                <UserIcon className="w-5 h-5 text-rose-900" />
-                <span className="hidden sm:inline">Đăng nhập</span>
-              </>
+          {/* User Account Button & Quick Settings */}
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            <button
+              onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isAuthOpen', isOpen: true } })}
+              className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 text-stone-700 hover:text-stone-950 hover:bg-rose-100/60 rounded-full sm:rounded-lg transition-colors cursor-pointer text-xs font-medium border border-transparent sm:border-rose-200 bg-white shadow-2xs"
+              title={state.user ? `Tài khoản: ${state.user.name}` : 'Đăng nhập / Đăng ký tài khoản'}
+            >
+              {state.user ? (
+                <>
+                  <img
+                    src={state.user.avatarUrl}
+                    alt={state.user.name}
+                    className="w-6 h-6 rounded-full object-cover border border-rose-300"
+                  />
+                  <span className="hidden sm:inline font-medium max-w-[90px] truncate">{state.user.name}</span>
+                </>
+              ) : (
+                <>
+                  <UserIcon className="w-5 h-5 text-rose-900" />
+                  <span className="hidden sm:inline">Đăng nhập</span>
+                </>
+              )}
+            </button>
+
+            {state.user && (
+              <button
+                onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isAccountSettingsOpen', isOpen: true } })}
+                className="p-1.5 sm:p-2 text-stone-600 hover:text-rose-900 hover:bg-rose-100/70 rounded-full sm:rounded-lg transition-colors cursor-pointer bg-white border border-rose-200 shadow-2xs"
+                title="Cài đặt thông tin tài khoản cá nhân"
+                aria-label="Cài đặt tài khoản"
+              >
+                <Settings className="w-4 h-4 text-stone-700" />
+              </button>
             )}
-          </button>
+          </div>
 
           {/* Shopping Cart Bag (Primary Action) */}
           <button

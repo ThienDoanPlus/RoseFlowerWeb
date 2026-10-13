@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   LogOut,
@@ -20,12 +20,14 @@ import {
   EyeOff,
   AlertCircle,
   Loader2,
+  Settings,
+  Sparkles,
+  Check,
 } from 'lucide-react';
 import { useStore } from '../store';
 import { FlowerAPI } from '../services/api';
 
 type AuthTab = 'login' | 'register';
-type SocialProviderView = 'google' | 'facebook' | null;
 
 export const AuthModal: React.FC = () => {
   const { state, dispatch } = useStore();
@@ -49,8 +51,33 @@ export const AuthModal: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Social linking view state: 'google' | 'facebook' | null
-  const [socialView, setSocialView] = useState<SocialProviderView>(null);
+  // Password criteria checking for registration
+  const regMinLength = registerPassword.length >= 8;
+  const regHasUpper = /[A-Z]/.test(registerPassword);
+  const regHasLower = /[a-z]/.test(registerPassword);
+  const regHasNumber = /[0-9]/.test(registerPassword);
+  const regHasSpecial = /[^A-Za-z0-9]/.test(registerPassword);
+  const isRegPasswordValid = regMinLength && regHasUpper && regHasLower && regHasNumber && regHasSpecial;
+
+  // Phone validation: exactly 10 digits
+  const isPhoneValid = (phone: string) => /^\d{10}$/.test(phone.replace(/[\s\-\.]/g, ''));
+
+  // Listen to postMessage from OAuth popup window
+  useEffect(() => {
+    const handleOAuthMessage = async (event: MessageEvent) => {
+      if (event.data?.type === 'ROSE_OAUTH_SUCCESS') {
+        const { provider, email, name, avatarUrl } = event.data;
+        if (provider && email) {
+          await executeSocialAuth(provider, email, name, avatarUrl);
+        }
+      }
+    };
+
+    window.addEventListener('message', handleOAuthMessage);
+    return () => {
+      window.removeEventListener('message', handleOAuthMessage);
+    };
+  }, []);
 
   if (!state.isAuthOpen) return null;
 
@@ -58,7 +85,6 @@ export const AuthModal: React.FC = () => {
     dispatch({ type: 'SET_MODAL', payload: { modal: 'isAuthOpen', isOpen: false } });
     setErrorMessage('');
     setSuccessMessage('');
-    setSocialView(null);
   };
 
   const grantWelcomeBonus = () => {
@@ -105,13 +131,22 @@ export const AuthModal: React.FC = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!registerEmail.trim() || !registerPassword.trim() || !fullName.trim()) {
-      setErrorMessage('Vui lòng điền họ tên, email và mật khẩu.');
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    if (!registerEmail.trim() || !registerPassword.trim() || !fullName.trim() || !phoneNumber.trim()) {
+      setErrorMessage('Vui lòng điền đầy đủ họ tên, số điện thoại, email và mật khẩu.');
       return;
     }
 
-    if (registerPassword.length < 6) {
-      setErrorMessage('Mật khẩu cần tối thiểu 6 ký tự để đảm bảo an toàn.');
+    const cleanPhone = phoneNumber.replace(/[\s\-\.]/g, '');
+    if (!isPhoneValid(cleanPhone)) {
+      setErrorMessage('Số điện thoại không hợp lệ. Số điện thoại phải bao gồm đúng 10 chữ số (VD: 0901234567).');
+      return;
+    }
+
+    if (!isRegPasswordValid) {
+      setErrorMessage('Mật khẩu chưa đáp ứng tiêu chuẩn an toàn (tối thiểu 8 ký tự và kết hợp đủ 4 nhóm: chữ hoa, chữ thường, số, ký tự đặc biệt).');
       return;
     }
 
@@ -121,14 +156,12 @@ export const AuthModal: React.FC = () => {
     }
 
     setIsLoading(true);
-    setErrorMessage('');
-    setSuccessMessage('');
     try {
       const res = await FlowerAPI.register({
         email: registerEmail.trim(),
         password: registerPassword,
         fullName: fullName.trim(),
-        phone: phoneNumber.trim(),
+        phone: cleanPhone,
       });
 
       // Tự động kích hoạt ưu đãi Chào Bạn Mới Tiệm Hoa Rose
@@ -145,19 +178,51 @@ export const AuthModal: React.FC = () => {
     }
   };
 
-  const executeSocialAuth = async (provider: 'google' | 'facebook', email: string, name?: string) => {
+  const openOAuthPopup = (provider: 'google' | 'facebook') => {
+    setIsLoading(true);
+    setErrorMessage('');
+    const width = 480;
+    const height = 640;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    const popup = window.open(
+      `/oauth-popup.html?provider=${provider}`,
+      `rose_oauth_${provider}`,
+      `width=${width},height=${height},left=${left},top=${top},status=no,toolbar=no,menubar=no`
+    );
+
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      setIsLoading(false);
+      setErrorMessage('Cửa sổ xác thực bị trình duyệt chặn (Popup Blocked). Vui lòng cấp phép mở popup để liên kết.');
+    } else {
+      // Check when popup closes
+      const timer = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(timer);
+          setIsLoading(false);
+        }
+      }, 600);
+    }
+  };
+
+  const executeSocialAuth = async (
+    provider: 'google' | 'facebook',
+    email: string,
+    name?: string,
+    avatarUrl?: string
+  ) => {
     setIsLoading(true);
     setErrorMessage('');
     setSuccessMessage('');
     try {
-      const res = await FlowerAPI.loginSocial(provider, email, name);
+      const res = await FlowerAPI.loginSocial(provider, email, name, avatarUrl);
 
       // Kích hoạt ưu đãi chào bạn mới
       grantWelcomeBonus();
 
-      setSuccessMessage(res.message || 'Xác thực thành công!');
+      setSuccessMessage(res.message || 'Liên kết tài khoản thành công!');
       setTimeout(() => {
-        setSocialView(null);
         dispatch({ type: 'LOGIN_USER', payload: res.data });
       }, 400);
     } catch (err: any) {
@@ -185,7 +250,7 @@ export const AuthModal: React.FC = () => {
 
         {state.user ? (
           /* Profile view */
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div className="text-center">
               <img
                 src={state.user.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
@@ -195,6 +260,12 @@ export const AuthModal: React.FC = () => {
               />
               <h3 className="font-display font-medium text-xl text-stone-900">{state.user.name}</h3>
               <p className="text-xs text-stone-500 font-mono mt-0.5">{state.user.email}</p>
+              {state.user.phone && (
+                <p className="text-xs text-stone-500 mt-0.5 flex items-center justify-center gap-1">
+                  <Phone className="w-3 h-3 text-stone-400" />
+                  <span>{state.user.phone}</span>
+                </p>
+              )}
               
               <div className="mt-3 flex items-center justify-center gap-2">
                 {state.user.role === 'ADMIN' ? (
@@ -210,11 +281,23 @@ export const AuthModal: React.FC = () => {
                 ) : (
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-900 bg-blue-100 px-3 py-1 rounded-full border border-blue-300">
                     <UserIcon className="w-3.5 h-3.5 text-blue-700" />
-                    Khách Hàng (CUSTOMER)
+                    Khách Hàng Thân Thiết (CUSTOMER)
                   </span>
                 )}
               </div>
             </div>
+
+            {/* Chỉnh sửa tài khoản Button */}
+            <button
+              onClick={() => {
+                dispatch({ type: 'SET_MODAL', payload: { modal: 'isAuthOpen', isOpen: false } });
+                dispatch({ type: 'SET_MODAL', payload: { modal: 'isAccountSettingsOpen', isOpen: true } });
+              }}
+              className="w-full py-2.5 px-3 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm active:scale-[0.99]"
+            >
+              <Settings className="w-4 h-4 text-rose-300" />
+              <span>Cài Đặt & Chỉnh Sửa Hồ Sơ Cá Nhân</span>
+            </button>
 
             {/* Role Navigation Shortcuts */}
             <div className="bg-[#FAF8F5] p-3.5 rounded-xl border border-stone-200 text-xs space-y-2">
@@ -280,7 +363,7 @@ export const AuthModal: React.FC = () => {
             {/* Logout button */}
             <button
               onClick={handleLogout}
-              className="w-full py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Đăng xuất tài khoản</span>
@@ -350,21 +433,21 @@ export const AuthModal: React.FC = () => {
               </div>
             )}
 
-            {/* TAB 1: LOGIN FORM */}
+            {/* TAB: LOGIN FORM */}
             {activeTab === 'login' && (
-              <form onSubmit={handleLogin} className="space-y-3 pt-1">
+              <form onSubmit={handleLogin} className="space-y-3">
                 <div>
                   <label className="block text-[11px] font-medium text-stone-700 mb-1">
-                    Email đăng nhập
+                    Địa chỉ Email
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                    <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
                     <input
                       type="email"
                       required
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="name@example.com"
+                      placeholder="ban@example.com"
                       className="w-full text-xs pl-9 pr-3 py-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
                     />
                   </div>
@@ -372,12 +455,10 @@ export const AuthModal: React.FC = () => {
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-[11px] font-medium text-stone-700">
-                      Mật khẩu
-                    </label>
+                    <label className="text-[11px] font-medium text-stone-700">Mật khẩu</label>
                   </div>
                   <div className="relative">
-                    <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                    <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
@@ -389,7 +470,7 @@ export const AuthModal: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-stone-400 hover:text-stone-700 cursor-pointer"
+                      className="absolute right-3 top-2.5 text-stone-400 hover:text-stone-600 cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -399,26 +480,26 @@ export const AuthModal: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-2.5 bg-rose-900 hover:bg-rose-800 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full mt-2 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm"
                 >
                   {isLoading ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Đang xác thực...</span>
+                      <span>Đang đăng nhập...</span>
                     </>
                   ) : (
-                    <span>Đăng Nhập</span>
+                    <span>Đăng Nhập Hệ Thống</span>
                   )}
                 </button>
               </form>
             )}
 
-            {/* TAB 2: REGISTER FORM */}
+            {/* TAB: REGISTER FORM */}
             {activeTab === 'register' && (
-              <form onSubmit={handleRegister} className="space-y-2.5 pt-1">
+              <form onSubmit={handleRegister} className="space-y-3">
                 <div>
-                  <label className="block text-[11px] font-medium text-stone-700 mb-0.5">
-                    Họ và tên
+                  <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                    Họ và tên của bạn
                   </label>
                   <div className="relative">
                     <UserIcon className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
@@ -433,43 +514,51 @@ export const AuthModal: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-[11px] font-medium text-stone-700 mb-0.5">
-                    Email tài khoản
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
-                    <input
-                      type="email"
-                      required
-                      value={registerEmail}
-                      onChange={(e) => setRegisterEmail(e.target.value)}
-                      placeholder="name@example.com"
-                      className="w-full text-xs pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
-                    />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-stone-400 absolute left-2.5 top-2.5" />
+                      <input
+                        type="email"
+                        required
+                        value={registerEmail}
+                        onChange={(e) => setRegisterEmail(e.target.value)}
+                        placeholder="email@example.com"
+                        className="w-full text-xs pl-8 pr-2 py-2 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-[11px] font-medium text-stone-700 mb-0.5">
-                    Số điện thoại
-                  </label>
-                  <div className="relative">
-                    <Phone className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
-                    <input
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="0901 234 567"
-                      className="w-full text-xs pl-9 pr-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
-                    />
+                  <div>
+                    <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                      Số điện thoại (đúng 10 số)
+                    </label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 text-stone-400 absolute left-2.5 top-2.5" />
+                      <input
+                        type="tel"
+                        required
+                        maxLength={10}
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="0901234567"
+                        className={`w-full text-xs pl-8 pr-2 py-2 bg-stone-50 border rounded-lg text-stone-900 focus:outline-none ${
+                          phoneNumber && !isPhoneValid(phoneNumber)
+                            ? 'border-red-400 focus:ring-1 focus:ring-red-500'
+                            : 'border-stone-300 focus:ring-1 focus:ring-rose-800'
+                        }`}
+                      />
+                    </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[11px] font-medium text-stone-700 mb-0.5">
-                      Mật khẩu
+                    <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                      Mật khẩu bảo mật
                     </label>
                     <div className="relative">
                       <Lock className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-2.5" />
@@ -478,15 +567,15 @@ export const AuthModal: React.FC = () => {
                         required
                         value={registerPassword}
                         onChange={(e) => setRegisterPassword(e.target.value)}
-                        placeholder="≥ 6 ký tự"
+                        placeholder="Tối thiểu 8 ký tự"
                         className="w-full text-xs pl-8 pr-2 py-2 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-stone-700 mb-0.5">
-                      Nhập lại mật khẩu
+                    <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                      Xác nhận mật khẩu
                     </label>
                     <div className="relative">
                       <Lock className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-2.5" />
@@ -495,10 +584,36 @@ export const AuthModal: React.FC = () => {
                         required
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Nhập lại"
+                        placeholder="Nhập lại mật khẩu"
                         className="w-full text-xs pl-8 pr-2 py-2 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
                       />
                     </div>
+                  </div>
+                </div>
+
+                {/* Tiêu chuẩn mật khẩu 4 nhóm ký tự trực quan */}
+                <div className="p-2.5 bg-stone-50 rounded-lg border border-stone-200 text-[11px] space-y-1">
+                  <span className="font-semibold text-stone-700 block text-[10px] uppercase tracking-wider">
+                    Tiêu chuẩn an toàn mật khẩu:
+                  </span>
+                  <div className="grid grid-cols-2 gap-1 text-[10px]">
+                    <span className={`flex items-center gap-1 ${regMinLength ? 'text-emerald-700 font-semibold' : 'text-stone-400'}`}>
+                      <Check className="w-3 h-3 shrink-0" /> Độ dài 8 - 12+ ký tự
+                    </span>
+                    <span className={`flex items-center gap-1 ${regHasUpper ? 'text-emerald-700 font-semibold' : 'text-stone-400'}`}>
+                      <Check className="w-3 h-3 shrink-0" /> Chữ in hoa (A-Z)
+                    </span>
+                    <span className={`flex items-center gap-1 ${regHasLower ? 'text-emerald-700 font-semibold' : 'text-stone-400'}`}>
+                      <Check className="w-3 h-3 shrink-0" /> Chữ thường (a-z)
+                    </span>
+                    <span className={`flex items-center gap-1 ${regHasNumber ? 'text-emerald-700 font-semibold' : 'text-stone-400'}`}>
+                      <Check className="w-3 h-3 shrink-0" /> Chữ số (0-9)
+                    </span>
+                  </div>
+                  <div className="pt-0.5">
+                    <span className={`flex items-center gap-1 text-[10px] ${regHasSpecial ? 'text-emerald-700 font-semibold' : 'text-stone-400'}`}>
+                      <Check className="w-3 h-3 shrink-0" /> Ký tự đặc biệt (!@#$%^&*...)
+                    </span>
                   </div>
                 </div>
 
@@ -519,7 +634,7 @@ export const AuthModal: React.FC = () => {
               </form>
             )}
 
-            {/* SOCIAL LOGIN / REGISTRATION BUTTONS */}
+            {/* LIÊN KẾT GOOGLE / FACEBOOK THẬT QUA OAUTH POPUP */}
             <div className="pt-2">
               <div className="relative my-3">
                 <div className="absolute inset-0 flex items-center">
@@ -536,9 +651,10 @@ export const AuthModal: React.FC = () => {
                 {/* Google Button */}
                 <button
                   type="button"
-                  onClick={() => setSocialView('google')}
+                  onClick={() => openOAuthPopup('google')}
                   disabled={isLoading}
                   className="w-full py-2.5 px-3 border border-stone-300 hover:bg-stone-50 rounded-lg text-xs font-medium text-stone-700 flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                  title="Mở cửa sổ liên kết tài khoản Google (Gmail)"
                 >
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                     <path
@@ -564,9 +680,10 @@ export const AuthModal: React.FC = () => {
                 {/* Facebook Button */}
                 <button
                   type="button"
-                  onClick={() => setSocialView('facebook')}
+                  onClick={() => openOAuthPopup('facebook')}
                   disabled={isLoading}
                   className="w-full py-2.5 px-3 border border-stone-300 hover:bg-stone-50 rounded-lg text-xs font-medium text-stone-700 flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                  title="Mở giao diện liên kết tài khoản Facebook"
                 >
                   <svg className="w-4 h-4 shrink-0 fill-[#1877F2]" viewBox="0 0 24 24">
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -579,165 +696,6 @@ export const AuthModal: React.FC = () => {
             <p className="text-[10px] text-stone-400 text-center pt-2">
               Bằng việc đăng ký hoặc đăng nhập, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của Rose Flowers.
             </p>
-          </div>
-        )}
-
-        {/* GIAO DIỆN LIÊN KẾT GOOGLE / GMAIL */}
-        {socialView === 'google' && (
-          <div className="absolute inset-0 bg-white p-6 flex flex-col justify-between rounded-2xl z-20 animate-in fade-in duration-200">
-            <div>
-              {/* Google Header */}
-              <div className="text-center pt-2 pb-4 border-b border-stone-100">
-                <svg className="w-8 h-8 mx-auto mb-2" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                </svg>
-                <h4 className="font-semibold text-lg text-stone-900">
-                  Đăng nhập bằng Google
-                </h4>
-                <p className="text-xs text-stone-500 mt-0.5">
-                  Tiếp tục tới ứng dụng <strong>Rose Flowers</strong>
-                </p>
-              </div>
-
-              {/* Account Card Selection */}
-              <div className="mt-5 space-y-3">
-                <p className="text-xs text-stone-600 font-medium">
-                  Chọn tài khoản liên kết một chạm:
-                </p>
-
-                <div
-                  onClick={() => executeSocialAuth('google', 'customer.google@gmail.com', 'Khách Hàng Google')}
-                  className="p-3 bg-stone-50 hover:bg-stone-100/90 border border-stone-200 rounded-xl flex items-center justify-between cursor-pointer transition-colors shadow-xs group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shadow-xs">
-                      G
-                    </div>
-                    <div className="text-left">
-                      <span className="font-semibold text-xs text-stone-900 block group-hover:text-blue-600 transition-colors">
-                        Tài khoản Google (Gmail)
-                      </span>
-                      <span className="text-[11px] text-stone-500 font-mono block">
-                        customer.google@gmail.com
-                      </span>
-                    </div>
-                  </div>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                </div>
-
-                <div className="p-3 bg-blue-50/70 border border-blue-200/70 rounded-xl text-[11px] text-blue-900 leading-relaxed">
-                  🎁 Sau khi liên kết thành công, hệ thống tự động kích hoạt mã ưu đãi <strong>"Chào Bạn Mới Tiệm Hoa Rose" (ROSE10)</strong> giảm 10% cho bạn!
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2 pt-4 border-t border-stone-100">
-              <button
-                type="button"
-                onClick={() => executeSocialAuth('google', 'customer.google@gmail.com', 'Khách Hàng Google')}
-                disabled={isLoading}
-                className="w-full py-2.5 bg-[#1a73e8] hover:bg-[#1557b0] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-xs"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Đang kết nối Google...</span>
-                  </>
-                ) : (
-                  <span>Tiếp tục với Google</span>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setSocialView(null)}
-                disabled={isLoading}
-                className="w-full py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-              >
-                Quay lại
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* GIAO DIỆN LIÊN KẾT FACEBOOK */}
-        {socialView === 'facebook' && (
-          <div className="absolute inset-0 bg-white p-6 flex flex-col justify-between rounded-2xl z-20 animate-in fade-in duration-200">
-            <div>
-              {/* Facebook Header */}
-              <div className="text-center pt-2 pb-4 border-b border-stone-100">
-                <div className="w-12 h-12 bg-[#1877F2] text-white rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
-                  <svg className="w-7 h-7 fill-white" viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
-                </div>
-                <h4 className="font-semibold text-lg text-stone-900">
-                  Đăng nhập bằng Facebook
-                </h4>
-                <p className="text-xs text-stone-500 mt-0.5">
-                  Đồng bộ hồ sơ thành viên với <strong>Rose Flowers</strong>
-                </p>
-              </div>
-
-              {/* Profile Card */}
-              <div className="mt-5 space-y-3">
-                <div
-                  onClick={() => executeSocialAuth('facebook', 'customer.facebook@example.com', 'Khách Hàng Facebook')}
-                  className="p-3 bg-stone-50 hover:bg-stone-100/90 border border-stone-200 rounded-xl flex items-center justify-between cursor-pointer transition-colors shadow-xs group"
-                >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80"
-                      alt="Facebook User"
-                      className="w-10 h-10 rounded-full object-cover border-2 border-[#1877F2]"
-                    />
-                    <div className="text-left">
-                      <span className="font-semibold text-xs text-stone-900 block group-hover:text-[#1877F2] transition-colors">
-                        Khách Hàng Facebook
-                      </span>
-                      <span className="text-[11px] text-stone-500 font-mono block">
-                        Đăng nhập một chạm qua Facebook
-                      </span>
-                    </div>
-                  </div>
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                </div>
-
-                <div className="p-3 bg-rose-50/70 border border-rose-200/70 rounded-xl text-[11px] text-rose-900 leading-relaxed">
-                  🎉 Tặng ngay ưu đãi <strong>"Chào Bạn Mới Tiệm Hoa Rose" (ROSE10)</strong> giảm 10% tự động áp dụng ngay khi hoàn tất liên kết!
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-2 pt-4 border-t border-stone-100">
-              <button
-                type="button"
-                onClick={() => executeSocialAuth('facebook', 'customer.facebook@example.com', 'Khách Hàng Facebook')}
-                disabled={isLoading}
-                className="w-full py-2.5 bg-[#1877F2] hover:bg-[#166fe5] text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-xs"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Đang kết nối Facebook...</span>
-                  </>
-                ) : (
-                  <span>Tiếp tục dưới tên Khách Hàng Facebook</span>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setSocialView(null)}
-                disabled={isLoading}
-                className="w-full py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-              >
-                Hủy bỏ
-              </button>
-            </div>
           </div>
         )}
 

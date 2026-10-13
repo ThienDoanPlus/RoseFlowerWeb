@@ -47,7 +47,9 @@ def call_groq_api(user_message: str, chat_history: list = None) -> dict:
     Gửi câu hỏi của khách hàng tới Groq Cloud API (mô hình Llama 3.3 70B hoặc Llama 3.1 8B).
     """
     api_key = getattr(settings, 'GROQ_API_KEY', None)
-    model = getattr(settings, 'GROQ_MODEL', 'llama-3.3-70b-versatile')
+    model = getattr(settings, 'GROQ_MODEL', 'qwen/qwen3.8-27b')
+    if not model or model == 'llama-3.3-70b-versatile':
+        model = 'qwen/qwen3.8-27b'
 
     if not api_key:
         return {

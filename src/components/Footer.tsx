@@ -81,7 +81,7 @@ export const Footer: React.FC = () => {
                 Hotline/Zalo: <a href="https://zalo.me/0888208306" target="_blank" rel="noreferrer" className="text-white font-mono hover:underline font-bold">0888 208 306</a>
               </div>
               <div>
-                Email: <a href="mailto:contact@roseflowers.vn" className="text-white font-mono hover:underline">contact@roseflowers.vn</a>
+                Email: <a href="mailto:nguyenthiendoan2@gmail.com" className="text-white font-mono hover:underline">nguyenthiendoan2@gmail.com</a>
               </div>
               <div className="pt-2">
                 <span className="text-[11px] text-rose-400 block mb-1">Phương thức thanh toán bảo mật:</span>

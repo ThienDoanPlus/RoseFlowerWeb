@@ -97,7 +97,7 @@ export const GmailModal: React.FC = () => {
                     <div className="flex flex-wrap items-center justify-between text-xs text-stone-500 gap-2">
                       <div className="flex items-center gap-1.5">
                         <span className="font-semibold text-rose-950">Rose Atelier</span>
-                        <span>&lt;contact@roseflowers.vn&gt;</span>
+                        <span>&lt;nguyenthiendoan2@gmail.com&gt;</span>
                       </div>
                       <span>{selectedEmail.date}</span>
                     </div>
@@ -201,7 +201,7 @@ export const GmailModal: React.FC = () => {
 
                     {/* Footer */}
                     <div className="text-center pt-6 border-t border-rose-200 text-[11px] text-stone-500 space-y-1">
-                      <p>Hotline/Zalo 24/7: 0888 208 306 · Email: contact@roseflowers.vn</p>
+                      <p>Hotline/Zalo 24/7: 0888 208 306 · Email: nguyenthiendoan2@gmail.com</p>
                       <p>© 2026 Rose - Tiệm Hoa Sáp Thơm (294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM).</p>
                     </div>
                   </div>

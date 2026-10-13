@@ -176,3 +176,62 @@ class StaffManagementView(APIView):
             return Response(UserSerializer(target_user).data)
         except User.DoesNotExist:
             return Response({'error': 'Không tìm thấy người dùng'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class ProfileView(APIView):
+    """
+    PUT /api/auth/profile/
+    Cập nhật thông tin cá nhân và mật khẩu
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def put(self, request):
+        from .serializers import ProfileUpdateSerializer
+        serializer = ProfileUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data.get('email', '').strip().lower()
+        user_id = request.data.get('user_id')
+
+        user = None
+        if request.user.is_authenticated:
+            user = request.user
+        elif email:
+            user = User.objects.filter(email=email).first()
+        elif user_id:
+            user = User.objects.filter(id=user_id).first()
+
+        if not user:
+            return Response({'error': 'Không tìm thấy tài khoản người dùng.'}, status=status.HTTP_404_NOT_FOUND)
+
+        data = serializer.validated_data
+
+        # Xử lý đổi mật khẩu
+        new_password = data.get('new_password')
+        if new_password:
+            current_password = data.get('current_password')
+            if user.has_usable_password():
+                if not current_password or not user.check_password(current_password):
+                    return Response({'error': 'Mật khẩu hiện tại không chính xác.'}, status=status.HTTP_400_BAD_REQUEST)
+            user.set_password(new_password)
+
+        if data.get('full_name'):
+            user.full_name = data['full_name'].strip()
+        if 'phone_number' in data:
+            user.phone_number = data['phone_number'].strip()
+        if data.get('avatar_url'):
+            user.avatar_url = data['avatar_url'].strip()
+        if 'saved_address' in data:
+            user.saved_address = data['saved_address'].strip()
+        if 'district' in data:
+            user.district = data['district'].strip()
+        if 'city' in data:
+            user.city = data['city'].strip()
+
+        user.save()
+
+        return Response({
+            'message': 'Cập nhật thông tin tài khoản thành công!',
+            'user': UserSerializer(user).data
+        }, status=status.HTTP_200_OK)
+

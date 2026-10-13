@@ -88,11 +88,11 @@ export const ZaloChatWidget: React.FC = () => {
     if (!textToSend) setInputMsg('');
     setIsTyping(true);
 
-    // 1. Thử gọi Groq AI Assistant từ Backend (Llama 3.3 70B)
+    // 1. Thử gọi Groq AI Assistant từ Backend (Llama / Qwen)
     try {
       const historyPayload = messages.slice(-6).map((m) => ({ sender: m.sender, text: m.text }));
       const aiRes = await ChatAPI.consultAI(query, historyPayload);
-      if (aiRes.reply && aiRes.source === 'groq') {
+      if (aiRes.reply && aiRes.reply.trim().length > 0) {
         const botMsg: ChatMessage = {
           id: `bot-${Date.now()}`,
           sender: 'bot',
@@ -104,17 +104,31 @@ export const ZaloChatWidget: React.FC = () => {
         return;
       }
     } catch {
-      // Fallback nếu offline hoặc chưa cấu hình Groq
+      // Fallback nếu offline
     }
 
     // 2. Fallback sang AI Floral Assistant cục bộ
     setTimeout(() => {
       const q = query.toLowerCase();
-      let botReply = "Dạ mình đã ghi nhận thông tin. Bạn có thể cho mình biết thêm đối tượng nhận hoa (người yêu, mẹ, bạn bè, đối tác) hoặc ngân sách dự kiến để mình gợi ý mẫu hoa sáp phù hợp nhất nhé!";
+      let botReply = "Dạ mình đã ghi nhận thông tin. Bạn có thể cho mình biết thêm đối tượng nhận hoa (người yêu, vợ, mẹ, bạn bè, đối tác) hoặc ngân sách dự kiến để mình gợi ý mẫu hoa sáp phù hợp nhất nhé!";
       let recommended: Flower | undefined = undefined;
       let cardMsgSuggestion: string | undefined = undefined;
 
-      if (q.includes('99 bông') || q.includes('cầu hôn') || q.includes('đại tiệc') || q.includes('đỏ nhung')) {
+      if (q.includes('vợ') || q.includes('người yêu') || q.includes('bạn gái') || q.includes('bà xã') || q.includes('crush') || q.includes('người thương')) {
+        const grandFlower = FLOWERS.find((f) => f.basePrice === 679000) || FLOWERS[0];
+        const romanceFlower = FLOWERS.find((f) => f.basePrice === 359000) || FLOWERS[1];
+        recommended = grandFlower;
+        cardMsgSuggestion = "Gửi người phụ nữ tuyệt vời nhất của anh. Cảm ơn em vì đã luôn đồng hành, thấu hiểu và sưởi ấm gia đình nhỏ của chúng mình. Yêu em nhiều hơn mỗi ngày!";
+        botReply = `Dạ tặng vợ / người yêu thì các thiết kế hoa sáp đỏ nhung sang trọng và tone hồng ngọt ngào là sự lựa chọn số 1 luôn ạ!
+- Mẫu **${grandFlower.name}** (${formatVND(grandFlower.basePrice)}): 99 đóa hồng đỏ nhung đại tiệc tượng trưng cho tình yêu thiên trường địa cửu, cánh dập 5 lớp mềm mại, kèm đèn LED lung linh.
+- Mẫu **${romanceFlower.name}** (${formatVND(romanceFlower.basePrice)}): Thiết kế tinh tế, thơm dịu hương tinh dầu hoa hồng 3-5 năm.
+Tiệm có tặng kèm thiệp thiết kế và viết tay lời chúc ngọt ngào cho bạn nhé! ✨`;
+      } else if (q.includes('mẹ') || q.includes('má') || q.includes('mẹ yêu')) {
+        const momFlower = FLOWERS.find((f) => f.basePrice === 359000) || FLOWERS[0];
+        recommended = momFlower;
+        cardMsgSuggestion = "Kính chúc Mẹ kính yêu luôn mạnh khỏe, bình an và hạnh phúc bên con cháu. Con yêu Mẹ rất nhiều!";
+        botReply = `Dạ tặng Mẹ, Rose gợi ý bạn mẫu **${momFlower.name}** (${formatVND(momFlower.basePrice)}). Hoa sáp giữ độ bền 3-5 năm tượng trưng cho tình mẫu tử thiêng liêng vĩnh cửu.`;
+      } else if (q.includes('99 bông') || q.includes('cầu hôn') || q.includes('đại tiệc') || q.includes('đỏ nhung')) {
         const grandFlower = FLOWERS.find((f) => f.basePrice === 679000) || FLOWERS[0];
         recommended = grandFlower;
         botReply = `Dạ mẫu **${grandFlower.name}** là thiết kế hoa sáp 99 bông đại tiệc đẳng cấp nhất tại 294 Phạm Văn Bạch!
@@ -144,7 +158,7 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
 - **Freeship hỏa tốc** trong bán kính < 3 km (quanh khu vực Phạm Văn Bạch, Tân Sơn, Tân Bình).
 - Khu vực Gò Vấp, Quận 12, Phú Nhuận: Giao 30-45 phút, phí ship chỉ 25.000 ₫.
 - Hotline/Zalo giao nhanh: **0888 208 306**
-- Email: **contact@roseflowers.vn**`;
+- Email: **nguyenthiendoan2@gmail.com**`;
       } else if (q.includes('bảo quản') || q.includes('độ bền') || q.includes('hoa sáp')) {
         botReply = `Dạ hoa sáp thơm Rose có độ bền **3 đến 5 năm**:
 1. Để nơi khô ráo, thoáng mát (tránh tiếp xúc trực tiếp với nước vì cánh làm từ phôi sáp xà phòng tự nhiên).
@@ -161,7 +175,7 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
         botReply = `Dạ bạn có thể liên hệ trực tiếp với tiệm Rose qua:
 - Zalo: **0888208306** (Nhắn tin xem ảnh mẫu hoa thực tế)
 - Hotline: **0888 208 306**
-- Email: **contact@roseflowers.vn**
+- Email: **nguyenthiendoan2@gmail.com**
 - Địa chỉ: **294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM**`;
       }
 
@@ -422,7 +436,7 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
 
                 {/* Email Direct */}
                 <a
-                  href="mailto:contact@roseflowers.vn"
+                  href="mailto:nguyenthiendoan2@gmail.com"
                   className="p-3.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl flex items-center justify-between transition-colors text-xs text-rose-950 group"
                 >
                   <div className="flex items-center gap-3">
@@ -430,7 +444,7 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
                       <Mail className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="font-bold text-sm block">Email: contact@roseflowers.vn</span>
+                      <span className="font-bold text-sm block">Email: nguyenthiendoan2@gmail.com</span>
                       <span className="text-[11px] text-rose-700">Hỗ trợ doanh nghiệp & đơn hàng số lượng lớn</span>
                     </div>
                   </div>

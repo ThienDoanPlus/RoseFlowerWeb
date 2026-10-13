@@ -505,7 +505,12 @@ export const FlowerAPI = {
    * POST /api/auth/social/
    * Đăng nhập hoặc Liên kết tạo tài khoản nhanh qua Google (Gmail) hoặc Facebook
    */
-  async loginSocial(provider: 'google' | 'facebook', emailOverride?: string, nameOverride?: string): Promise<DRFResponse<User>> {
+  async loginSocial(
+    provider: 'google' | 'facebook',
+    emailOverride?: string,
+    nameOverride?: string,
+    avatarUrlOverride?: string
+  ): Promise<DRFResponse<User>> {
     const email = emailOverride || (provider === 'google' ? 'customer@gmail.com' : 'user.facebook@example.com');
     const name = nameOverride || (provider === 'google' ? 'Khách Hàng Google' : 'Khách Hàng Facebook');
 
@@ -517,6 +522,7 @@ export const FlowerAPI = {
           provider,
           email,
           name,
+          avatar_url: avatarUrlOverride,
         }),
       });
       if (res.ok) {
@@ -551,6 +557,76 @@ export const FlowerAPI = {
       data: user,
       status: 200,
       message: `Đăng nhập thành công qua ${provider === 'google' ? 'Google' : 'Facebook'}!`,
+    };
+  },
+
+  /**
+   * PUT /api/auth/profile/
+   * Cập nhật thông tin cá nhân hoặc đổi mật khẩu
+   */
+  async updateProfile(params: {
+    userId?: string;
+    email?: string;
+    fullName?: string;
+    phoneNumber?: string;
+    avatarUrl?: string;
+    savedAddress?: string;
+    district?: string;
+    city?: string;
+    currentPassword?: string;
+    newPassword?: string;
+  }): Promise<DRFResponse<User>> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/profile/`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: params.userId,
+          email: params.email,
+          full_name: params.fullName,
+          phone_number: params.phoneNumber,
+          avatar_url: params.avatarUrl,
+          saved_address: params.savedAddress,
+          district: params.district,
+          city: params.city,
+          current_password: params.currentPassword,
+          new_password: params.newPassword,
+        }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return { data: json.user, status: 200, message: json.message };
+      } else {
+        const err = await res.json();
+        const errVal = typeof err === 'object' ? Object.values(err)[0] : err;
+        const msg = Array.isArray(errVal) ? errVal[0] : (typeof errVal === 'string' ? errVal : 'Cập nhật thông tin không thành công');
+        throw new Error(msg);
+      }
+    } catch (e: any) {
+      if (e.message && !e.message.includes('fetch')) {
+        throw e;
+      }
+    }
+
+    await delay(150);
+    const existingRaw = localStorage.getItem('rose_auth_user');
+    const existingUser = existingRaw ? JSON.parse(existingRaw) : null;
+    const updatedUser: User = {
+      id: params.userId || existingUser?.id || `usr-${Date.now()}`,
+      email: params.email || existingUser?.email || 'user@example.com',
+      name: params.fullName || existingUser?.name || 'Khách Hàng',
+      role: existingUser?.role || 'CUSTOMER',
+      avatarUrl: params.avatarUrl || existingUser?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      phone: params.phoneNumber || existingUser?.phone || '',
+      savedAddress: params.savedAddress || existingUser?.savedAddress || '',
+      district: params.district || existingUser?.district || '',
+      city: params.city || existingUser?.city || '',
+      dateJoined: existingUser?.dateJoined || new Date().toISOString(),
+    };
+    return {
+      data: updatedUser,
+      status: 200,
+      message: 'Cập nhật thông tin tài khoản thành công!',
     };
   },
 };

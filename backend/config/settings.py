@@ -11,7 +11,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from .env if present
 try:
     from dotenv import load_dotenv
-    load_dotenv(BASE_DIR / '.env')
+    load_dotenv(BASE_DIR / '.env', override=True)
+    load_dotenv(BASE_DIR.parent / '.env', override=True)
 except ImportError:
     pass
 
@@ -172,5 +173,5 @@ if CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET:
 
 # Groq AI Assistant Configuration
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '').strip()
-GROQ_MODEL = os.environ.get('GROQ_MODEL', 'llama-3.3-70b-versatile').strip()
+GROQ_MODEL = os.environ.get('GROQ_MODEL', 'qwen/qwen3.8-27b').strip()
 

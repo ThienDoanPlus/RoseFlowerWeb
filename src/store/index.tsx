@@ -104,6 +104,7 @@ export interface AppState {
   isPrintCardOpen: boolean;
   isStatusUpdaterOpen: boolean;
   isCustomerChatOpen: boolean;
+  isAccountSettingsOpen: boolean;
 }
 
 export type Action =
@@ -140,6 +141,7 @@ export type Action =
   | { type: 'SET_CARD_MESSAGE'; payload: string }
   | { type: 'LOGIN_USER'; payload: User }
   | { type: 'LOGOUT_USER' }
+  | { type: 'UPDATE_USER_PROFILE'; payload: Partial<User> }
   | { type: 'UPDATE_USER_ROLE'; payload: { userId: string; role: Role } }
   | { type: 'CREATE_ORDER'; payload: Order }
   | { type: 'UPDATE_ORDER_STATUS'; payload: { orderId: string; status: OrderStatus; floristNotes?: string; assignedStaffName?: string } }
@@ -506,6 +508,7 @@ const initialState: AppState = {
   isPrintCardOpen: false,
   isStatusUpdaterOpen: false,
   isCustomerChatOpen: false,
+  isAccountSettingsOpen: false,
 };
 
 function appReducer(state: AppState, action: Action): AppState {
@@ -812,6 +815,29 @@ function appReducer(state: AppState, action: Action): AppState {
           recipientPhone: '',
         },
         toast: { message: 'Đã đăng xuất tài khoản thành công', type: 'info' },
+      };
+    }
+
+    case 'UPDATE_USER_PROFILE': {
+      if (!state.user) return state;
+      const updatedUser: User = { ...state.user, ...action.payload };
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rose_auth_user', JSON.stringify(updatedUser));
+        }
+      } catch {
+        // ignore
+      }
+      return {
+        ...state,
+        user: updatedUser,
+        deliveryInfo: {
+          ...state.deliveryInfo,
+          recipientName: updatedUser.name || state.deliveryInfo.recipientName,
+          recipientPhone: updatedUser.phone || state.deliveryInfo.recipientPhone,
+          recipientEmail: updatedUser.email || state.deliveryInfo.recipientEmail,
+        },
+        toast: { message: 'Đã cập nhật thông tin tài khoản thành công!', type: 'success' },
       };
     }
 

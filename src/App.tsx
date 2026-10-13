@@ -20,6 +20,7 @@ import { OrderSuccessModal } from './components/OrderSuccessModal';
 import { OrderTrackingModal } from './components/OrderTrackingModal';
 import { GmailModal } from './components/GmailModal';
 import { AuthModal } from './components/AuthModal';
+import { AccountSettingsModal } from './components/AccountSettingsModal';
 import { ZaloChatWidget } from './components/ZaloChatWidget';
 import { AutoTopButton } from './components/AutoTopButton';
 import { MobileBottomBar } from './components/MobileBottomBar';
@@ -83,6 +84,7 @@ function AppContent() {
       <OrderTrackingModal />
       <GmailModal />
       <AuthModal />
+      <AccountSettingsModal />
       <ZaloChatWidget />
       <AutoTopButton />
       <Toast />
