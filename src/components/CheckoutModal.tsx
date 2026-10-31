@@ -412,7 +412,7 @@ export const CheckoutModal: React.FC = () => {
               
               <div>
                 <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider mb-3">
-                  Chọn phương thức thanh toán trực tuyến tại Việt Nam:
+                  Chọn phương thức thanh toán:
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
@@ -421,7 +421,7 @@ export const CheckoutModal: React.FC = () => {
                   <label
                     className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
                       paymentMethod === 'VIETQR'
-                        ? 'border-blue-600 bg-blue-50/40 ring-1 ring-blue-600'
+                        ? 'border-emerald-600 bg-emerald-50/50 ring-1 ring-emerald-600'
                         : 'border-stone-200 hover:border-stone-300 bg-white'
                     }`}
                   >
@@ -431,7 +431,7 @@ export const CheckoutModal: React.FC = () => {
                       value="VIETQR"
                       checked={paymentMethod === 'VIETQR'}
                       onChange={() => setPaymentMethod('VIETQR')}
-                      className="mt-1 text-blue-600"
+                      className="mt-1 text-emerald-600"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -445,90 +445,9 @@ export const CheckoutModal: React.FC = () => {
                     </div>
                   </label>
 
-                  {/* MoMo */}
-                  <label
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
-                      paymentMethod === 'MOMO'
-                        ? 'border-pink-600 bg-pink-50/40 ring-1 ring-pink-600'
-                        : 'border-stone-200 hover:border-stone-300 bg-white'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="MOMO"
-                      checked={paymentMethod === 'MOMO'}
-                      onChange={() => setPaymentMethod('MOMO')}
-                      className="mt-1 text-pink-600"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Wallet className="w-4 h-4 text-pink-700" />
-                        <span className="text-xs font-bold text-stone-900">Ví MoMo</span>
-                      </div>
-                      <p className="text-[11px] text-stone-600 mt-1">
-                        Thanh toán qua mã QR MoMo hoặc ứng dụng MoMo trên điện thoại.
-                      </p>
-                    </div>
-                  </label>
-
-                  {/* VNPay */}
-                  <label
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
-                      paymentMethod === 'VNPAY'
-                        ? 'border-red-600 bg-red-50/40 ring-1 ring-red-600'
-                        : 'border-stone-200 hover:border-stone-300 bg-white'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="VNPAY"
-                      checked={paymentMethod === 'VNPAY'}
-                      onChange={() => setPaymentMethod('VNPAY')}
-                      className="mt-1 text-red-600"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="w-4 h-4 text-red-700" />
-                        <span className="text-xs font-bold text-stone-900">Cổng VNPay</span>
-                      </div>
-                      <p className="text-[11px] text-stone-600 mt-1">
-                        Quét VNPay-QR hoặc thanh toán bằng thẻ ATM nội địa 40+ ngân hàng.
-                      </p>
-                    </div>
-                  </label>
-
-                  {/* ZaloPay */}
-                  <label
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
-                      paymentMethod === 'ZALOPAY'
-                        ? 'border-cyan-600 bg-cyan-50/40 ring-1 ring-cyan-600'
-                        : 'border-stone-200 hover:border-stone-300 bg-white'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="ZALOPAY"
-                      checked={paymentMethod === 'ZALOPAY'}
-                      onChange={() => setPaymentMethod('ZALOPAY')}
-                      className="mt-1 text-cyan-600"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Wallet className="w-4 h-4 text-cyan-700" />
-                        <span className="text-xs font-bold text-stone-900">Ví ZaloPay</span>
-                      </div>
-                      <p className="text-[11px] text-stone-600 mt-1">
-                        Thanh toán bảo mật trong ứng dụng Zalo hoặc ZaloPay.
-                      </p>
-                    </div>
-                  </label>
-
                   {/* COD */}
                   <label
-                    className={`sm:col-span-2 p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
+                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
                       paymentMethod === 'COD'
                         ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-900'
                         : 'border-stone-200 hover:border-stone-300 bg-white'
@@ -548,7 +467,7 @@ export const CheckoutModal: React.FC = () => {
                         <span className="text-xs font-bold text-stone-900">Thanh toán khi nhận hoa (COD)</span>
                       </div>
                       <p className="text-[11px] text-stone-600 mt-1">
-                        Kiểm tra độ tươi của hoa trực tiếp với nhân viên giao hàng trước khi thanh toán tiền mặt.
+                        Kiểm tra hoa trực tiếp với nhân viên giao hàng trước khi thanh toán tiền mặt.
                       </p>
                     </div>
                   </label>

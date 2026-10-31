@@ -190,7 +190,7 @@ export const AdminDashboard: React.FC = () => {
                     Cơ Cấu Phương Thức Thanh Toán Việt Nam
                   </h3>
                   <p className="text-xs text-stone-500">
-                    Tỷ trọng các kênh: VietQR Napas, MoMo, VNPay, COD
+                    Tỷ trọng các kênh: VietQR Napas (Vietcombank) & COD
                   </p>
                 </div>
                 <CreditCard className="w-5 h-5 text-rose-800" />
@@ -199,8 +199,6 @@ export const AdminDashboard: React.FC = () => {
               <div className="space-y-3 pt-2">
                 {[
                   { key: 'VIETQR', label: 'VietQR (Napas 24/7 Vietcombank)', color: 'bg-emerald-500' },
-                  { key: 'MOMO', label: 'Cổng Ví MoMo QR', color: 'bg-pink-500' },
-                  { key: 'VNPAY', label: 'Cổng VNPay QR / ATM Nội Địa', color: 'bg-blue-500' },
                   { key: 'COD', label: 'Thanh toán khi nhận hàng (COD)', color: 'bg-amber-500' },
                 ].map((item) => {
                   const amount = paymentMethodCounts[item.key] || 0;

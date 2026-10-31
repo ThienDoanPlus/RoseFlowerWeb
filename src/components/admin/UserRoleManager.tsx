@@ -73,7 +73,7 @@ export const UserRoleManager: React.FC = () => {
             <ul className="space-y-1 text-stone-600 text-[11px]">
               <li>✓ Xem hoa, tìm kiếm, lọc theo dịp tặng</li>
               <li>✓ Giỏ hàng, áp mã giảm giá ngày lễ</li>
-              <li>✓ Chọn vị trí Maps, thanh toán VietQR / MoMo</li>
+              <li>✓ Chọn vị trí Maps, thanh toán VietQR / COD</li>
               <li>✓ Tra cứu đơn thời gian thực & đánh giá</li>
               <li className="text-red-600">✗ Không có quyền truy cập Staff & Admin</li>
             </ul>

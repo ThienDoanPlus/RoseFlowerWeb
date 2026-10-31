@@ -86,11 +86,8 @@ export const Footer: React.FC = () => {
               <div className="pt-2">
                 <span className="text-[11px] text-rose-400 block mb-1">Phương thức thanh toán bảo mật:</span>
                 <div className="flex flex-wrap gap-1.5 text-[10px] font-mono text-white">
-                  <span className="bg-rose-900 px-2 py-0.5 rounded border border-rose-800">VietQR</span>
-                  <span className="bg-rose-900 px-2 py-0.5 rounded border border-rose-800">MoMo</span>
-                  <span className="bg-rose-900 px-2 py-0.5 rounded border border-rose-800">VNPay</span>
-                  <span className="bg-rose-900 px-2 py-0.5 rounded border border-rose-800">ZaloPay</span>
-                  <span className="bg-rose-900 px-2 py-0.5 rounded border border-rose-800">COD</span>
+                  <span className="bg-rose-900 px-2 py-0.5 rounded border border-rose-800">VietQR (Napas 24/7)</span>
+                  <span className="bg-rose-900 px-2 py-0.5 rounded border border-rose-800">Tiền mặt (COD)</span>
                 </div>
               </div>
             </div>
