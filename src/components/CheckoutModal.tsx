@@ -14,11 +14,13 @@ import {
   Lock,
   ArrowRight,
   ShieldCheck,
-  Tag,
   Copy,
   AlertCircle,
   Clock,
   Sparkles,
+  Check,
+  Maximize2,
+  Download,
 } from 'lucide-react';
 import { useStore } from '../store';
 import { PaymentMethod, Order } from '../types';
@@ -40,10 +42,25 @@ export const CheckoutModal: React.FC = () => {
   const [cardMessage, setCardMessage] = useState(state.greetingCardMessage);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('VIETQR');
 
+  // VietQR interactive states
+  const [qrMode, setQrMode] = useState<'card' | 'dynamic'>('card');
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isZoomQrOpen, setIsZoomQrOpen] = useState(false);
+
   // Payment processing state
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStatus, setProcessingStatus] = useState('');
   const [activeTab, setActiveTab] = useState<'info' | 'payment'>('info');
+
+  const handleCopy = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    dispatch({
+      type: 'SHOW_TOAST',
+      payload: { message: `Đã sao chép: ${text}`, type: 'success' },
+    });
+    setTimeout(() => setCopiedField(null), 2500);
+  };
 
   if (!state.isCheckoutOpen) return null;
 
@@ -418,12 +435,12 @@ export const CheckoutModal: React.FC = () => {
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <QrCode className="w-4 h-4 text-blue-700" />
+                        <QrCode className="w-4 h-4 text-emerald-700" />
                         <span className="text-xs font-bold text-stone-900">VietQR (Napas 24/7)</span>
                         <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-100 px-1.5 py-0.2 rounded">Khuyên dùng</span>
                       </div>
                       <p className="text-[11px] text-stone-600 mt-1">
-                        Quét mã QR tự động điền STK MBBank và đúng số tiền {formatVND(finalTotal)}. Xác nhận trong 5 giây.
+                        Quét mã VietQR chuyển khoản nhanh Napas 24/7 tới Vietcombank (1027210627 - NGUYEN THIEN DOAN). Xác nhận tự động.
                       </p>
                     </div>
                   </label>
@@ -540,31 +557,241 @@ export const CheckoutModal: React.FC = () => {
 
                 {/* VietQR Live Dynamic Preview */}
                 {paymentMethod === 'VIETQR' && (
-                  <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-200 flex flex-col sm:flex-row items-center gap-5">
-                    <div className="w-36 h-36 bg-white p-2 rounded-lg border border-blue-200 shadow-xs flex items-center justify-center shrink-0">
-                      <img
-                        src={vietQRConfig.qrImageUrl}
-                        alt="Mã VietQR"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-contain"
-                      />
+                  <div className="p-4 sm:p-5 bg-gradient-to-br from-emerald-50/70 via-blue-50/40 to-white rounded-2xl border border-emerald-200/90 shadow-xs space-y-4">
+                    {/* Header with Vietcombank & Napas 24/7 branding */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-emerald-100">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                          VCB
+                        </div>
+                        <div>
+                          <h5 className="font-semibold text-emerald-950 text-sm flex items-center gap-1.5">
+                            <span>Thanh Toán VietQR (Napas 24/7)</span>
+                            <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-200">
+                              Xác nhận tức thì
+                            </span>
+                          </h5>
+                          <p className="text-[11px] text-stone-600">
+                            {vietQRConfig.bankName} · <strong>{vietQRConfig.branch}</strong>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Mode switcher tabs */}
+                      <div className="inline-flex p-1 bg-stone-100/90 rounded-lg text-[11px] font-medium border border-stone-200/60">
+                        <button
+                          type="button"
+                          onClick={() => setQrMode('card')}
+                          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                            qrMode === 'card'
+                              ? 'bg-white text-emerald-900 font-bold shadow-2xs'
+                              : 'text-stone-600 hover:text-stone-900'
+                          }`}
+                        >
+                          Thẻ QR Chính Thức
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setQrMode('dynamic')}
+                          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                            qrMode === 'dynamic'
+                              ? 'bg-white text-emerald-900 font-bold shadow-2xs'
+                              : 'text-stone-600 hover:text-stone-900'
+                          }`}
+                        >
+                          Mã QR Tự Điền Tiền
+                        </button>
+                      </div>
                     </div>
-                    <div className="space-y-1.5 text-xs text-stone-700 flex-1">
-                      <p className="font-semibold text-blue-900 text-sm">Chuyển khoản nhanh Napas 24/7</p>
-                      <div>
-                        Ngân hàng: <strong>{vietQRConfig.bankName}</strong>
+
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                      {/* QR Display Card */}
+                      <div className="flex flex-col items-center shrink-0">
+                        <div className="relative group p-2 bg-white rounded-xl border-2 border-emerald-300 shadow-sm overflow-hidden max-w-[215px] sm:max-w-[230px]">
+                          {qrMode === 'card' ? (
+                            <img
+                              src={vietQRConfig.staticQrUrl}
+                              alt="Thẻ VietQR NGUYEN THIEN DOAN"
+                              className="w-48 sm:w-52 h-auto object-contain rounded-lg transition-transform group-hover:scale-102"
+                            />
+                          ) : (
+                            <div className="w-48 h-48 sm:w-52 sm:h-52 bg-white flex items-center justify-center p-1">
+                              <img
+                                src={vietQRConfig.qrImageUrl}
+                                alt="Mã VietQR tự động điền tiền"
+                                referrerPolicy="no-referrer"
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          )}
+
+                          {/* Hover action overlay */}
+                          <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setIsZoomQrOpen(true)}
+                              className="px-3 py-1.5 bg-white text-stone-900 rounded-lg shadow-md text-xs font-semibold flex items-center gap-1.5 cursor-pointer hover:bg-stone-50"
+                              title="Phóng to mã QR"
+                            >
+                              <Maximize2 className="w-3.5 h-3.5" />
+                              <span>Phóng to</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="mt-2.5 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setIsZoomQrOpen(true)}
+                            className="text-[11px] text-emerald-800 hover:text-emerald-950 font-semibold flex items-center gap-1 cursor-pointer hover:underline"
+                          >
+                            <Maximize2 className="w-3 h-3" />
+                            <span>Xem phóng to</span>
+                          </button>
+                          <span className="text-stone-300">·</span>
+                          <a
+                            href={qrMode === 'card' ? vietQRConfig.staticQrUrl : vietQRConfig.qrImageUrl}
+                            download="vietqr-rose-flowers.png"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[11px] text-stone-600 hover:text-stone-900 font-medium flex items-center gap-1 hover:underline"
+                          >
+                            <Download className="w-3 h-3" />
+                            <span>Tải ảnh QR</span>
+                          </a>
+                        </div>
                       </div>
-                      <div>
-                        Số tài khoản: <strong className="font-mono">{vietQRConfig.accountNumber}</strong>
-                      </div>
-                      <div>
-                        Chủ tài khoản: <strong>{vietQRConfig.accountHolder}</strong>
-                      </div>
-                      <div>
-                        Số tiền: <strong className="font-mono text-blue-800 text-sm">{formatVND(vietQRConfig.amount)}</strong>
-                      </div>
-                      <div>
-                        Nội dung: <strong className="font-mono bg-blue-100 px-1.5 py-0.5 rounded text-blue-900">{vietQRConfig.description}</strong>
+
+                      {/* Bank Details Table with 1-click Copy */}
+                      <div className="flex-1 w-full space-y-2.5 text-xs text-stone-700">
+                        <div className="p-3.5 bg-white/95 rounded-xl border border-stone-200/80 space-y-2.5 shadow-2xs">
+                          {/* Account Holder */}
+                          <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                            <div>
+                              <span className="text-[10px] text-stone-500 uppercase tracking-wider block">Chủ tài khoản</span>
+                              <strong className="text-stone-900 text-sm font-semibold tracking-wide">
+                                {vietQRConfig.accountHolder}
+                              </strong>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(vietQRConfig.accountHolder, 'holder')}
+                              className="px-2 py-1 bg-stone-100 hover:bg-emerald-50 hover:text-emerald-800 text-stone-600 rounded text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors"
+                              title="Sao chép tên chủ tài khoản"
+                            >
+                              {copiedField === 'holder' ? (
+                                <>
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                  <span className="text-emerald-700 font-semibold">Đã chép</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  <span>Sao chép</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+
+                          {/* Account Number */}
+                          <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                            <div>
+                              <span className="text-[10px] text-stone-500 uppercase tracking-wider block">Số tài khoản Vietcombank</span>
+                              <strong className="text-emerald-800 text-base font-mono tracking-wider">
+                                {vietQRConfig.accountNumber}
+                              </strong>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(vietQRConfig.accountNumber, 'acc')}
+                              className="px-2.5 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+                              title="Sao chép số tài khoản"
+                            >
+                              {copiedField === 'acc' ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-700" />
+                                  <span>Đã sao chép</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>Chép STK</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+
+                          {/* Bank & Branch */}
+                          <div className="flex items-center justify-between pb-2 border-b border-stone-100 text-[11px]">
+                            <span className="text-stone-500">Ngân hàng & Chi nhánh:</span>
+                            <span className="font-medium text-stone-900 text-right">
+                              Vietcombank · {vietQRConfig.branch}
+                            </span>
+                          </div>
+
+                          {/* Amount */}
+                          <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                            <div>
+                              <span className="text-[10px] text-stone-500 uppercase tracking-wider block">Số tiền cần thanh toán</span>
+                              <strong className="text-rose-800 text-base font-mono font-bold">
+                                {formatVND(vietQRConfig.amount)}
+                              </strong>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(vietQRConfig.amount.toString(), 'amount')}
+                              className="px-2 py-1 bg-stone-100 hover:bg-rose-50 hover:text-rose-800 text-stone-600 rounded text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors"
+                              title="Sao chép số tiền"
+                            >
+                              {copiedField === 'amount' ? (
+                                <>
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                  <span className="text-emerald-700 font-semibold">Đã chép</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  <span>Chép số tiền</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+
+                          {/* Transfer Memo */}
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] text-stone-500 uppercase tracking-wider block">Nội dung chuyển khoản (bắt buộc)</span>
+                              <strong className="text-blue-900 text-xs font-mono bg-blue-100 px-2 py-0.5 rounded inline-block mt-0.5">
+                                {vietQRConfig.description}
+                              </strong>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(vietQRConfig.description, 'memo')}
+                              className="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded text-[11px] font-medium flex items-center gap-1 cursor-pointer transition-colors"
+                              title="Sao chép nội dung chuyển khoản"
+                            >
+                              {copiedField === 'memo' ? (
+                                <>
+                                  <Check className="w-3 h-3 text-blue-700" />
+                                  <span className="text-blue-900 font-semibold">Đã chép</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  <span>Chép nội dung</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="p-2.5 bg-emerald-100/60 rounded-xl border border-emerald-200 text-[11px] text-emerald-950 leading-relaxed flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                          <span>
+                            Mở ứng dụng ngân hàng bất kỳ (Vietcombank, MB, Techcombank, Agribank, MoMo...) quét mã QR để thanh toán tự động, tiệm hoa sẽ chuẩn bị ngay sau khi nhận được chuyển khoản!
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -634,8 +861,65 @@ export const CheckoutModal: React.FC = () => {
             </div>
           )}
         </div>
-
       </div>
+
+      {/* High-Resolution QR Zoom Modal */}
+      {isZoomQrOpen && (
+        <div
+          className="fixed inset-0 z-60 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => setIsZoomQrOpen(false)}
+        >
+          <div
+            className="relative bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsZoomQrOpen(false)}
+              className="absolute top-3 right-3 p-1.5 text-stone-400 hover:text-stone-900 rounded-full transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="pt-2">
+              <h4 className="font-bold text-stone-900 text-base">Mã VietQR Thanh Toán</h4>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Quét bằng ứng dụng ngân hàng hoặc MoMo
+              </p>
+            </div>
+
+            <div className="p-2 bg-stone-50 rounded-xl border border-stone-200 inline-block shadow-inner">
+              <img
+                src={qrMode === 'card' ? vietQRConfig.staticQrUrl : vietQRConfig.qrImageUrl}
+                alt="VietQR Full Size"
+                className="w-64 h-auto object-contain rounded-lg mx-auto"
+              />
+            </div>
+
+            <div className="text-xs text-stone-700 space-y-1">
+              <div>
+                Chủ TK: <strong>{vietQRConfig.accountHolder}</strong>
+              </div>
+              <div>
+                STK: <strong className="font-mono text-emerald-800 text-sm">{vietQRConfig.accountNumber}</strong> (Vietcombank)
+              </div>
+              <div>
+                Số tiền: <strong className="font-mono text-rose-800 text-sm">{formatVND(vietQRConfig.amount)}</strong>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setIsZoomQrOpen(false)}
+                className="w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+              >
+                Đóng cửa sổ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

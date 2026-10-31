@@ -6,10 +6,11 @@ from apps.payments.gateways.vnpay import generate_vnpay_intent
 
 class PaymentGatewaysTestCase(unittest.TestCase):
     def test_vietqr_payload_generation(self):
-        """Sinh mã VietQR chuẩn Napas MB Bank 970422"""
+        """Sinh mã VietQR chuẩn Napas Vietcombank 970436"""
         res = generate_vietqr_url(Decimal('1050000'), 'LAMOUR-9821')
-        self.assertEqual(res['bank_id'], '970422')
-        self.assertEqual(res['account_number'], '0888208306')
+        self.assertEqual(res['bank_id'], '970436')
+        self.assertEqual(res['account_number'], '1027210627')
+        self.assertEqual(res['account_name'], 'NGUYEN THIEN DOAN')
         self.assertEqual(res['amount'], 1050000)
         self.assertEqual(res['transfer_content'], 'HOA LAMOUR-9821')
         self.assertIn('img.vietqr.io', res['qr_image_url'])

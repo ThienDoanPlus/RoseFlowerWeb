@@ -7,19 +7,25 @@ import { Order, PaymentMethod } from '../types';
 
 export interface VietQRConfig {
   bankId: string;
+  bankBin: string;
   bankName: string;
+  branch: string;
   accountNumber: string;
   accountHolder: string;
   amount: number;
   description: string;
   qrImageUrl: string;
+  staticQrUrl: string;
 }
 
 export const BANK_INFO = {
-  bankId: 'MB',
-  bankName: 'MBBank - Ngân Hàng Quân Đội',
-  accountNumber: '0888208306',
-  accountHolder: "TIEM HOA SAP ROSE",
+  bankId: 'VCB', // Vietcombank
+  bankBin: '970436',
+  bankName: 'Vietcombank - Ngân Hàng Ngoại Thương Việt Nam',
+  branch: 'PGD Sông Vệ',
+  accountNumber: '1027210627',
+  accountHolder: 'NGUYEN THIEN DOAN',
+  staticQrUrl: '/vietqr-payment.png',
   momoPhone: '0888208306',
   zaloPhone: '0888208306',
 };
@@ -35,12 +41,15 @@ export function generateVietQRPayload(order: Order): VietQRConfig {
 
   return {
     bankId: BANK_INFO.bankId,
+    bankBin: BANK_INFO.bankBin,
     bankName: BANK_INFO.bankName,
+    branch: BANK_INFO.branch,
     accountNumber: BANK_INFO.accountNumber,
     accountHolder: BANK_INFO.accountHolder,
     amount,
     description: cleanCode,
     qrImageUrl,
+    staticQrUrl: BANK_INFO.staticQrUrl,
   };
 }
 

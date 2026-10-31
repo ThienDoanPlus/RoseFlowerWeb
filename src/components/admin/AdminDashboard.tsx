@@ -198,7 +198,7 @@ export const AdminDashboard: React.FC = () => {
 
               <div className="space-y-3 pt-2">
                 {[
-                  { key: 'VIETQR', label: 'VietQR (Napas 24/7 MB Bank)', color: 'bg-emerald-500' },
+                  { key: 'VIETQR', label: 'VietQR (Napas 24/7 Vietcombank)', color: 'bg-emerald-500' },
                   { key: 'MOMO', label: 'Cổng Ví MoMo QR', color: 'bg-pink-500' },
                   { key: 'VNPAY', label: 'Cổng VNPay QR / ATM Nội Địa', color: 'bg-blue-500' },
                   { key: 'COD', label: 'Thanh toán khi nhận hàng (COD)', color: 'bg-amber-500' },

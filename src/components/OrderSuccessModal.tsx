@@ -72,7 +72,9 @@ export const OrderSuccessModal: React.FC = () => {
           </div>
           <div className="flex justify-between">
             <span className="text-stone-500">Phương thức:</span>
-            <span className="font-medium text-stone-900">{order.paymentMethod}</span>
+            <span className="font-medium text-stone-900">
+              {order.paymentMethod === 'VIETQR' ? 'VietQR Napas 24/7 (Vietcombank)' : order.paymentMethod}
+            </span>
           </div>
           <div className="flex justify-between pt-2 border-t border-stone-200 text-sm font-semibold">
             <span>Tổng thanh toán:</span>

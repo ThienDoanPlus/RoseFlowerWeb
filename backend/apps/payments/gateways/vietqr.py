@@ -1,10 +1,10 @@
 from decimal import Decimal
 import urllib.parse
 
-BANK_ID = "970422" # MB Bank (Napas)
-BANK_NAME = "MB Bank (Ngân hàng Quân Đội)"
-ACCOUNT_NO = "0888208306"
-ACCOUNT_NAME = "TIEM HOA SAP ROSE"
+BANK_ID = "970436" # Vietcombank (Napas)
+BANK_NAME = "Vietcombank (Ngân hàng TMCP Ngoại Thương Việt Nam - PGD Sông Vệ)"
+ACCOUNT_NO = "1027210627"
+ACCOUNT_NAME = "NGUYEN THIEN DOAN"
 
 def generate_vietqr_url(amount: Decimal, order_id: str) -> dict:
     """
@@ -18,8 +18,10 @@ def generate_vietqr_url(amount: Decimal, order_id: str) -> dict:
 
     return {
         'qr_image_url': qr_url,
+        'static_qr_url': '/vietqr-payment.png',
         'bank_id': BANK_ID,
         'bank_name': BANK_NAME,
+        'branch': 'PGD Sông Vệ',
         'account_number': ACCOUNT_NO,
         'account_name': ACCOUNT_NAME,
         'amount': amount_int,
