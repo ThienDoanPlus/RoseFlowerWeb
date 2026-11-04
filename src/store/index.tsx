@@ -144,6 +144,7 @@ export type Action =
   | { type: 'UPDATE_USER_PROFILE'; payload: Partial<User> }
   | { type: 'UPDATE_USER_ROLE'; payload: { userId: string; role: Role } }
   | { type: 'CREATE_ORDER'; payload: Order }
+  | { type: 'APPROVE_ORDER_PAYMENT'; payload: { orderId: string; adminName?: string } }
   | { type: 'UPDATE_ORDER_STATUS'; payload: { orderId: string; status: OrderStatus; floristNotes?: string; assignedStaffName?: string } }
   | { type: 'SET_PRINT_ORDER'; payload: Order | null }
   | { type: 'SET_UPDATE_ORDER'; payload: Order | null }
@@ -245,10 +246,11 @@ const initialOrders: Order[] = [
     totalAmount: (FLOWERS[0]?.basePrice || 189000) - Math.round((FLOWERS[0]?.basePrice || 189000) * 0.1) + 25000,
     voucherCode: 'ROSE10',
     paymentMethod: 'VIETQR',
-    paymentStatus: 'PAID',
+    paymentStatus: 'UNPAID',
     orderStatus: 'PENDING',
     createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-    transactionCode: 'MB-VQR-9821-OK',
+    transactionCode: 'VCB-VQR-9821',
+    floristNotes: 'Đang chờ Admin kiểm tra tài khoản Vietcombank (1027210627) và phê duyệt thanh toán.',
   },
   {
     id: 'ROSE-9822',
@@ -282,13 +284,13 @@ const initialOrders: Order[] = [
     shippingFee: 25000,
     totalAmount: (FLOWERS[1]?.basePrice || 259000) - Math.round((FLOWERS[1]?.basePrice || 259000) * 0.1) + 25000,
     voucherCode: 'VALENTINE142',
-    paymentMethod: 'MOMO',
+    paymentMethod: 'VIETQR',
     paymentStatus: 'PAID',
     orderStatus: 'ARRANGING',
     assignedStaffName: 'Trần Thị Mai (Florist)',
-    floristNotes: 'Đã hoàn tất kiểm tra bó hoa sáp theo hình chụp thật, đang in thiệp và đóng gói',
+    floristNotes: 'Admin đã phê duyệt nhận chuyển khoản Vietcombank. Bó hoa sáp đã tuyển chọn kỹ càng, đang in thiệp và đóng gói',
     createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-    transactionCode: 'MOMO-PAY-9822',
+    transactionCode: 'VCB-VQR-9822-OK',
   },
   {
     id: 'ROSE-9823',
@@ -321,13 +323,13 @@ const initialOrders: Order[] = [
     bulkDiscountAmount: 0,
     shippingFee: 45000,
     totalAmount: (FLOWERS[2]?.basePrice || 279000) + 45000,
-    paymentMethod: 'VNPAY',
+    paymentMethod: 'VIETQR',
     paymentStatus: 'PAID',
     orderStatus: 'SHIPPING',
     assignedStaffName: 'Trần Thị Mai (Florist)',
-    floristNotes: 'Đã bàn giao shipper Anh Tuấn (0938 111 222), bọc 2 lớp xốp khí chống va đập',
+    floristNotes: 'Admin đã phê duyệt nhận chuyển khoản Vietcombank. Đã bàn giao shipper Anh Tuấn (0938 111 222), bọc 2 lớp xốp khí chống va đập',
     createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
-    transactionCode: 'VNPAY-9823-TXN',
+    transactionCode: 'VCB-VQR-9823-OK',
   },
   {
     id: 'ROSE-9820',
@@ -873,6 +875,94 @@ function appReducer(state: AppState, action: Action): AppState {
         isCheckoutOpen: false,
         isOrderSuccessOpen: true,
       };
+
+    case 'APPROVE_ORDER_PAYMENT': {
+      const { orderId, adminName } = action.payload;
+      const targetOrder = state.orders.find((o) => o.id === orderId);
+      if (!targetOrder) return state;
+
+      const timestampStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      const adminNote = `[Admin ${adminName || 'Quản lý'} đã xác nhận nhận chuyển khoản vào STK Vietcombank (1027210627) lúc ${timestampStr} - Bắt đầu lên đơn cắm hoa]`;
+
+      const updatedOrders = state.orders.map((o) => {
+        if (o.id === orderId) {
+          return {
+            ...o,
+            paymentStatus: 'PAID' as const,
+            orderStatus: 'ARRANGING' as const,
+            floristNotes: o.floristNotes ? `${o.floristNotes} | ${adminNote}` : adminNote,
+            assignedStaffName: o.assignedStaffName || 'Trần Thị Mai (Florist)',
+            updatedAt: new Date().toISOString(),
+          };
+        }
+        return o;
+      });
+
+      const updatedCurrent =
+        state.currentOrder?.id === orderId
+          ? {
+              ...state.currentOrder,
+              paymentStatus: 'PAID' as const,
+              orderStatus: 'ARRANGING' as const,
+              floristNotes: state.currentOrder.floristNotes
+                ? `${state.currentOrder.floristNotes} | ${adminNote}`
+                : adminNote,
+              assignedStaffName: state.currentOrder.assignedStaffName || 'Trần Thị Mai (Florist)',
+              updatedAt: new Date().toISOString(),
+            }
+          : state.currentOrder;
+
+      const newNotif: PushNotification = {
+        id: `notif-${Date.now()}`,
+        title: `🎉 Đơn hàng #${orderId} đã được Admin phê duyệt thanh toán!`,
+        message: `Admin đã xác nhận nhận chuyển khoản qua Vietcombank (1027210627 - NGUYEN THIEN DOAN). Tiệm hoa sáp Rose đang tiến hành lên đơn cắm hoa cho bạn!`,
+        timestamp: 'Vừa xong',
+        type: 'order',
+        read: false,
+        orderId,
+      };
+
+      const newGmail: GmailEmail = {
+        id: `mail-approved-${Date.now()}`,
+        to: targetOrder.deliveryInfo.recipientEmail || state.user?.email || 'customer@example.com',
+        subject: `[Rose Flowers] ĐÃ NHẬN TIỀN CHUYỂN KHOẢN - Đơn hàng #${orderId} đang được cắm hoa!`,
+        date: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        orderId,
+        totalAmount: targetOrder.totalAmount,
+        recipientName: targetOrder.deliveryInfo.recipientName,
+        deliveryAddress: `${targetOrder.deliveryInfo.address}, ${targetOrder.deliveryInfo.district}, ${targetOrder.deliveryInfo.city}`,
+        deliveryTime: `${targetOrder.deliveryInfo.deliveryTimeSlot} · Ngày ${targetOrder.deliveryInfo.deliveryDate}`,
+        greetingMessage: targetOrder.deliveryInfo.cardMessage,
+        paymentMethod: 'VIETQR',
+        itemsSummary: targetOrder.items.map((item) => ({
+          name: item.flower.name,
+          variant: item.sizeVariant === 'standard' ? 'Tiêu chuẩn' : item.sizeVariant === 'deluxe' ? 'Thịnh soạn' : 'Vương giả',
+          quantity: item.quantity,
+          price: item.unitPrice * item.quantity,
+        })),
+      };
+
+      const newNotifsList = [newNotif, ...state.notifications];
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rose_notifications', JSON.stringify(newNotifsList));
+        }
+      } catch {
+        // ignore
+      }
+
+      return {
+        ...state,
+        orders: updatedOrders,
+        currentOrder: updatedCurrent,
+        notifications: newNotifsList,
+        gmailEmails: [newGmail, ...state.gmailEmails],
+        toast: {
+          message: `Đã phê duyệt thanh toán đơn #${orderId}! Trạng thái chuyển sang "Đang cắm hoa" & đã gửi thông báo đến khách hàng.`,
+          type: 'success',
+        },
+      };
+    }
 
     case 'UPDATE_ORDER_STATUS': {
       const { orderId, status, floristNotes, assignedStaffName } = action.payload;

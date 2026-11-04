@@ -69,7 +69,7 @@ export const HeroSection: React.FC = () => {
               </div>
               <div className="flex items-center gap-2 text-stone-800">
                 <QrCode className="w-4 h-4 text-emerald-700 shrink-0" />
-                <span className="text-xs font-medium">VietQR & Tiền mặt (COD)</span>
+                <span className="text-xs font-medium">VietQR (Vietcombank)</span>
               </div>
             </div>
           </div>

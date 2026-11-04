@@ -87,3 +87,34 @@ class VerifyWebhookView(APIView):
             return Response({'status': 'ok', 'order_id': order_id})
         except Order.DoesNotExist:
             return Response({'error': 'Không tìm thấy đơn hàng'}, status=status.HTTP_404_NOT_FOUND)
+
+class AdminApprovePaymentView(APIView):
+    """
+    POST /api/payments/admin-approve/
+    Admin phê duyệt đã nhận tiền chuyển khoản vào tài khoản Vietcombank (1027210627 - NGUYEN THIEN DOAN)
+    và kích hoạt tiến trình lên đơn cắm hoa
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        order_id = request.data.get('order_id')
+        if not order_id:
+            return Response({'error': 'order_id là bắt buộc'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            order = Order.objects.get(id=order_id)
+            order.payment_status = 'PAID'
+            order.order_status = 'ARRANGING'
+            order.save()
+
+            Transaction.objects.filter(order=order).update(
+                status=PaymentStatus.SUCCESS,
+                paid_at=timezone.now()
+            )
+            return Response({
+                'status': 'ok',
+                'order_id': order_id,
+                'message': f'Admin đã phê duyệt đơn #{order_id} thành công và bắt đầu lên đơn cắm hoa.'
+            })
+        except Order.DoesNotExist:
+            return Response({'error': 'Không tìm thấy đơn hàng'}, status=status.HTTP_404_NOT_FOUND)

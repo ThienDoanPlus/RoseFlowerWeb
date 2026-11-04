@@ -123,14 +123,15 @@ export const CheckoutModal: React.FC = () => {
       shippingFee,
       totalAmount: finalTotal,
       voucherCode: state.activeVoucher?.code,
-      paymentMethod,
-      paymentStatus: paymentMethod === 'COD' ? 'UNPAID' : 'PAID',
+      paymentMethod: 'VIETQR',
+      paymentStatus: 'UNPAID',
       orderStatus: 'PENDING',
+      floristNotes: 'Đang chờ Admin kiểm tra tài khoản Vietcombank (1027210627) và phê duyệt thanh toán.',
       createdAt: new Date().toISOString(),
     };
 
     // Simulate verification
-    const verification = await simulatePaymentVerification(orderId, paymentMethod, (step) => {
+    const verification = await simulatePaymentVerification(orderId, 'VIETQR', (step) => {
       setProcessingStatus(step);
     });
 
@@ -144,8 +145,8 @@ export const CheckoutModal: React.FC = () => {
       type: 'ADD_PUSH_NOTIFICATION',
       payload: {
         id: `notif-${Date.now()}`,
-        title: `Đơn hàng #${orderId} đã được tiếp nhận!`,
-        message: `Cảm ơn bạn! Tiệm hoa sáp Rose (294 Phạm Văn Bạch) đang chuẩn bị đơn giao cho ${address}.`,
+        title: `Đơn hàng #${orderId} đang chờ Admin duyệt chuyển khoản`,
+        message: `Hệ thống đã tiếp nhận đơn hoa của bạn. Ngay sau khi Admin kiểm tra và xác nhận chuyển khoản vào Vietcombank (1027210627 - NGUYEN THIEN DOAN), xưởng sẽ tiến hành cắm hoa ngay!`,
         timestamp: 'Vừa xong',
         type: 'order',
         read: false,
@@ -159,7 +160,7 @@ export const CheckoutModal: React.FC = () => {
       payload: {
         id: `mail-${Date.now()}`,
         to: recipientEmail || state.user?.email || 'customer@example.com',
-        subject: `[Rose] Xác nhận đặt hoa sáp thành công - Mã đơn #${orderId}`,
+        subject: `[Rose] Tiếp nhận đơn #${orderId} - Chờ Admin phê duyệt chuyển khoản VietQR`,
         date: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         orderId,
         totalAmount: finalTotal,
@@ -167,13 +168,21 @@ export const CheckoutModal: React.FC = () => {
         deliveryAddress: `${address}, ${district}, ${city}`,
         deliveryTime: `${deliveryTimeSlot} · Ngày ${deliveryDate}`,
         greetingMessage: cardMessage,
-        paymentMethod,
+        paymentMethod: 'VIETQR',
         itemsSummary: state.cart.map((item) => ({
           name: item.flower.name,
           variant: item.sizeVariant === 'standard' ? 'Tiêu chuẩn' : item.sizeVariant === 'deluxe' ? 'Thịnh soạn' : 'Vương giả',
           quantity: item.quantity,
           price: item.unitPrice * item.quantity,
         })),
+      },
+    });
+
+    dispatch({
+      type: 'SHOW_TOAST',
+      payload: {
+        message: `Đơn hàng #${orderId} đã được tạo! Đang chờ Admin xác nhận đã nhận chuyển khoản để lên đơn cắm hoa.`,
+        type: 'info',
       },
     });
 
@@ -189,8 +198,8 @@ export const CheckoutModal: React.FC = () => {
     bulkDiscountAmount: bulkDiscountInfo.bulkDiscount,
     shippingFee,
     totalAmount: finalTotal,
-    paymentMethod,
-    paymentStatus: 'PAID',
+    paymentMethod: 'VIETQR',
+    paymentStatus: 'UNPAID',
     orderStatus: 'PENDING',
     createdAt: new Date().toISOString(),
   };
@@ -411,72 +420,24 @@ export const CheckoutModal: React.FC = () => {
             <div className="space-y-6">
               
               <div>
-                <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider mb-3">
-                  Chọn phương thức thanh toán:
-                </h4>
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                  <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                    Phương Thức Thanh Toán Duy Nhất:
+                  </h4>
+                  <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    Chuyển Khoản VietQR (Napas 24/7)
+                  </span>
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                  
-                  {/* VietQR */}
-                  <label
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
-                      paymentMethod === 'VIETQR'
-                        ? 'border-emerald-600 bg-emerald-50/50 ring-1 ring-emerald-600'
-                        : 'border-stone-200 hover:border-stone-300 bg-white'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="VIETQR"
-                      checked={paymentMethod === 'VIETQR'}
-                      onChange={() => setPaymentMethod('VIETQR')}
-                      className="mt-1 text-emerald-600"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <QrCode className="w-4 h-4 text-emerald-700" />
-                        <span className="text-xs font-bold text-stone-900">VietQR (Napas 24/7)</span>
-                        <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-100 px-1.5 py-0.2 rounded">Khuyên dùng</span>
-                      </div>
-                      <p className="text-[11px] text-stone-600 mt-1">
-                        Quét mã VietQR chuyển khoản nhanh Napas 24/7 tới Vietcombank (1027210627 - NGUYEN THIEN DOAN). Xác nhận tự động.
-                      </p>
-                    </div>
-                  </label>
-
-                  {/* COD */}
-                  <label
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
-                      paymentMethod === 'COD'
-                        ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-900'
-                        : 'border-stone-200 hover:border-stone-300 bg-white'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="COD"
-                      checked={paymentMethod === 'COD'}
-                      onChange={() => setPaymentMethod('COD')}
-                      className="mt-1 text-stone-900"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <Truck className="w-4 h-4 text-stone-800" />
-                        <span className="text-xs font-bold text-stone-900">Thanh toán khi nhận hoa (COD)</span>
-                      </div>
-                      <p className="text-[11px] text-stone-600 mt-1">
-                        Kiểm tra hoa trực tiếp với nhân viên giao hàng trước khi thanh toán tiền mặt.
-                      </p>
-                    </div>
-                  </label>
-
+                <div className="p-3 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Quy trình xử lý đơn:</strong> Quý khách quét mã QR để chuyển khoản. Khi chủ tiệm (Admin) kiểm tra thấy tiền vào tài khoản Vietcombank sẽ lập tức <strong>phê duyệt</strong>, hệ thống sẽ gửi thông báo và xưởng bắt đầu lên đơn cắm hoa giao đến bạn.
+                  </div>
                 </div>
 
                 {/* VietQR Live Dynamic Preview */}
-                {paymentMethod === 'VIETQR' && (
-                  <div className="p-4 sm:p-5 bg-gradient-to-br from-emerald-50/70 via-blue-50/40 to-white rounded-2xl border border-emerald-200/90 shadow-xs space-y-4">
+                <div className="p-4 sm:p-5 bg-gradient-to-br from-emerald-50/70 via-blue-50/40 to-white rounded-2xl border border-emerald-200/90 shadow-xs space-y-4">
                     {/* Header with Vietcombank & Napas 24/7 branding */}
                     <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-emerald-100">
                       <div className="flex items-center gap-2.5">
@@ -708,13 +669,12 @@ export const CheckoutModal: React.FC = () => {
                         <div className="p-2.5 bg-emerald-100/60 rounded-xl border border-emerald-200 text-[11px] text-emerald-950 leading-relaxed flex items-start gap-2">
                           <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
                           <span>
-                            Mở ứng dụng ngân hàng bất kỳ (Vietcombank, MB, Techcombank, Agribank, MoMo...) quét mã QR để thanh toán tự động, tiệm hoa sẽ chuẩn bị ngay sau khi nhận được chuyển khoản!
+                            Mở ứng dụng ngân hàng bất kỳ (Vietcombank, MB, Techcombank, Agribank, BIDV...) quét mã QR để chuyển khoản. Khi chuyển xong, bấm nút bên dưới để gửi đơn cho Admin duyệt!
                           </span>
                         </div>
                       </div>
                     </div>
                   </div>
-                )}
               </div>
 
               {/* Order Breakdown Recap */}
@@ -771,7 +731,7 @@ export const CheckoutModal: React.FC = () => {
                   ) : (
                     <>
                       <Lock className="w-3.5 h-3.5" />
-                      <span>Xác nhận & Hoàn tất đặt hàng ({formatVND(finalTotal)})</span>
+                      <span>Tôi đã chuyển khoản xong - Gửi đơn ({formatVND(finalTotal)})</span>
                     </>
                   )}
                 </button>

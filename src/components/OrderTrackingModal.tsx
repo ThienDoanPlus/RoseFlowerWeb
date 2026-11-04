@@ -129,6 +129,36 @@ export const OrderTrackingModal: React.FC = () => {
           </button>
         </div>
 
+        {/* Payment Approval Notice if UNPAID */}
+        {order.paymentStatus === 'UNPAID' && (
+          <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-900 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-bold flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-amber-700" />
+                Đang Chờ Admin Phê Duyệt Chuyển Khoản VietQR
+              </span>
+              <span className="font-mono font-bold text-rose-800">{formatVND(order.totalAmount)}</span>
+            </div>
+            <p className="text-[11px] text-amber-800">
+              STK nhận tiền: Vietcombank <strong>1027210627 (NGUYEN THIEN DOAN)</strong>.
+            </p>
+            {state.currentRole === 'ADMIN' && (
+              <button
+                onClick={() =>
+                  dispatch({
+                    type: 'APPROVE_ORDER_PAYMENT',
+                    payload: { orderId: order.id, adminName: state.user?.name || 'Admin' },
+                  })
+                }
+                className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-semibold rounded-lg shadow-xs flex items-center justify-center gap-2 cursor-pointer mt-1"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Admin Phê Duyệt Đã Nhận Tiền & Chuyển Sang Lên Đơn</span>
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Timeline */}
         <div className="space-y-6 mb-8">
           {steps.map((step, idx) => {

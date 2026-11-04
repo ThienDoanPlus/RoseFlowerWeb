@@ -21,6 +21,7 @@ import {
   Sparkles,
   ArrowRight,
   Filter,
+  CheckCircle2,
 } from 'lucide-react';
 import { useStore } from '../../store';
 import { Order, OrderStatus } from '../../types';
@@ -321,8 +322,17 @@ export const StaffOrderBoard: React.FC = () => {
 
                           {/* Total amount & Payment */}
                           <div className="flex items-center justify-between pt-1 border-t border-stone-100 text-[11px]">
-                            <span className="text-stone-500">
-                              {order.paymentMethod} · {order.paymentStatus}
+                            <span className="text-stone-500 flex items-center gap-1">
+                              <span>VietQR Napas</span>
+                              <span
+                                className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
+                                  order.paymentStatus === 'PAID'
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : 'bg-amber-100 text-amber-900 border border-amber-300'
+                                }`}
+                              >
+                                {order.paymentStatus === 'PAID' ? 'Đã nhận tiền' : 'Chờ Admin duyệt'}
+                              </span>
                             </span>
                             <span className="font-mono font-bold text-stone-900">
                               {formatVND(order.totalAmount)}
@@ -352,8 +362,32 @@ export const StaffOrderBoard: React.FC = () => {
                             </button>
                           </div>
 
-                          {/* Quick Advance Button */}
-                          {nextStatus && (
+                          {/* Admin Payment Approval Button if UNPAID */}
+                          {order.paymentStatus === 'UNPAID' && (
+                            <>
+                              {state.currentRole === 'ADMIN' ? (
+                                <button
+                                  onClick={() =>
+                                    dispatch({
+                                      type: 'APPROVE_ORDER_PAYMENT',
+                                      payload: { orderId: order.id, adminName: state.user?.name || 'Admin' },
+                                    })
+                                  }
+                                  className="w-full py-2 text-[11px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-98"
+                                >
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>Admin Phê Duyệt Đã Nhận & Lên Đơn</span>
+                                </button>
+                              ) : (
+                                <div className="w-full py-1.5 text-[10px] font-medium text-amber-900 bg-amber-100/80 rounded-lg text-center border border-amber-300">
+                                  ⏳ Chờ Admin kiểm tra STK 1027210627 & duyệt
+                                </div>
+                              )}
+                            </>
+                          )}
+
+                          {/* Quick Advance Button (for PAID orders or when already approved) */}
+                          {nextStatus && order.paymentStatus === 'PAID' && (
                             <button
                               onClick={() => handleQuickAdvance(order)}
                               className="w-full py-1.5 text-[11px] font-semibold text-rose-900 hover:text-white bg-rose-50 hover:bg-rose-900 border border-rose-200 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer mt-1"

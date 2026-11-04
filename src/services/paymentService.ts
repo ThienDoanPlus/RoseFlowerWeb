@@ -54,32 +54,24 @@ export function generateVietQRPayload(order: Order): VietQRConfig {
 }
 
 /**
- * Giả lập xác thực thanh toán tức thì qua Webhook của cổng thanh toán
- * (VietQR / MoMo / VNPay / ZaloPay)
+ * Giả lập gửi thông tin đơn hàng và khởi tạo phiên thanh toán VietQR
  */
 export async function simulatePaymentVerification(
   orderId: string,
   method: PaymentMethod,
   onProgress?: (step: string) => void
 ): Promise<{ success: boolean; transactionCode: string }> {
-  if (method === 'COD') {
-    return {
-      success: true,
-      transactionCode: `COD-${Date.now().toString().slice(-6)}`,
-    };
-  }
+  onProgress?.('Đang kết nối hệ thống đối soát chuyển khoản VietQR...');
+  await new Promise((res) => setTimeout(res, 500));
 
-  onProgress?.('Đang kết nối cổng thanh toán bảo mật...');
-  await new Promise((res) => setTimeout(res, 800));
+  onProgress?.('Đang đồng bộ giao dịch tới Vietcombank (1027210627 - NGUYEN THIEN DOAN)...');
+  await new Promise((res) => setTimeout(res, 600));
 
-  onProgress?.('Đang lắng nghe tín hiệu biến động số dư...');
-  await new Promise((res) => setTimeout(res, 1200));
-
-  onProgress?.('Đã nhận thanh toán từ ngân hàng!');
+  onProgress?.('Đã tiếp nhận đơn hàng! Đang chờ Admin xác nhận biến động số dư...');
   await new Promise((res) => setTimeout(res, 400));
 
   return {
     success: true,
-    transactionCode: `TX-${method}-${Date.now().toString().slice(-8)}`,
+    transactionCode: `VCB-VQR-${orderId.replace(/[^0-9]/g, '').slice(-4) || Date.now().toString().slice(-4)}`,
   };
 }

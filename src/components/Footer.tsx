@@ -86,8 +86,9 @@ export const Footer: React.FC = () => {
               <div className="pt-2">
                 <span className="text-[11px] text-rose-400 block mb-1">Phương thức thanh toán bảo mật:</span>
                 <div className="flex flex-wrap gap-1.5 text-[10px] font-mono text-white">
-                  <span className="bg-rose-900 px-2 py-0.5 rounded border border-rose-800">VietQR (Napas 24/7)</span>
-                  <span className="bg-rose-900 px-2 py-0.5 rounded border border-rose-800">Tiền mặt (COD)</span>
+                  <span className="bg-emerald-950/80 text-emerald-300 px-2.5 py-1 rounded border border-emerald-700 font-semibold">
+                    Chuyển khoản VietQR (Vietcombank 1027210627 · Napas 24/7)
+                  </span>
                 </div>
               </div>
             </div>

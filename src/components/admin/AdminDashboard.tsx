@@ -19,6 +19,9 @@ import {
   MapPin,
   Clock,
   Flower2,
+  CheckCircle2,
+  AlertCircle,
+  QrCode,
 } from 'lucide-react';
 import { useStore } from '../../store';
 import { AdminTab } from '../../types';
@@ -50,6 +53,11 @@ export const AdminDashboard: React.FC = () => {
       return acc;
     },
     {} as Record<string, number>
+  );
+
+  // Pending VietQR Payment Approvals
+  const pendingApprovalOrders = state.orders.filter(
+    (o) => o.paymentStatus === 'UNPAID' || o.orderStatus === 'PENDING'
   );
 
   const tabs: { key: AdminTab; label: string; icon: React.ReactNode }[] = [
@@ -179,6 +187,102 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </div>
 
+          {/* Pending VietQR Payment Approvals Section */}
+          <div className="bg-white rounded-2xl p-6 border-2 border-emerald-500/40 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-stone-200 gap-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+                  <QrCode className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-display font-medium text-base text-stone-900 flex items-center gap-2">
+                    <span>Phê Duyệt Chuyển Khoản VietQR (Quyền Admin)</span>
+                    {pendingApprovalOrders.length > 0 && (
+                      <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 animate-pulse">
+                        {pendingApprovalOrders.length} đơn chờ duyệt
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Đối soát số dư STK Vietcombank <strong>1027210627 (NGUYEN THIEN DOAN)</strong>. Admin bấm phê duyệt để hệ thống báo khách và xưởng bắt đầu cắm hoa.
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <span className="text-[11px] text-stone-400 block">Tài khoản nhận tiền Vietcombank</span>
+                <span className="text-xs font-mono font-bold text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                  STK: 1027210627 · Sông Vệ
+                </span>
+              </div>
+            </div>
+
+            {pendingApprovalOrders.length === 0 ? (
+              <div className="p-6 text-center rounded-xl bg-emerald-50/60 border border-emerald-200/80 text-emerald-900">
+                <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                <p className="font-semibold text-xs">Tất cả đơn chuyển khoản đã được phê duyệt!</p>
+                <p className="text-[11px] text-emerald-700 mt-0.5">
+                  Không còn đơn hàng nào đang chờ xác nhận nhận tiền vào Vietcombank.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingApprovalOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="p-4 rounded-xl border-2 border-amber-200 bg-amber-50/30 hover:bg-amber-50/60 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  >
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono font-bold text-rose-950 text-sm">#{order.id}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                          {order.paymentStatus === 'UNPAID' ? 'Chưa duyệt nhận tiền' : 'Chờ lên đơn'}
+                        </span>
+                        <span className="text-[10px] text-stone-500 font-mono">
+                          {new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} · {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-stone-700 flex flex-wrap gap-x-4 gap-y-1">
+                        <span>Khách hàng: <strong>{order.deliveryInfo.recipientName}</strong> ({order.deliveryInfo.recipientPhone})</span>
+                        <span>Địa chỉ: <strong>{order.deliveryInfo.address}, {order.deliveryInfo.district}</strong></span>
+                        <span>Mã đối soát: <strong className="font-mono text-emerald-800">{order.transactionCode || order.id}</strong></span>
+                      </div>
+
+                      {order.floristNotes && (
+                        <p className="text-[11px] text-stone-500 italic">
+                          Ghi chú: {order.floristNotes}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-4 shrink-0 justify-between md:justify-end border-t md:border-t-0 pt-2 md:pt-0 border-amber-200">
+                      <div className="text-right">
+                        <span className="text-[10px] text-stone-500 block uppercase">Số tiền cần nhận</span>
+                        <span className="font-mono text-base font-bold text-rose-800">
+                          {formatVND(order.totalAmount)}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() =>
+                          dispatch({
+                            type: 'APPROVE_ORDER_PAYMENT',
+                            payload: { orderId: order.id, adminName: state.user?.name || 'Admin' },
+                          })
+                        }
+                        className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold rounded-xl shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Phê Duyệt Đã Nhận Tiền & Lên Đơn</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Payment Method Distribution & Branch Revenue */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
@@ -187,10 +291,10 @@ export const AdminDashboard: React.FC = () => {
               <div className="flex items-center justify-between pb-3 border-b border-stone-100">
                 <div>
                   <h3 className="font-display font-medium text-base text-stone-900">
-                    Cơ Cấu Phương Thức Thanh Toán Việt Nam
+                    Cơ Cấu Phương Thức Thanh Toán
                   </h3>
                   <p className="text-xs text-stone-500">
-                    Tỷ trọng các kênh: VietQR Napas (Vietcombank) & COD
+                    Kênh duy nhất: Chuyển khoản VietQR (Vietcombank 1027210627)
                   </p>
                 </div>
                 <CreditCard className="w-5 h-5 text-rose-800" />
@@ -198,11 +302,10 @@ export const AdminDashboard: React.FC = () => {
 
               <div className="space-y-3 pt-2">
                 {[
-                  { key: 'VIETQR', label: 'VietQR (Napas 24/7 Vietcombank)', color: 'bg-emerald-500' },
-                  { key: 'COD', label: 'Thanh toán khi nhận hàng (COD)', color: 'bg-amber-500' },
+                  { key: 'VIETQR', label: 'VietQR Napas 24/7 (Vietcombank 1027210627)', color: 'bg-emerald-500' },
                 ].map((item) => {
-                  const amount = paymentMethodCounts[item.key] || 0;
-                  const percentage = totalRevenue > 0 ? Math.round((amount / totalRevenue) * 100) : 0;
+                  const amount = totalRevenue;
+                  const percentage = 100;
 
                   return (
                     <div key={item.key} className="space-y-1">
@@ -215,7 +318,7 @@ export const AdminDashboard: React.FC = () => {
                       <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full ${item.color} rounded-full transition-all duration-500`}
-                          style={{ width: `${Math.max(percentage, 5)}%` }}
+                          style={{ width: '100%' }}
                         />
                       </div>
                     </div>
