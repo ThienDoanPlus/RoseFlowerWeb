@@ -72,17 +72,17 @@ export const AdminDashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-300">
       
       {/* Top Banner Header */}
-      <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-stone-200 mb-8">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 sm:p-8 shadow-sm border border-stone-200 mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-300">
                 <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
                 Admin Portal · Quản Trị Hệ Thống Toàn Quyền
               </span>
               <span className="text-xs text-stone-500 font-medium">Rose Flowers</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-display font-medium text-stone-900">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-medium text-stone-900">
               Bảng Điều Hành Doanh Thu & Quản Trị Tiệm Hoa
             </h1>
             <p className="text-xs sm:text-sm text-stone-600 mt-1">

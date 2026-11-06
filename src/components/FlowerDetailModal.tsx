@@ -101,7 +101,7 @@ export const FlowerDetailModal: React.FC = () => {
           <X className="w-5 h-5" />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 p-6 sm:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 p-4 sm:p-6 sm:p-8">
           
           {/* Left Column: Gallery & Care Guide */}
           <div className="md:col-span-6 space-y-4">
@@ -266,7 +266,7 @@ export const FlowerDetailModal: React.FC = () => {
 
             {/* CTAs */}
             <div className="space-y-2 pt-4 border-t border-stone-200">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                 <button
                   onClick={handleAddToCart}
                   className="py-3 px-4 bg-white border border-stone-900 text-stone-900 hover:bg-stone-100 text-xs font-semibold rounded-lg transition-colors cursor-pointer text-center"
@@ -285,7 +285,7 @@ export const FlowerDetailModal: React.FC = () => {
         </div>
 
         {/* Reviews & Comments Section */}
-        <div className="border-t border-stone-200 p-6 sm:p-8 bg-[#FCFAF7]">
+        <div className="border-t border-stone-200 p-4 sm:p-6 sm:p-8 bg-[#FCFAF7]">
           <h3 className="text-lg font-display font-medium text-stone-900 mb-4 flex items-center gap-2">
             <span>Đánh Giá Từ Khách Hàng Đã Mua ({reviews.length})</span>
           </h3>

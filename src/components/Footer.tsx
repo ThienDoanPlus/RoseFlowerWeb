@@ -8,7 +8,7 @@ import { Phone, Mail, MapPin, ShieldCheck, Heart } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-rose-950 text-rose-200 pt-16 pb-12 border-t border-rose-900">
+    <footer className="bg-rose-950 text-rose-200 pt-12 sm:pt-16 pb-24 md:pb-12 border-t border-rose-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">

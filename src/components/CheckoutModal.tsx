@@ -211,16 +211,17 @@ export const CheckoutModal: React.FC = () => {
       <div className="relative bg-white rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-stone-200">
         
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-stone-200 flex items-center justify-between bg-[#FAF8F5]">
-          <div className="flex items-center gap-2">
-            <Lock className="w-4 h-4 text-emerald-700" />
-            <h3 className="font-display font-medium text-lg text-stone-900">
-              Đặt Hoa & Thanh Toán Bảo Mật SSL 256-bit
+        <div className="p-3.5 sm:p-5 border-b border-stone-200 flex items-center justify-between bg-[#FAF8F5]">
+          <div className="flex items-center gap-2 min-w-0">
+            <Lock className="w-4 h-4 text-emerald-700 shrink-0" />
+            <h3 className="font-display font-medium text-base sm:text-lg text-stone-900 truncate">
+              <span className="sm:hidden">Đặt Hoa & Thanh Toán</span>
+              <span className="hidden sm:inline">Đặt Hoa & Thanh Toán Bảo Mật SSL 256-bit</span>
             </h3>
           </div>
           <button
             onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isCheckoutOpen', isOpen: false } })}
-            className="p-1.5 text-stone-500 hover:text-stone-900 rounded-lg hover:bg-stone-200/60 transition-colors cursor-pointer"
+            className="p-1.5 text-stone-500 hover:text-stone-900 rounded-lg hover:bg-stone-200/60 transition-colors cursor-pointer shrink-0 ml-2"
           >
             <X className="w-5 h-5" />
           </button>
@@ -231,33 +232,39 @@ export const CheckoutModal: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab('info')}
-            className={`py-3 transition-colors cursor-pointer flex items-center justify-center gap-2 ${
+            className={`py-2.5 sm:py-3 px-2 transition-colors cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 ${
               activeTab === 'info'
-                ? 'border-b-2 border-stone-900 text-stone-900 bg-white'
+                ? 'border-b-2 border-stone-900 text-stone-900 bg-white font-bold'
                 : 'text-stone-500 bg-stone-50 hover:bg-stone-100'
             }`}
           >
-            <span className="w-4 h-4 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center">1</span>
-            <span>Thông tin người nhận & Địa chỉ</span>
+            <span className="w-4 h-4 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center shrink-0">1</span>
+            <span className="truncate sm:overflow-visible">
+              <span className="sm:hidden">Người nhận & Địa chỉ</span>
+              <span className="hidden sm:inline">Thông tin người nhận & Địa chỉ</span>
+            </span>
           </button>
           <button
             type="button"
             onClick={() => {
               if (recipientName && recipientPhone && address) setActiveTab('payment');
             }}
-            className={`py-3 transition-colors cursor-pointer flex items-center justify-center gap-2 ${
+            className={`py-2.5 sm:py-3 px-2 transition-colors cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 ${
               activeTab === 'payment'
-                ? 'border-b-2 border-stone-900 text-stone-900 bg-white'
+                ? 'border-b-2 border-stone-900 text-stone-900 bg-white font-bold'
                 : 'text-stone-500 bg-stone-50 hover:bg-stone-100'
             }`}
           >
-            <span className="w-4 h-4 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center">2</span>
-            <span>Phương thức thanh toán Việt Nam</span>
+            <span className="w-4 h-4 rounded-full bg-stone-900 text-white text-[10px] flex items-center justify-center shrink-0">2</span>
+            <span className="truncate sm:overflow-visible">
+              <span className="sm:hidden">Thanh toán VietQR</span>
+              <span className="hidden sm:inline">Phương thức thanh toán Việt Nam</span>
+            </span>
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 sm:p-8">
+        <div className="p-4 sm:p-6 sm:p-8">
           {activeTab === 'info' ? (
             <form onSubmit={handleProceedToPayment} className="space-y-6">
               
@@ -749,7 +756,7 @@ export const CheckoutModal: React.FC = () => {
           onClick={() => setIsZoomQrOpen(false)}
         >
           <div
-            className="relative bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-150"
+            className="relative bg-white rounded-2xl max-w-sm w-full p-4 sm:p-6 shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             <button

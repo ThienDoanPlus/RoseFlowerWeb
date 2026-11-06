@@ -238,12 +238,12 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="relative bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-stone-200 overflow-hidden min-h-[440px]">
+      <div className="relative bg-white rounded-2xl max-w-md w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 sm:p-8 shadow-2xl border border-stone-200">
         
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 p-1.5 text-stone-400 hover:text-stone-900 rounded-full transition-colors cursor-pointer z-10"
+          className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-1.5 text-stone-400 hover:text-stone-900 rounded-full transition-colors cursor-pointer z-10"
         >
           <X className="w-5 h-5" />
         </button>

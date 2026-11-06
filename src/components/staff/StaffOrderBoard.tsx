@@ -103,17 +103,17 @@ export const StaffOrderBoard: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-300">
       
       {/* Top Banner & Title */}
-      <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-stone-200 mb-8">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 sm:p-8 shadow-sm border border-stone-200 mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-900 border border-rose-200">
                 <Sparkles className="w-3.5 h-3.5 text-rose-700" />
                 Staff Florist Workspace · Nhân Viên Tư Vấn & Cắm Hoa
               </span>
               <span className="text-xs text-stone-500 font-medium">Chi nhánh 294 Phạm Văn Bạch</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-display font-medium text-stone-900">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-medium text-stone-900">
               Bảng Điều Phối & Kanban Đơn Hàng Hoa Tươi
             </h1>
             <p className="text-xs sm:text-sm text-stone-600 mt-1">

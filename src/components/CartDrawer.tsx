@@ -77,9 +77,9 @@ export const CartDrawer: React.FC = () => {
                   </span>
                 </div>
               ) : (
-                <div className="p-3 bg-stone-50 border border-stone-200 rounded-lg text-[11px] text-stone-600 flex items-center justify-between">
+                <div className="p-2.5 sm:p-3 bg-stone-50 border border-stone-200 rounded-lg text-[11px] text-stone-600 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <span>Đặt từ 3 bó trở lên để nhận ngay chiết khấu 10%!</span>
-                  <span className="font-semibold text-stone-900 font-mono">Hiện có: {totalQuantity} bó</span>
+                  <span className="font-semibold text-stone-900 font-mono shrink-0">Hiện có: {totalQuantity} bó</span>
                 </div>
               )}
 

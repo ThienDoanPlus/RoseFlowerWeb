@@ -92,26 +92,26 @@ export const OrderStatusUpdater: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="relative bg-white rounded-2xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-stone-200">
+      <div className="relative bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 sm:p-8 shadow-2xl border border-stone-200">
         
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-stone-200 mb-6">
-          <div className="flex items-center gap-2">
-            <span className="p-2 bg-rose-100 text-rose-800 rounded-xl">
+        <div className="flex items-start sm:items-center justify-between pb-3 sm:pb-4 border-b border-stone-200 mb-4 sm:mb-6 gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="p-2 bg-rose-100 text-rose-800 rounded-xl shrink-0">
               <FileEdit className="w-5 h-5" />
             </span>
-            <div>
-              <h3 className="font-display font-medium text-lg text-stone-900">
-                Cập Nhật Tiến Độ & Trạng Thái Đơn Hàng
+            <div className="min-w-0">
+              <h3 className="font-display font-medium text-base sm:text-lg text-stone-900 truncate">
+                Cập Nhật Tiến Độ & Trạng Thái Đơn
               </h3>
-              <p className="text-xs text-stone-500">
-                Đơn hàng #{order.id} · Người nhận: {order.deliveryInfo.recipientName} ({order.deliveryInfo.recipientPhone})
+              <p className="text-xs text-stone-500 truncate">
+                Đơn hàng #{order.id} · {order.deliveryInfo.recipientName} ({order.deliveryInfo.recipientPhone})
               </p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-1.5 text-stone-400 hover:text-stone-900 rounded-full transition-colors cursor-pointer"
+            className="p-1.5 text-stone-400 hover:text-stone-900 rounded-full transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>

@@ -107,9 +107,9 @@ export const GmailModal: React.FC = () => {
                   </div>
 
                   {/* Email Body */}
-                  <div className="p-6 sm:p-8 space-y-6">
+                  <div className="p-4 sm:p-6 sm:p-8 space-y-5 sm:space-y-6">
                     {/* Brand Banner */}
-                    <div className="text-center pb-6 border-b border-rose-200">
+                    <div className="text-center pb-5 sm:pb-6 border-b border-rose-200">
                       <h1 className="text-2xl font-display font-medium text-rose-950 tracking-tight">
                         Rose
                       </h1>
@@ -128,7 +128,7 @@ export const GmailModal: React.FC = () => {
                     </div>
 
                     {/* Delivery Summary Box */}
-                    <div className="bg-white p-4 rounded-xl border border-stone-200 text-xs space-y-2">
+                    <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-stone-200 text-xs space-y-2">
                       <h4 className="font-bold text-stone-900 uppercase tracking-wider text-[11px] mb-2">
                         Thông Tin Giao Hoa:
                       </h4>
@@ -143,7 +143,7 @@ export const GmailModal: React.FC = () => {
                       {selectedEmail.greetingMessage && (
                         <div className="pt-2 border-t border-stone-100">
                           <span className="text-stone-500 block mb-1">Lời chúc trên thiệp thủ công:</span>
-                          <p className="italic text-stone-800 bg-[#FAF8F5] p-2.5 rounded border border-stone-200">
+                          <p className="italic text-stone-800 bg-[#FAF8F5] p-2.5 rounded border border-stone-200 break-words">
                             "{selectedEmail.greetingMessage}"
                           </p>
                         </div>
@@ -155,27 +155,27 @@ export const GmailModal: React.FC = () => {
                       <table className="w-full text-left">
                         <thead className="bg-stone-50 border-b border-stone-200 text-[11px] font-bold text-stone-700 uppercase tracking-wider">
                           <tr>
-                            <th className="p-3">Sản phẩm</th>
-                            <th className="p-3 text-center">SL</th>
-                            <th className="p-3 text-right">Thành tiền</th>
+                            <th className="p-2.5 sm:p-3">Sản phẩm</th>
+                            <th className="p-2.5 sm:p-3 text-center">SL</th>
+                            <th className="p-2.5 sm:p-3 text-right">Thành tiền</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-stone-100">
                           {selectedEmail.itemsSummary.map((item, idx) => (
                             <tr key={idx}>
-                              <td className="p-3">
+                              <td className="p-2.5 sm:p-3">
                                 <span className="font-medium text-stone-900 block">{item.name}</span>
                                 <span className="text-[10px] text-stone-500">{item.variant}</span>
                               </td>
-                              <td className="p-3 text-center font-mono">{item.quantity}</td>
-                              <td className="p-3 text-right font-mono font-medium">{formatVND(item.price)}</td>
+                              <td className="p-2.5 sm:p-3 text-center font-mono">{item.quantity}</td>
+                              <td className="p-2.5 sm:p-3 text-right font-mono font-medium">{formatVND(item.price)}</td>
                             </tr>
                           ))}
                         </tbody>
                         <tfoot className="bg-stone-50/80 border-t border-stone-200 font-bold text-stone-900">
                           <tr>
-                            <td colSpan={2} className="p-3 text-right">Tổng thanh toán:</td>
-                            <td className="p-3 text-right font-mono text-sm text-rose-800">
+                            <td colSpan={2} className="p-2.5 sm:p-3 text-right">Tổng thanh toán:</td>
+                            <td className="p-2.5 sm:p-3 text-right font-mono text-sm text-rose-800">
                               {formatVND(selectedEmail.totalAmount)}
                             </td>
                           </tr>
@@ -183,21 +183,19 @@ export const GmailModal: React.FC = () => {
                       </table>
                     </div>
 
-                    {/* Action link inside email (Chỉ hiển thị nút điều phối cho STAFF) */}
-                    {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') && (
-                      <div className="text-center pt-2">
-                        <button
-                          onClick={() => {
-                            dispatch({ type: 'SET_MODAL', payload: { modal: 'isGmailOpen', isOpen: false } });
-                            dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: selectedEmail.orderId });
-                          }}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                          <span>Điều Phối Tiến Độ Đơn (STAFF)</span>
-                        </button>
-                      </div>
-                    )}
+                    {/* Action link inside email */}
+                    <div className="text-center pt-2">
+                      <button
+                        onClick={() => {
+                          dispatch({ type: 'SET_MODAL', payload: { modal: 'isGmailOpen', isOpen: false } });
+                          dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: selectedEmail.orderId });
+                        }}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Theo Dõi Tiến Độ Đơn Hàng</span>
+                      </button>
+                    </div>
 
                     {/* Footer */}
                     <div className="text-center pt-6 border-t border-rose-200 text-[11px] text-stone-500 space-y-1">

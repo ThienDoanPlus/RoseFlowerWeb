@@ -38,16 +38,16 @@ export const PrintCardModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="relative bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-stone-200">
+      <div className="relative bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 sm:p-8 shadow-2xl border border-stone-200">
         
         {/* Header Action Bar */}
-        <div className="flex items-center justify-between pb-4 border-b border-stone-200 mb-6 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-stone-200 mb-4 sm:mb-6 print:hidden">
           <div className="flex items-center gap-2">
-            <span className="p-2 bg-rose-100 text-rose-800 rounded-xl">
+            <span className="p-2 bg-rose-100 text-rose-800 rounded-xl shrink-0">
               <Sparkles className="w-5 h-5" />
             </span>
             <div>
-              <h3 className="font-display font-medium text-lg text-stone-900">
+              <h3 className="font-display font-medium text-base sm:text-lg text-stone-900">
                 Xuất In Thiệp Chúc Mừng Trang Trọng
               </h3>
               <p className="text-xs text-stone-500">
@@ -56,7 +56,7 @@ export const PrintCardModal: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 self-end sm:self-auto">
             <button
               onClick={handleCopy}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors cursor-pointer"
@@ -85,7 +85,7 @@ export const PrintCardModal: React.FC = () => {
         {/* The Card Printable Canvas (10x15 cm ratio) */}
         <div
           ref={printAreaRef}
-          className="printable-card relative bg-[#FFFDF9] rounded-xl border-2 border-rose-200/80 p-8 sm:p-10 shadow-inner overflow-hidden text-center"
+          className="printable-card relative bg-[#FFFDF9] rounded-xl border-2 border-rose-200/80 p-5 sm:p-8 sm:p-10 shadow-inner overflow-hidden text-center"
           style={{
             backgroundImage:
               'radial-gradient(#e5a4b4 0.6px, transparent 0.6px), radial-gradient(#d4af37 0.4px, #FFFDF9 0.4px)',

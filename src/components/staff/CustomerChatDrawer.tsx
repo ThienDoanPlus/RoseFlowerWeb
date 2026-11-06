@@ -67,8 +67,14 @@ export const CustomerChatDrawer: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-stone-950/50 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+    <div
+      className="fixed inset-0 z-50 overflow-hidden bg-stone-950/50 backdrop-blur-xs flex justify-end animate-in fade-in duration-200"
+      onClick={handleClose}
+    >
+      <div
+        className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Header */}
         <div className="p-4 bg-rose-900 text-white flex items-center justify-between shadow-xs">

@@ -32,43 +32,43 @@ export const OrderSuccessModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="relative bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-stone-200 text-center animate-in zoom-in-95 duration-200">
+      <div className="relative bg-white rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 sm:p-8 shadow-2xl border border-stone-200 text-center animate-in zoom-in-95 duration-200">
         
         <button
           onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } })}
-          className="absolute top-4 right-4 p-1.5 text-stone-400 hover:text-stone-900 rounded-full transition-colors cursor-pointer"
+          className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-1.5 text-stone-400 hover:text-stone-900 rounded-full transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Status Icon */}
         <div
-          className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border ${
+          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 border ${
             order.paymentStatus === 'PAID'
               ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
               : 'bg-amber-50 text-amber-600 border-amber-200'
           }`}
         >
           {order.paymentStatus === 'PAID' ? (
-            <CheckCircle className="w-8 h-8" />
+            <CheckCircle className="w-7 h-7 sm:w-8 sm:h-8" />
           ) : (
-            <Clock className="w-8 h-8" />
+            <Clock className="w-7 h-7 sm:w-8 sm:h-8" />
           )}
         </div>
 
         <span
-          className={`text-xs uppercase tracking-widest font-semibold block mb-1 ${
+          className={`text-[11px] sm:text-xs uppercase tracking-widest font-semibold block mb-1 ${
             order.paymentStatus === 'PAID' ? 'text-emerald-700' : 'text-amber-700'
           }`}
         >
           {order.paymentStatus === 'PAID' ? 'Đã Phê Duyệt Thanh Toán' : 'Đã Tiếp Nhận Đơn · Chờ Admin Phê Duyệt'}
         </span>
 
-        <h3 className="text-2xl font-display font-medium text-rose-950 mb-2">
+        <h3 className="text-xl sm:text-2xl font-display font-medium text-rose-950 mb-2">
           {order.paymentStatus === 'PAID' ? 'Cảm Ơn Bạn Đã Chọn Rose!' : 'Đơn Hoa Đang Chờ Admin Phê Duyệt'}
         </h3>
 
-        <p className="text-xs text-stone-600 mb-6 leading-relaxed">
+        <p className="text-xs text-stone-600 mb-5 sm:mb-6 leading-relaxed">
           {order.paymentStatus === 'PAID' ? (
             <>
               Đơn hàng mã <strong className="font-mono text-stone-900">{order.id}</strong> đã được phê duyệt thanh toán. Thợ cắm hoa tại tiệm <strong>Rose (294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM)</strong> đang bắt đầu lên đơn và chuẩn bị giao cho bạn.
@@ -82,9 +82,9 @@ export const OrderSuccessModal: React.FC = () => {
 
         {/* Admin Quick Action Button inside modal */}
         {state.currentRole === 'ADMIN' && order.paymentStatus === 'UNPAID' && (
-          <div className="mb-6 p-4 rounded-xl bg-amber-50 border-2 border-amber-300 text-left space-y-2">
+          <div className="mb-5 sm:mb-6 p-3.5 sm:p-4 rounded-xl bg-amber-50 border-2 border-amber-300 text-left space-y-2">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-amber-800" />
+              <ShieldCheck className="w-4 h-4 text-amber-800 shrink-0" />
               <span className="text-xs font-bold text-amber-950 uppercase tracking-wide">
                 Bạn đang đăng nhập quyền Admin
               </span>
@@ -108,29 +108,29 @@ export const OrderSuccessModal: React.FC = () => {
         )}
 
         {/* Summary Card */}
-        <div className="bg-[#FAF8F5] rounded-xl p-4 border border-stone-200 text-left text-xs space-y-2 mb-6">
-          <div className="flex justify-between">
-            <span className="text-stone-500">Người nhận:</span>
+        <div className="bg-[#FAF8F5] rounded-xl p-3.5 sm:p-4 border border-stone-200 text-left text-xs space-y-2 mb-5 sm:mb-6 divide-y divide-stone-100">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 pb-1.5">
+            <span className="text-stone-500 shrink-0">Người nhận:</span>
             <span className="font-medium text-stone-900">{order.deliveryInfo.recipientName} ({order.deliveryInfo.recipientPhone})</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-stone-500">Địa chỉ giao:</span>
-            <span className="font-medium text-stone-900 text-right max-w-[200px] truncate">{order.deliveryInfo.address}</span>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-0.5 sm:gap-2 pt-1.5 pb-1.5">
+            <span className="text-stone-500 shrink-0">Địa chỉ giao:</span>
+            <span className="font-medium text-stone-900 sm:text-right break-words">{order.deliveryInfo.address}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-stone-500">Khung giờ:</span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 pt-1.5 pb-1.5">
+            <span className="text-stone-500 shrink-0">Khung giờ:</span>
             <span className="font-medium text-stone-900">{order.deliveryInfo.deliveryTimeSlot}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-stone-500">Phương thức:</span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 pt-1.5 pb-1.5">
+            <span className="text-stone-500 shrink-0">Phương thức:</span>
             <span className="font-medium text-stone-900">
-              VietQR Napas 24/7 (Vietcombank 1027210627)
+              VietQR (VCB 1027210627)
             </span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-stone-500">Trạng thái thanh toán:</span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 pt-1.5 pb-1.5">
+            <span className="text-stone-500 shrink-0">Trạng thái:</span>
             <span
-              className={`font-semibold px-2 py-0.5 rounded text-[11px] ${
+              className={`font-semibold px-2 py-0.5 rounded text-[11px] self-start sm:self-auto ${
                 order.paymentStatus === 'PAID'
                   ? 'bg-emerald-100 text-emerald-800'
                   : 'bg-amber-100 text-amber-900'
@@ -139,46 +139,44 @@ export const OrderSuccessModal: React.FC = () => {
               {order.paymentStatus === 'PAID' ? 'Đã nhận chuyển khoản' : 'Chờ Admin duyệt chuyển khoản'}
             </span>
           </div>
-          <div className="flex justify-between pt-2 border-t border-stone-200 text-sm font-semibold">
+          <div className="flex items-center justify-between pt-2.5 text-sm font-semibold">
             <span>Tổng thanh toán:</span>
-            <span className="font-mono text-rose-800">{formatVND(order.totalAmount)}</span>
+            <span className="font-mono text-rose-800 text-base">{formatVND(order.totalAmount)}</span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="space-y-3">
+        <div className="space-y-2.5">
+          <button
+            onClick={() => {
+              dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } });
+              dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: order.id });
+            }}
+            className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+          >
+            <Navigation className="w-4 h-4 text-emerald-400" />
+            <span>Theo dõi tiến độ đơn hàng thời gian thực</span>
+          </button>
+
           <button
             onClick={() => {
               dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } });
               dispatch({ type: 'SET_MODAL', payload: { modal: 'isGmailOpen', isOpen: true } });
             }}
-            className="w-full py-3 px-4 bg-rose-700 hover:bg-rose-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-2.5 px-4 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <Mail className="w-4 h-4" />
-            <span>Xem email xác nhận gửi về Gmail ({order.deliveryInfo.recipientEmail})</span>
+            <Mail className="w-4 h-4 text-rose-700 shrink-0" />
+            <span className="truncate">Xem email xác nhận ({order.deliveryInfo.recipientEmail})</span>
           </button>
 
-          {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') ? (
-            <button
-              onClick={() => {
-                dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } });
-                dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: order.id });
-              }}
-              className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Navigation className="w-4 h-4" />
-              <span>Theo dõi tiến độ điều phối đơn (STAFF)</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } });
-              }}
-              className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>Tiếp tục dạo xem hoa tươi</span>
-            </button>
-          )}
+          <button
+            onClick={() => {
+              dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } });
+            }}
+            className="w-full py-2 px-4 text-stone-600 hover:text-stone-900 text-xs font-medium transition-colors cursor-pointer"
+          >
+            Tiếp tục dạo xem hoa tươi
+          </button>
         </div>
 
       </div>

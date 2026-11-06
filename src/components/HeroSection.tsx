@@ -16,9 +16,9 @@ export const HeroSection: React.FC = () => {
   const featuredHeroFlower = flowerList.find((f) => f.basePrice === 679000) || flowerList[0];
 
   return (
-    <section className="relative overflow-hidden pt-8 pb-16 lg:py-20 border-b border-rose-200/60 bg-gradient-to-b from-[#FFF5F7] via-[#FFF0F4] to-[#FFF5F7]">
+    <section className="relative overflow-hidden pt-6 sm:pt-8 pb-12 sm:pb-16 lg:py-20 border-b border-rose-200/60 bg-gradient-to-b from-[#FFF5F7] via-[#FFF0F4] to-[#FFF5F7]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-8 items-center">
           
           {/* Left Column: Editorial Headline & Actions */}
           <div className="lg:col-span-7 flex flex-col justify-center">
@@ -27,16 +27,16 @@ export const HeroSection: React.FC = () => {
               Rose · 294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM
             </span>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-medium text-rose-950 leading-[1.15] tracking-tight mb-6 text-balance">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-medium text-rose-950 leading-[1.2] sm:leading-[1.15] tracking-tight mb-4 sm:mb-6 text-balance">
               Hoa sáp thơm vĩnh cửu trao gửi yêu thương đong đầy
             </h1>
 
-            <p className="text-base sm:text-lg text-stone-700 max-w-2xl leading-relaxed mb-8">
+            <p className="text-sm sm:text-base lg:text-lg text-stone-700 max-w-2xl leading-relaxed mb-6 sm:mb-8">
               Tuyển tập những đóa <strong>hoa sáp thơm cao cấp</strong> cánh dập nổi 5 lớp mềm mịn, giữ form cánh vĩnh cửu và lưu hương tinh dầu tự nhiên 3-5 năm không tàn. 
               Giao hỏa tốc 30-45 phút từ cửa hàng <strong>Rose tại 294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM</strong>.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-10">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-8 sm:mb-10">
               <a
                 href="#collection"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-rose-900 hover:bg-rose-800 text-white text-sm font-medium rounded-lg transition-all shadow-md active:scale-98 cursor-pointer"
@@ -54,7 +54,7 @@ export const HeroSection: React.FC = () => {
             </div>
 
             {/* Quick Metrics / Guarantees */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-rose-200/80">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 pt-4 sm:pt-6 border-t border-rose-200/80">
               <div className="flex items-center gap-2 text-stone-800">
                 <Clock className="w-4 h-4 text-rose-700 shrink-0" />
                 <span className="text-xs font-medium">Hỏa tốc 30-45'</span>

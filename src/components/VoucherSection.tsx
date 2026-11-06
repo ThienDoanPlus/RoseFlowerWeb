@@ -14,16 +14,16 @@ export const VoucherSection: React.FC = () => {
   const currentCode = state.activeVoucher?.code;
 
   return (
-    <section id="vouchers" className="py-16 bg-[#FFF0F4] border-y border-rose-200/80">
+    <section id="vouchers" className="py-12 sm:py-16 bg-[#FFF0F4] border-y border-rose-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <span className="text-xs uppercase tracking-widest text-rose-700 font-semibold block mb-2">
             Rose Special Perks
           </span>
-          <h2 className="text-3xl sm:text-4xl font-display font-medium text-rose-950 tracking-tight mb-4">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-medium text-rose-950 tracking-tight mb-3 sm:mb-4">
             Ưu Đãi Hoa Sáp Dịp Lễ & Đặt Số Lượng Lớn
           </h2>
-          <p className="text-stone-700 text-sm leading-relaxed">
+          <p className="text-stone-700 text-xs sm:text-sm leading-relaxed">
             Áp dụng mã giảm giá độc quyền cho hoa sáp thơm tại Rose (294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM) hoặc chiết khấu trực tiếp cho đơn hàng số lượng lớn.
           </p>
         </div>
