@@ -90,7 +90,13 @@ export const MobileBottomBar: React.FC = () => {
 
         {/* 5. User Account / Login */}
         <button
-          onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isAuthOpen', isOpen: true } })}
+          onClick={() => {
+            if (state.user) {
+              dispatch({ type: 'SET_MODAL', payload: { modal: 'isAccountSettingsOpen', isOpen: true } });
+            } else {
+              dispatch({ type: 'SET_MODAL', payload: { modal: 'isAuthOpen', isOpen: true } });
+            }
+          }}
           className="flex flex-col items-center justify-center py-1 text-stone-600 hover:text-rose-900 transition-colors cursor-pointer"
         >
           {state.user ? (

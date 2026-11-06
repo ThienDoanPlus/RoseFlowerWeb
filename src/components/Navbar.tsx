@@ -246,7 +246,13 @@ export const Navbar: React.FC = () => {
           {/* User Account Button & Quick Settings */}
           <div className="flex items-center gap-1 sm:gap-1.5">
             <button
-              onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isAuthOpen', isOpen: true } })}
+              onClick={() => {
+                if (state.user) {
+                  dispatch({ type: 'SET_MODAL', payload: { modal: 'isAccountSettingsOpen', isOpen: true } });
+                } else {
+                  dispatch({ type: 'SET_MODAL', payload: { modal: 'isAuthOpen', isOpen: true } });
+                }
+              }}
               className="flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-1.5 text-stone-700 hover:text-stone-950 hover:bg-rose-100/60 rounded-full sm:rounded-lg transition-colors cursor-pointer text-xs font-medium border border-transparent sm:border-rose-200 bg-white shadow-2xs"
               title={state.user ? `Tài khoản: ${state.user.name}` : 'Đăng nhập / Đăng ký tài khoản'}
             >
