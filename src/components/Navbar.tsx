@@ -181,46 +181,63 @@ export const Navbar: React.FC = () => {
 
             {/* Notifications Dropdown */}
             {isNotifOpen && (
-              <div className="absolute right-0 mt-2 w-72 sm:w-96 bg-white rounded-xl shadow-xl border border-stone-200 p-4 z-50 animate-in fade-in slide-in-from-top-2">
-                <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-                  <h4 className="font-semibold text-stone-900 text-sm">Thông Báo Trực Tuyến</h4>
-                  <button
-                    onClick={() => {
-                      dispatch({ type: 'MARK_NOTIFICATIONS_READ' });
-                      setIsNotifOpen(false);
-                    }}
-                    className="text-xs text-rose-700 hover:underline cursor-pointer"
-                  >
-                    Đã đọc tất cả
-                  </button>
-                </div>
-                <div className="max-h-72 overflow-y-auto divide-y divide-stone-100 mt-2">
-                  {state.notifications.length === 0 ? (
-                    <p className="text-xs text-stone-500 py-4 text-center">Không có thông báo mới</p>
-                  ) : (
-                    state.notifications.map((n) => (
-                      <div
-                        key={n.id}
-                        className={`py-2.5 px-2 rounded-lg transition-colors cursor-pointer ${
-                          n.read ? 'hover:bg-stone-50' : 'bg-rose-50/50 hover:bg-rose-50'
-                        }`}
+              <>
+                {/* Backdrop to close when clicking outside */}
+                <div
+                  className="fixed inset-0 z-40 bg-black/20 sm:bg-transparent"
+                  onClick={() => setIsNotifOpen(false)}
+                />
+                <div className="fixed left-3 right-3 top-20 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96 max-w-[calc(100vw-24px)] bg-white rounded-2xl sm:rounded-xl shadow-2xl sm:shadow-xl border border-stone-200 p-3.5 sm:p-4 z-50 animate-in fade-in zoom-in-95 sm:zoom-in-100 slide-in-from-top-2">
+                  <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+                    <h4 className="font-semibold text-stone-900 text-sm">Thông Báo Trực Tuyến</h4>
+                    <div className="flex items-center gap-2">
+                      <button
                         onClick={() => {
-                          if (n.orderId) {
-                            dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: n.orderId });
-                            setIsNotifOpen(false);
-                          }
+                          dispatch({ type: 'MARK_NOTIFICATIONS_READ' });
+                          setIsNotifOpen(false);
                         }}
+                        className="text-xs text-rose-700 hover:underline cursor-pointer"
                       >
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="text-xs font-semibold text-stone-900">{n.title}</p>
-                          <span className="text-[10px] text-stone-400 whitespace-nowrap">{n.timestamp}</span>
+                        Đã đọc tất cả
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsNotifOpen(false)}
+                        className="sm:hidden p-1 text-stone-400 hover:text-stone-700 rounded-md cursor-pointer"
+                        aria-label="Đóng"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="max-h-[60vh] sm:max-h-72 overflow-y-auto divide-y divide-stone-100 mt-2">
+                    {state.notifications.length === 0 ? (
+                      <p className="text-xs text-stone-500 py-4 text-center">Không có thông báo mới</p>
+                    ) : (
+                      state.notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          className={`py-2.5 px-2 rounded-lg transition-colors cursor-pointer ${
+                            n.read ? 'hover:bg-stone-50' : 'bg-rose-50/50 hover:bg-rose-50'
+                          }`}
+                          onClick={() => {
+                            if (n.orderId) {
+                              dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: n.orderId });
+                              setIsNotifOpen(false);
+                            }
+                          }}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-xs font-semibold text-stone-900">{n.title}</p>
+                            <span className="text-[10px] text-stone-400 whitespace-nowrap">{n.timestamp}</span>
+                          </div>
+                          <p className="text-xs text-stone-600 mt-0.5 line-clamp-2">{n.message}</p>
                         </div>
-                        <p className="text-xs text-stone-600 mt-0.5 line-clamp-2">{n.message}</p>
-                      </div>
-                    ))
-                  )}
+                      ))
+                    )}
+                  </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
 
