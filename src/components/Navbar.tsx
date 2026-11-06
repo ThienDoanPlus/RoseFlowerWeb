@@ -299,52 +299,139 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-rose-200 shadow-xl px-4 py-5 space-y-4 animate-in slide-in-from-top-4 duration-200">
-          <div className="flex flex-col space-y-1.5 text-sm font-medium text-stone-800">
-            <button
-              onClick={() => {
-                dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                setIsMobileMenuOpen(false);
-              }}
-              className="p-3 hover:bg-rose-50 rounded-xl transition-colors flex items-center justify-between text-left"
-            >
-              <span>Trang Cửa Hàng & Bộ Sưu Tập</span>
-              <Store className="w-4 h-4 text-rose-700" />
-            </button>
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 top-20 bg-stone-950/40 backdrop-blur-xs z-30 lg:hidden animate-in fade-in duration-200"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
 
-            {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') && (
+          {/* Drawer Body */}
+          <div className="relative z-40 lg:hidden bg-white border-b border-rose-200 shadow-2xl px-4 py-4 sm:py-5 space-y-3.5 max-h-[calc(100dvh-5rem)] overflow-y-auto animate-in slide-in-from-top-3 duration-200">
+            <div className="flex flex-col space-y-1 text-sm font-medium text-stone-800">
               <button
                 onClick={() => {
-                  dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' });
+                  dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
                   setIsMobileMenuOpen(false);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="p-3 hover:bg-rose-50 rounded-xl transition-colors flex items-center justify-between text-left font-semibold text-rose-900"
+                className={`p-3 rounded-xl transition-colors flex items-center justify-between text-left cursor-pointer ${
+                  state.activeView === 'storefront'
+                    ? 'bg-rose-50 text-rose-950 font-bold border border-rose-200/80 shadow-2xs'
+                    : 'hover:bg-rose-50/60 text-stone-700'
+                }`}
               >
-                <span>Bảng Kanban Florist (Staff)</span>
-                <LayoutDashboard className="w-4 h-4 text-rose-700" />
+                <span className="flex items-center gap-2.5">
+                  <Store className="w-4 h-4 text-rose-700" />
+                  <span>Trang Cửa Hàng &amp; Bộ Sưu Tập</span>
+                </span>
+                {state.activeView === 'storefront' && (
+                  <span className="text-[10px] bg-rose-200 text-rose-900 font-bold px-2 py-0.5 rounded-full">
+                    Đang xem
+                  </span>
+                )}
               </button>
-            )}
 
-            {state.currentRole === 'ADMIN' && (
-              <button
-                onClick={() => {
-                  dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' });
-                  setIsMobileMenuOpen(false);
-                }}
-                className="p-3 hover:bg-amber-50 rounded-xl transition-colors flex items-center justify-between text-left font-semibold text-amber-900"
+              {/* Quick Anchor Shortcuts */}
+              <a
+                href="#collection"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 hover:bg-rose-50/60 rounded-xl transition-colors flex items-center justify-between text-left text-stone-700 text-xs sm:text-sm font-medium"
               >
-                <span>Admin Portal Quản Trị Tiệm</span>
-                <ShieldCheck className="w-4 h-4 text-amber-700" />
-              </button>
-            )}
-          </div>
+                <span className="flex items-center gap-2.5">
+                  <Sparkles className="w-4 h-4 text-rose-600" />
+                  <span>Bộ sưu tập 78 mẫu hoa sáp</span>
+                </span>
+                <span className="text-[11px] text-stone-400">#collection</span>
+              </a>
 
+              <a
+                href="#vouchers"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 hover:bg-rose-50/60 rounded-xl transition-colors flex items-center justify-between text-left text-stone-700 text-xs sm:text-sm font-medium"
+              >
+                <span className="flex items-center gap-2.5">
+                  <Tag className="w-4 h-4 text-rose-600" />
+                  <span>Mã giảm giá &amp; Ưu đãi lễ</span>
+                </span>
+                <span className="text-[11px] text-stone-400">#vouchers</span>
+              </a>
 
-          <div className="pt-3 border-t border-rose-100 flex items-center justify-between text-xs text-stone-600">
-            <span>Hotline/Zalo: <strong>0888 208 306</strong></span>
-            <span>294 Phạm Văn Bạch, TP.HCM</span>
+              <a
+                href="#branches"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-3 hover:bg-rose-50/60 rounded-xl transition-colors flex items-center justify-between text-left text-stone-700 text-xs sm:text-sm font-medium"
+              >
+                <span className="flex items-center gap-2.5">
+                  <MapPin className="w-4 h-4 text-rose-600" />
+                  <span>Chi nhánh &amp; Bản đồ giao hỏa tốc</span>
+                </span>
+                <span className="text-[11px] text-stone-400">#branches</span>
+              </a>
+
+              {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') && (
+                <button
+                  onClick={() => {
+                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' });
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-3 rounded-xl transition-colors flex items-center justify-between text-left font-semibold cursor-pointer ${
+                    state.activeView === 'staff'
+                      ? 'bg-rose-100 text-rose-950 font-bold border border-rose-300 shadow-2xs'
+                      : 'hover:bg-rose-50 text-rose-900 bg-rose-50/40'
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <LayoutDashboard className="w-4 h-4 text-rose-700" />
+                    <span>Bảng Kanban Florist (Staff)</span>
+                  </span>
+                  <span className="text-[10px] bg-rose-200 text-rose-900 px-2 py-0.5 rounded-full font-bold">STAFF</span>
+                </button>
+              )}
+
+              {state.currentRole === 'ADMIN' && (
+                <button
+                  onClick={() => {
+                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' });
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`p-3 rounded-xl transition-colors flex items-center justify-between text-left font-semibold cursor-pointer ${
+                    state.activeView === 'admin'
+                      ? 'bg-amber-100 text-amber-950 font-bold border border-amber-300 shadow-2xs'
+                      : 'hover:bg-amber-50 text-amber-900 bg-amber-50/40'
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <ShieldCheck className="w-4 h-4 text-amber-700" />
+                    <span>Admin Portal Quản Trị Tiệm</span>
+                  </span>
+                  <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">ADMIN</span>
+                </button>
+              )}
+            </div>
+
+            {/* Contact row with clickable links and responsive wrapping */}
+            <div className="pt-3 border-t border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-stone-600">
+              <a
+                href="https://zalo.me/0888208306"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 hover:text-rose-900 transition-colors py-0.5"
+              >
+                <Phone className="w-3.5 h-3.5 text-rose-700 shrink-0" />
+                <span>Hotline/Zalo: <strong className="font-mono text-stone-900">0888 208 306</strong></span>
+              </a>
+              <a
+                href="#branches"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-1.5 hover:text-rose-900 transition-colors py-0.5"
+              >
+                <MapPin className="w-3.5 h-3.5 text-rose-700 shrink-0" />
+                <span>294 Phạm Văn Bạch, TP.HCM</span>
+              </a>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </header>
   );

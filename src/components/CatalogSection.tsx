@@ -17,6 +17,7 @@ import {
   User,
   X,
   Layers,
+  ArrowUpDown,
   Flower as FlowerIcon,
 } from 'lucide-react';
 import { useStore } from '../store';
@@ -201,36 +202,37 @@ export const CatalogSection: React.FC = () => {
   return (
     <section id="collection" className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Section Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pb-6 border-b border-rose-200/80">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 sm:gap-6 mb-6 sm:mb-8 pb-6 border-b border-rose-200/80">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-medium mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-rose-600" />
-            <span>Kho Hoa Sáp Thực Tế 294 Phạm Văn Bạch (TP.HCM)</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-medium mb-2.5 sm:mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+            <span className="truncate">Kho Hoa Sáp Thực Tế 294 Phạm Văn Bạch (TP.HCM)</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-display font-medium text-rose-950 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-medium text-rose-950 tracking-tight">
             Bộ Sưu Tập Hoa Sáp Thơm Vĩnh Cửu
           </h2>
-          <p className="mt-2 text-stone-600 text-sm max-w-2xl">
+          <p className="mt-1.5 sm:mt-2 text-stone-600 text-xs sm:text-sm max-w-2xl leading-relaxed">
             Tất cả hình ảnh &amp; giá tiền được lấy trực tiếp từ sản phẩm thực tế của xưởng hoa. Chọn nhanh theo dịp tặng, người nhận, kiểu dáng hoặc tone màu yêu thích.
           </p>
         </div>
 
         {/* Search Bar & Sort Dropdown */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full lg:w-auto">
           {/* Search Input */}
-          <div className="relative min-w-[240px]">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <div className="relative flex-1 min-w-0 sm:min-w-[260px] lg:min-w-[300px]">
+            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 shrink-0 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
               placeholder="Tìm kiếm hoa sáp, tone màu, dịp tặng..."
-              className="w-full pl-9 pr-8 py-2 bg-white border border-rose-200 rounded-lg text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800 transition-colors shadow-xs"
+              className="w-full pl-9 pr-8 py-2.5 sm:py-2 bg-white border border-rose-200 rounded-xl sm:rounded-lg text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800 transition-colors shadow-xs"
             />
             {searchQuery && (
               <button
                 onClick={() => dispatch({ type: 'SET_SEARCH', payload: '' })}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-0.5 cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 p-1 cursor-pointer rounded-full hover:bg-stone-100"
+                title="Xóa tìm kiếm"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -238,7 +240,8 @@ export const CatalogSection: React.FC = () => {
           </div>
 
           {/* Sort Select */}
-          <div className="flex items-center gap-2">
+          <div className="relative w-full sm:w-auto shrink-0">
+            <ArrowUpDown className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={sortBy}
               onChange={(e) =>
@@ -247,7 +250,7 @@ export const CatalogSection: React.FC = () => {
                   payload: e.target.value as 'popular' | 'price-asc' | 'price-desc' | 'rating',
                 })
               }
-              className="py-2 px-3 bg-white border border-stone-300 rounded-lg text-sm text-stone-700 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:border-stone-900 cursor-pointer shadow-xs"
+              className="w-full sm:w-auto py-2.5 sm:py-2 pl-8 pr-8 bg-white border border-stone-300 rounded-xl sm:rounded-lg text-xs sm:text-sm font-medium text-stone-700 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:border-stone-900 cursor-pointer shadow-xs transition-colors"
             >
               <option value="popular">Phổ biến nhất</option>
               <option value="price-asc">Giá: Thấp đến Cao</option>
@@ -286,62 +289,63 @@ export const CatalogSection: React.FC = () => {
       </div>
 
       {/* 6-Dimensional Multi-Category Filter Bar */}
-      <div className="bg-white rounded-2xl border border-rose-200/90 p-4 sm:p-5 shadow-sm mb-6 transition-all">
+      <div className="bg-white rounded-2xl border border-rose-200/90 p-3.5 sm:p-5 shadow-sm mb-6 transition-all">
         {/* Filter Bar Header & Quick Trigger */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-stone-100">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-800 shrink-0">
               <Filter className="w-4 h-4" />
             </div>
-            <div>
-              <h3 className="text-sm font-semibold text-stone-900 flex items-center gap-2">
-                Bộ Lọc Nâng Cao Theo 6 Tiêu Chí
+            <div className="min-w-0">
+              <h3 className="text-xs sm:text-sm font-semibold text-stone-900 flex items-center gap-2">
+                <span className="truncate">Bộ Lọc Nâng Cao 6 Tiêu Chí</span>
                 {activeFiltersCount > 0 && (
-                  <span className="bg-rose-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                  <span className="bg-rose-600 text-white text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0">
                     {activeFiltersCount} đang chọn
                   </span>
                 )}
               </h3>
-              <p className="text-xs text-stone-500">
-                Lọc trực tiếp từ 78 mẫu hoa thực tế trong kho: Dịp tặng, Người nhận, Kiểu dáng, Mức giá, Tone màu, Loại hoa
+              <p className="text-[11px] sm:text-xs text-stone-500 line-clamp-1 sm:line-clamp-none">
+                Lọc nhanh 78 mẫu hoa thực tế: Dịp tặng, Người nhận, Kiểu dáng, Mức giá, Tone màu, Loại hoa
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end shrink-0 pt-1 sm:pt-0">
             {hasActiveFilters && (
               <button
                 onClick={() => dispatch({ type: 'RESET_ALL_FILTERS' })}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors cursor-pointer"
+                title="Đặt lại toàn bộ tiêu chí đã chọn"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span>Đặt lại tất cả</span>
+                <span>Đặt lại</span>
               </button>
             )}
             <button
               onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors cursor-pointer ml-auto sm:ml-0"
             >
-              <span>{isFilterPanelOpen ? 'Thu gọn bộ lọc' : 'Mở rộng chi tiết'}</span>
+              <span>{isFilterPanelOpen ? 'Thu gọn' : 'Mở rộng chi tiết'}</span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isFilterPanelOpen ? 'rotate-180' : ''}`} />
             </button>
           </div>
         </div>
 
         {/* 6 Quick Dropdown Selectors (Visible on desktop & mobile) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-2.5 pt-3">
           {/* 1. Dịp tặng */}
-          <div>
-            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-rose-700" />
-              <span>1. Dịp tặng</span>
+          <div className="min-w-0">
+            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1 truncate">
+              <Calendar className="w-3 h-3 text-rose-700 shrink-0" />
+              <span className="truncate">1. Dịp tặng</span>
             </label>
             <select
               value={selectedOccasion}
               onChange={(e) => dispatch({ type: 'SET_OCCASION', payload: e.target.value })}
-              className={`w-full py-1.5 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer ${
+              className={`w-full py-2 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer truncate ${
                 selectedOccasion !== 'tat-ca'
-                  ? 'border-rose-700 bg-rose-50/50 text-rose-950 font-medium'
+                  ? 'border-rose-700 bg-rose-50/70 text-rose-950 font-bold'
                   : 'border-stone-200 bg-white text-stone-700'
               }`}
             >
@@ -354,17 +358,17 @@ export const CatalogSection: React.FC = () => {
           </div>
 
           {/* 2. Người nhận */}
-          <div>
-            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1">
-              <User className="w-3 h-3 text-rose-700" />
-              <span>2. Người nhận</span>
+          <div className="min-w-0">
+            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1 truncate">
+              <User className="w-3 h-3 text-rose-700 shrink-0" />
+              <span className="truncate">2. Người nhận</span>
             </label>
             <select
               value={selectedRecipient}
               onChange={(e) => dispatch({ type: 'SET_RECIPIENT', payload: e.target.value })}
-              className={`w-full py-1.5 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer ${
+              className={`w-full py-2 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer truncate ${
                 selectedRecipient !== 'tat-ca'
-                  ? 'border-rose-700 bg-rose-50/50 text-rose-950 font-medium'
+                  ? 'border-rose-700 bg-rose-50/70 text-rose-950 font-bold'
                   : 'border-stone-200 bg-white text-stone-700'
               }`}
             >
@@ -377,17 +381,17 @@ export const CatalogSection: React.FC = () => {
           </div>
 
           {/* 3. Kiểu dáng thiết kế */}
-          <div>
-            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1">
-              <Layers className="w-3 h-3 text-rose-700" />
-              <span>3. Kiểu dáng</span>
+          <div className="min-w-0">
+            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1 truncate">
+              <Layers className="w-3 h-3 text-rose-700 shrink-0" />
+              <span className="truncate">3. Kiểu dáng</span>
             </label>
             <select
               value={selectedDesignStyle}
               onChange={(e) => dispatch({ type: 'SET_DESIGN_STYLE', payload: e.target.value })}
-              className={`w-full py-1.5 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer ${
+              className={`w-full py-2 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer truncate ${
                 selectedDesignStyle !== 'tat-ca'
-                  ? 'border-rose-700 bg-rose-50/50 text-rose-950 font-medium'
+                  ? 'border-rose-700 bg-rose-50/70 text-rose-950 font-bold'
                   : 'border-stone-200 bg-white text-stone-700'
               }`}
             >
@@ -400,17 +404,17 @@ export const CatalogSection: React.FC = () => {
           </div>
 
           {/* 4. Mức giá */}
-          <div>
-            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1">
-              <Tag className="w-3 h-3 text-rose-700" />
-              <span>4. Mức giá</span>
+          <div className="min-w-0">
+            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1 truncate">
+              <Tag className="w-3 h-3 text-rose-700 shrink-0" />
+              <span className="truncate">4. Mức giá</span>
             </label>
             <select
               value={selectedPriceRangeId}
               onChange={(e) => dispatch({ type: 'SET_PRICE_RANGE_ID', payload: e.target.value })}
-              className={`w-full py-1.5 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer ${
+              className={`w-full py-2 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer truncate ${
                 selectedPriceRangeId !== 'tat-ca'
-                  ? 'border-rose-700 bg-rose-50/50 text-rose-950 font-medium'
+                  ? 'border-rose-700 bg-rose-50/70 text-rose-950 font-bold'
                   : 'border-stone-200 bg-white text-stone-700'
               }`}
             >
@@ -423,17 +427,17 @@ export const CatalogSection: React.FC = () => {
           </div>
 
           {/* 5. Tone màu */}
-          <div>
-            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1">
-              <Palette className="w-3 h-3 text-rose-700" />
-              <span>5. Tone màu</span>
+          <div className="min-w-0">
+            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1 truncate">
+              <Palette className="w-3 h-3 text-rose-700 shrink-0" />
+              <span className="truncate">5. Tone màu</span>
             </label>
             <select
               value={selectedColorTone}
               onChange={(e) => dispatch({ type: 'SET_COLOR_TONE', payload: e.target.value })}
-              className={`w-full py-1.5 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer ${
+              className={`w-full py-2 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer truncate ${
                 selectedColorTone !== 'tat-ca'
-                  ? 'border-rose-700 bg-rose-50/50 text-rose-950 font-medium'
+                  ? 'border-rose-700 bg-rose-50/70 text-rose-950 font-bold'
                   : 'border-stone-200 bg-white text-stone-700'
               }`}
             >
@@ -446,17 +450,17 @@ export const CatalogSection: React.FC = () => {
           </div>
 
           {/* 6. Loại hoa chính */}
-          <div>
-            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1">
-              <FlowerIcon className="w-3 h-3 text-rose-700" />
-              <span>6. Loại hoa</span>
+          <div className="min-w-0">
+            <label className="block text-[11px] font-semibold text-stone-600 mb-1 flex items-center gap-1 truncate">
+              <FlowerIcon className="w-3 h-3 text-rose-700 shrink-0" />
+              <span className="truncate">6. Loại hoa</span>
             </label>
             <select
               value={selectedFlowerType}
               onChange={(e) => dispatch({ type: 'SET_FLOWER_TYPE', payload: e.target.value })}
-              className={`w-full py-1.5 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer ${
+              className={`w-full py-2 px-2.5 rounded-lg text-xs border transition-colors cursor-pointer truncate ${
                 selectedFlowerType !== 'tat-ca'
-                  ? 'border-rose-700 bg-rose-50/50 text-rose-950 font-medium'
+                  ? 'border-rose-700 bg-rose-50/70 text-rose-950 font-bold'
                   : 'border-stone-200 bg-white text-stone-700'
               }`}
             >
