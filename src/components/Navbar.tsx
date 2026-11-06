@@ -7,7 +7,6 @@ import React, { useState } from 'react';
 import {
   ShoppingBag,
   Bell,
-  Mail,
   User as UserIcon,
   Menu,
   X,
@@ -27,8 +26,6 @@ export const Navbar: React.FC = () => {
   const { state, dispatch, totalQuantity, unreadNotifsCount } = useStore();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const gmailCount = state.gmailEmails.length;
 
   return (
     <header className="sticky top-0 z-40 bg-[#FFF5F7]/95 backdrop-blur-md border-b border-rose-200/70 transition-all">
@@ -166,21 +163,6 @@ export const Navbar: React.FC = () => {
               <span>Florist (Staff)</span>
             </span>
           )}
-
-          {/* Simulated Gmail Order Confirmation Inbox */}
-          <button
-            onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isGmailOpen', isOpen: true } })}
-            className="relative p-2 text-stone-700 hover:text-stone-950 hover:bg-rose-100/60 rounded-full transition-colors cursor-pointer"
-            title="Hộp thư Gmail xác nhận đơn hàng"
-            aria-label="Hộp thư Gmail"
-          >
-            <Mail className="w-5 h-5 text-rose-900" />
-            {gmailCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                {gmailCount}
-              </span>
-            )}
-          </button>
 
           {/* Real-time Push Notifications Bell */}
           <div className="relative">
