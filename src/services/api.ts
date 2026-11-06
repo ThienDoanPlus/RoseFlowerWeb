@@ -635,36 +635,40 @@ export const FlowerAPI = {
    * Tải ảnh trực tiếp lên máy chủ đám mây Cloud Storage (Cloudinary)
    * Không lưu trữ file ở local
    */
-  async uploadAvatar(file: File, userId?: string, email?: string): Promise<{ success: boolean; avatarUrl: string; message: string }> {
+  async uploadAvatar(file: File | Blob, userId?: string, email?: string): Promise<{ success: boolean; avatarUrl: string; message: string }> {
     const formData = new FormData();
     formData.append('avatar_file', file);
     if (userId) formData.append('user_id', userId);
     if (email) formData.append('email', email);
 
+    let res: Response;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/upload-avatar/`, {
+      res = await fetch(`${API_BASE_URL}/api/auth/upload-avatar/`, {
         method: 'POST',
         body: formData,
       });
-
-      if (res.ok) {
-        const json = await res.json();
-        if (json.avatar_url) {
-          return {
-            success: true,
-            avatarUrl: json.avatar_url,
-            message: json.message || 'Đã tải ảnh lên đám mây Cloudinary!',
-          };
-        }
-      }
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || 'Tải ảnh lên máy chủ không thành công.');
-    } catch (e: any) {
-      if (e.message && !e.message.includes('fetch')) {
-        throw e;
-      }
-      throw new Error('Không thể kết nối đến máy chủ Cloudinary. Vui lòng kiểm tra kết nối mạng và thử lại.');
+    } catch (networkErr: any) {
+      throw new Error(`Mất kết nối tới máy chủ Backend (${API_BASE_URL}). Vui lòng đảm bảo Backend đang hoạt động.`);
     }
+
+    const json = await res.json().catch(() => ({}));
+
+    if (res.ok && json.avatar_url) {
+      return {
+        success: true,
+        avatarUrl: json.avatar_url,
+        message: json.message || 'Đã tải ảnh lên đám mây Cloudinary thành công!',
+      };
+    }
+
+    if (res.status === 403) {
+      throw new Error(
+        json.error ||
+        'API Key Cloudinary thiếu quyền tải ảnh (actions=["create"]). Vui lòng cấp quyền "Upload / Create" cho Access Key trong Cloudinary Console.'
+      );
+    }
+
+    throw new Error(json.error || 'Không thể tải ảnh lên máy chủ đám mây.');
   },
 };
 

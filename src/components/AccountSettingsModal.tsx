@@ -21,6 +21,7 @@ import {
   Calendar,
   Upload,
   LogOut,
+  Link as LinkIcon,
 } from 'lucide-react';
 import { useStore } from '../store';
 import { FlowerAPI } from '../services/api';
@@ -53,8 +54,58 @@ export const AccountSettingsModal: React.FC = () => {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [customAvatarUrl, setCustomAvatarUrl] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  /**
+   * Tự động nén và chuẩn hóa ảnh đại diện vuông 256x256 (~20KB) ngay tại trình duyệt
+   * Giúp tải lên máy chủ siêu tốc và tiết kiệm 95% băng thông mạng di động
+   */
+  const compressAvatarImage = (file: File): Promise<{ blob: Blob; dataUrl: string }> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const minDim = Math.min(img.width, img.height);
+          const startX = (img.width - minDim) / 2;
+          const startY = (img.height - minDim) / 2;
+
+          const canvas = document.createElement('canvas');
+          const targetSize = Math.min(minDim, 256);
+          canvas.width = targetSize;
+          canvas.height = targetSize;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Không thể khởi tạo bộ xử lý ảnh canvas.'));
+            return;
+          }
+
+          ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, targetSize, targetSize);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve({ blob, dataUrl });
+              } else {
+                resolve({ blob: file, dataUrl });
+              }
+            },
+            'image/jpeg',
+            0.88
+          );
+        };
+        img.onerror = () => reject(new Error('Không thể đọc file hình ảnh này.'));
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Lỗi khi mở file ảnh.'));
+      reader.readAsDataURL(file);
+    });
+  };
 
   useEffect(() => {
     if (user) {
@@ -76,29 +127,58 @@ export const AccountSettingsModal: React.FC = () => {
       return;
     }
 
-    // Limit to 5MB
-    if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage('Kích thước ảnh quá lớn (tối đa 5MB). Vui lòng chọn ảnh có dung lượng nhỏ hơn.');
+    // Limit to 10MB
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMessage('Kích thước ảnh quá lớn (tối đa 10MB). Vui lòng chọn ảnh có dung lượng nhỏ hơn.');
       return;
     }
 
     setIsUploadingAvatar(true);
     setErrorMessage('');
     try {
-      const res = await FlowerAPI.uploadAvatar(file, user?.id, user?.email);
-      if (res.avatarUrl) {
-        setAvatarUrl(res.avatarUrl);
-        setSuccessMessage('Đã tải ảnh lên máy chủ đám mây Cloud Storage (Cloudinary) thành công!');
-        setTimeout(() => setSuccessMessage(''), 3000);
+      // 1. Tự động tối ưu & nén ảnh sang kích thước 256x256 (~20KB)
+      const { blob, dataUrl } = await compressAvatarImage(file);
+
+      // 2. Thử tải lên Cloud Storage (Cloudinary) qua Backend
+      try {
+        const res = await FlowerAPI.uploadAvatar(blob, user?.id, user?.email);
+        if (res.avatarUrl) {
+          setAvatarUrl(res.avatarUrl);
+          setSuccessMessage('Đã tải ảnh lên máy chủ đám mây Cloud Storage (Cloudinary) thành công!');
+          setTimeout(() => setSuccessMessage(''), 4000);
+          return;
+        }
+      } catch (uploadErr: any) {
+        // Fallback: Sử dụng phiên bản ảnh tối ưu hóa (256x256) ngay lập tức
+        setAvatarUrl(dataUrl);
+        const errMsg = uploadErr.message || 'Chưa thể kết nối tới Cloudinary';
+        setErrorMessage(
+          `${errMsg}. Đã áp dụng ảnh đại diện tối ưu (256x256) vào hồ sơ của bạn.`
+        );
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'Không thể tải ảnh lên máy chủ đám mây. Vui lòng thử lại.');
+      setErrorMessage(err.message || 'Không thể xử lý hình ảnh này.');
     } finally {
       setIsUploadingAvatar(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }
+  };
+
+  const handleApplyCustomUrl = () => {
+    const trimmed = customAvatarUrl.trim();
+    if (!trimmed) return;
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      setErrorMessage('Vui lòng nhập đường dẫn URL ảnh hợp lệ (bắt đầu bằng https:// hoặc http://)');
+      return;
+    }
+    setAvatarUrl(trimmed);
+    setCustomAvatarUrl('');
+    setShowUrlInput(false);
+    setErrorMessage('');
+    setSuccessMessage('Đã cập nhật liên kết ảnh đại diện mới thành công!');
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   if (!state.isAccountSettingsOpen || !user) return null;
@@ -332,14 +412,23 @@ export const AccountSettingsModal: React.FC = () => {
                         {isUploadingAvatar ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            <span>Đang tải lên Đám Mây...</span>
+                            <span>Đang tối ưu & tải lên...</span>
                           </>
                         ) : (
                           <>
                             <Upload className="w-3.5 h-3.5" />
-                            <span>Tải ảnh lên Đám Mây</span>
+                            <span>Tải ảnh từ máy / điện thoại</span>
                           </>
                         )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowUrlInput(!showUrlInput)}
+                        className="w-full sm:w-auto px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-medium rounded-lg border border-stone-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <LinkIcon className="w-3.5 h-3.5 text-stone-600" />
+                        <span>Dán link ảnh URL</span>
                       </button>
 
                       {avatarUrl && avatarUrl !== user.avatarUrl && !isUploadingAvatar && (
@@ -353,8 +442,33 @@ export const AccountSettingsModal: React.FC = () => {
                       )}
                     </div>
 
+                    {showUrlInput && (
+                      <div className="p-2.5 bg-white rounded-lg border border-stone-200 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <input
+                          type="url"
+                          placeholder="Dán link ảnh (https://...)"
+                          value={customAvatarUrl}
+                          onChange={(e) => setCustomAvatarUrl(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleApplyCustomUrl();
+                            }
+                          }}
+                          className="flex-1 px-3 py-1.5 text-xs bg-stone-50 border border-stone-300 rounded-md focus:bg-white focus:outline-none focus:ring-1 focus:ring-rose-800"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleApplyCustomUrl}
+                          className="px-4 py-1.5 bg-rose-800 hover:bg-rose-900 text-white text-xs font-semibold rounded-md shadow-xs transition-colors shrink-0 cursor-pointer"
+                        >
+                          Áp dụng
+                        </button>
+                      </div>
+                    )}
+
                     <p className="text-[11px] text-stone-500 leading-relaxed">
-                      Ảnh được tải trực tiếp lên máy chủ đám mây Cloudinary, không lưu dữ liệu file ảnh ở máy cục bộ (local).
+                      Ảnh được tối ưu hóa và lưu trữ trực tuyến trên đám mây, không lưu dữ liệu file ảnh ở máy cục bộ (local).
                     </p>
                   </div>
                 </div>

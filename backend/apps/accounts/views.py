@@ -278,6 +278,20 @@ class AvatarUploadView(APIView):
                 tags=['avatar', 'user_profile']
             )
 
+            if not result.get('success') or not result.get('url'):
+                err_detail = result.get('error', 'Lỗi không xác định khi tải ảnh lên đám mây.')
+                if 'missing permissions' in err_detail or 'Request forbidden' in err_detail:
+                    return Response({
+                        'error': (
+                            'Khóa API Cloudinary thiếu quyền tải ảnh (actions=["create"]). '
+                            'Vui lòng vào Cloudinary Console -> Settings -> Access Keys và cấp quyền "Upload / Create" cho API Key.'
+                        ),
+                        'detail': err_detail
+                    }, status=status.HTTP_403_FORBIDDEN)
+                return Response({
+                    'error': f'Lỗi Cloudinary: {err_detail}'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             avatar_url = result.get('url')
 
             # Tự động cập nhật trực tiếp vào tài khoản người dùng trong cơ sở dữ liệu
