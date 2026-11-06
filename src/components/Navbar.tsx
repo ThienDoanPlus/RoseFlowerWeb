@@ -18,7 +18,6 @@ import {
   LayoutDashboard,
   Store,
   Truck,
-  Settings,
 } from 'lucide-react';
 import { useStore } from '../store';
 
@@ -254,17 +253,6 @@ export const Navbar: React.FC = () => {
                 </>
               )}
             </button>
-
-            {state.user && (
-              <button
-                onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isAccountSettingsOpen', isOpen: true } })}
-                className="p-1.5 sm:p-2 text-stone-600 hover:text-rose-900 hover:bg-rose-100/70 rounded-full sm:rounded-lg transition-colors cursor-pointer bg-white border border-rose-200 shadow-2xs"
-                title="Cài đặt thông tin tài khoản cá nhân"
-                aria-label="Cài đặt tài khoản"
-              >
-                <Settings className="w-4 h-4 text-stone-700" />
-              </button>
-            )}
           </div>
 
           {/* Shopping Cart Bag (Primary Action) */}
