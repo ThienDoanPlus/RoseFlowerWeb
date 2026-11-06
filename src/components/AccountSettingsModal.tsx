@@ -83,8 +83,43 @@ export const AccountSettingsModal: React.FC = () => {
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === 'string') {
-        setAvatarUrl(reader.result);
-        setErrorMessage('');
+        const img = new Image();
+        img.onload = () => {
+          // Resize to max 256x256 to optimize memory and fast loading
+          const MAX_SIZE = 256;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height = Math.round((height * MAX_SIZE) / width);
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width = Math.round((width * MAX_SIZE) / height);
+              height = MAX_SIZE;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            setAvatarUrl(optimizedDataUrl);
+          } else {
+            setAvatarUrl(reader.result as string);
+          }
+          setErrorMessage('');
+        };
+        img.onerror = () => {
+          setAvatarUrl(reader.result as string);
+          setErrorMessage('');
+        };
+        img.src = reader.result;
       }
     };
     reader.onerror = () => {

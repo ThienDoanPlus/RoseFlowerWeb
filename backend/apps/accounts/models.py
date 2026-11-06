@@ -18,7 +18,7 @@ class User(AbstractUser):
     )
     full_name = models.CharField(max_length=150, blank=True)
     phone_number = models.CharField(max_length=20, blank=True, db_index=True)
-    avatar_url = models.CharField(max_length=500, blank=True)
+    avatar_url = models.TextField(blank=True)
     saved_address = models.TextField(blank=True)
     district = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)
