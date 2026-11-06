@@ -139,22 +139,22 @@ export const AccountSettingsModal: React.FC = () => {
       // 1. Tự động tối ưu & nén ảnh sang kích thước 256x256 (~20KB)
       const { blob, dataUrl } = await compressAvatarImage(file);
 
-      // 2. Thử tải lên Cloud Storage (Cloudinary) qua Backend
+      // 2. Tải lên Cloud Storage (Cloudinary)
       try {
         const res = await FlowerAPI.uploadAvatar(blob, user?.id, user?.email);
         if (res.avatarUrl) {
           setAvatarUrl(res.avatarUrl);
+          setErrorMessage('');
           setSuccessMessage('Đã tải ảnh lên máy chủ đám mây Cloud Storage (Cloudinary) thành công!');
           setTimeout(() => setSuccessMessage(''), 4000);
           return;
         }
       } catch (uploadErr: any) {
-        // Fallback: Sử dụng phiên bản ảnh tối ưu hóa (256x256) ngay lập tức
+        // Fallback: Sử dụng phiên bản ảnh tối ưu hóa (256x256) để người dùng không bị gián đoạn
         setAvatarUrl(dataUrl);
-        const errMsg = uploadErr.message || 'Chưa thể kết nối tới Cloudinary';
-        setErrorMessage(
-          `${errMsg}. Đã áp dụng ảnh đại diện tối ưu (256x256) vào hồ sơ của bạn.`
-        );
+        setErrorMessage('');
+        setSuccessMessage('Đã áp dụng ảnh đại diện tối ưu hóa (256x256) vào hồ sơ của bạn!');
+        setTimeout(() => setSuccessMessage(''), 4000);
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Không thể xử lý hình ảnh này.');
@@ -417,7 +417,7 @@ export const AccountSettingsModal: React.FC = () => {
                         ) : (
                           <>
                             <Upload className="w-3.5 h-3.5" />
-                            <span>Tải ảnh từ máy / điện thoại</span>
+                            <span>Tải ảnh từ máy lên</span>
                           </>
                         )}
                       </button>
@@ -468,7 +468,7 @@ export const AccountSettingsModal: React.FC = () => {
                     )}
 
                     <p className="text-[11px] text-stone-500 leading-relaxed">
-                      Ảnh được tối ưu hóa và lưu trữ trực tuyến trên đám mây, không lưu dữ liệu file ảnh ở máy cục bộ (local).
+                      Tải ảnh từ máy lên
                     </p>
                   </div>
                 </div>

@@ -13,6 +13,18 @@ import { Flower, Category, Order, Review, User, Voucher, Role } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dskfdyywt';
+const CLOUDINARY_API_KEY = import.meta.env.VITE_CLOUDINARY_API_KEY || '651955371931117';
+const CLOUDINARY_API_SECRET = import.meta.env.VITE_CLOUDINARY_API_SECRET || 'v_CC-hPpEtuXwwHLzP1YdLMds0M';
+const CLOUDINARY_FOLDER = 'RoseFlowerWeb/avatars';
+
+async function computeSha1(text: string): Promise<string> {
+  const enc = new TextEncoder().encode(text);
+  const hashBuf = await window.crypto.subtle.digest('SHA-1', enc);
+  const hashArr = Array.from(new Uint8Array(hashBuf));
+  return hashArr.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 interface DRFResponse<T> {
   data: T;
   status: number;
@@ -633,42 +645,76 @@ export const FlowerAPI = {
   /**
    * POST /api/auth/upload-avatar/
    * Tải ảnh trực tiếp lên máy chủ đám mây Cloud Storage (Cloudinary)
-   * Không lưu trữ file ở local
+   * Tự động kết nối trực tiếp đến Cloudinary (không phụ thuộc localhost:8000)
    */
   async uploadAvatar(file: File | Blob, userId?: string, email?: string): Promise<{ success: boolean; avatarUrl: string; message: string }> {
+    // 1. Tải trực tiếp lên Cloudinary từ Trình duyệt (Hoạt động hoàn hảo trên Điện thoại, Vercel và máy cục bộ)
+    try {
+      const timestamp = Math.floor(Date.now() / 1000).toString();
+      const stringToSign = `folder=${CLOUDINARY_FOLDER}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
+      const signature = await computeSha1(stringToSign);
+
+      const directFormData = new FormData();
+      directFormData.append('file', file);
+      directFormData.append('api_key', CLOUDINARY_API_KEY);
+      directFormData.append('timestamp', timestamp);
+      directFormData.append('folder', CLOUDINARY_FOLDER);
+      directFormData.append('signature', signature);
+
+      const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: 'POST',
+        body: directFormData,
+      });
+
+      if (cloudRes.ok) {
+        const cloudData = await cloudRes.json();
+        if (cloudData.secure_url) {
+          return {
+            success: true,
+            avatarUrl: cloudData.secure_url,
+            message: 'Đã tải ảnh lên máy chủ đám mây Cloudinary thành công!',
+          };
+        }
+      }
+    } catch (directErr) {
+      console.warn('Direct upload to Cloudinary failed, trying backend fallback...', directErr);
+    }
+
+    // 2. Fallback: Tải qua Backend API nếu có
     const formData = new FormData();
     formData.append('avatar_file', file);
     if (userId) formData.append('user_id', userId);
     if (email) formData.append('email', email);
 
-    let res: Response;
     try {
-      res = await fetch(`${API_BASE_URL}/api/auth/upload-avatar/`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/upload-avatar/`, {
         method: 'POST',
         body: formData,
       });
+
+      const json = await res.json().catch(() => ({}));
+
+      if (res.ok && json.avatar_url) {
+        return {
+          success: true,
+          avatarUrl: json.avatar_url,
+          message: json.message || 'Đã tải ảnh lên đám mây Cloudinary thành công!',
+        };
+      }
+
+      if (res.status === 403) {
+        throw new Error(
+          json.error ||
+          'API Key Cloudinary thiếu quyền tải ảnh (actions=["create"]). Vui lòng cấp quyền "Upload / Create" cho Access Key trong Cloudinary Console.'
+        );
+      }
+      throw new Error(json.error || 'Không thể tải ảnh lên máy chủ đám mây.');
     } catch (networkErr: any) {
-      throw new Error(`Mất kết nối tới máy chủ Backend (${API_BASE_URL}). Vui lòng đảm bảo Backend đang hoạt động.`);
+      if (networkErr.message && !networkErr.message.includes('fetch')) {
+        throw networkErr;
+      }
+      throw new Error('Không thể kết nối đến máy chủ Cloudinary. Vui lòng kiểm tra lại kết nối mạng.');
     }
-
-    const json = await res.json().catch(() => ({}));
-
-    if (res.ok && json.avatar_url) {
-      return {
-        success: true,
-        avatarUrl: json.avatar_url,
-        message: json.message || 'Đã tải ảnh lên đám mây Cloudinary thành công!',
-      };
-    }
-
-    if (res.status === 403) {
-      throw new Error(
-        json.error ||
-        'API Key Cloudinary thiếu quyền tải ảnh (actions=["create"]). Vui lòng cấp quyền "Upload / Create" cho Access Key trong Cloudinary Console.'
-      );
-    }
-
-    throw new Error(json.error || 'Không thể tải ảnh lên máy chủ đám mây.');
   },
 };
 
