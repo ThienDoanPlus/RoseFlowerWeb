@@ -224,6 +224,14 @@ export const Navbar: React.FC = () => {
                             if (n.orderId) {
                               dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: n.orderId });
                               setIsNotifOpen(false);
+                            } else if (n.type === 'promo') {
+                              dispatch({
+                                type: 'SHOW_TOAST',
+                                payload: { message: 'Mã ưu đãi ROSE10 (giảm 10%) đã được lưu trong giỏ hàng của bạn!', type: 'success' },
+                              });
+                              setIsNotifOpen(false);
+                            } else {
+                              setIsNotifOpen(false);
                             }
                           }}
                         >

@@ -1003,15 +1003,6 @@ function appReducer(state: AppState, action: Action): AppState {
       };
 
     case 'SET_TRACKING_ORDER_ID': {
-      if (state.currentRole !== 'STAFF' && state.currentRole !== 'ADMIN') {
-        return {
-          ...state,
-          toast: {
-            message: 'Tính năng tra cứu và điều phối đơn chỉ dành cho tài khoản nhân viên (STAFF).',
-            type: 'info',
-          },
-        };
-      }
       return {
         ...state,
         trackingOrderId: action.payload,

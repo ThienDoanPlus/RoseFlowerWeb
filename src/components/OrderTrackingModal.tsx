@@ -18,36 +18,6 @@ export const OrderTrackingModal: React.FC = () => {
 
   const isStaffOrAdmin = state.currentRole === 'STAFF' || state.currentRole === 'ADMIN';
 
-  if (!isStaffOrAdmin) {
-    return (
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-        <div className="relative bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl border border-stone-200">
-          <button
-            onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isTrackingOpen', isOpen: false } })}
-            className="absolute top-4 right-4 p-1.5 text-stone-400 hover:text-stone-900 rounded-full transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center mx-auto mb-3">
-            <Lock className="w-6 h-6" />
-          </div>
-          <h3 className="font-display font-medium text-lg text-stone-900 mb-1">
-            Quyền Truy Cập Dành Riêng Cho STAFF
-          </h3>
-          <p className="text-xs text-stone-500 mb-4">
-            Tính năng tra cứu và điều phối tiến độ đơn hàng nội bộ chỉ dành riêng cho tài khoản có vai trò <strong>Thợ Cắm Hoa / Florist (STAFF)</strong> hoặc Quản lý.
-          </p>
-          <button
-            onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isTrackingOpen', isOpen: false } })}
-            className="w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-          >
-            Đóng bảng tra cứu
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   if (!order) return null;
 
   const steps: { key: OrderStatus; label: string; desc: string; icon: React.ReactNode }[] = [
@@ -234,27 +204,46 @@ export const OrderTrackingModal: React.FC = () => {
           )}
         </div>
 
-        {/* Simulation Control for testing */}
-        <div className="p-3 bg-stone-100 rounded-xl border border-stone-200">
-          <p className="text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-2">
-            Mô phỏng cập nhật hành trình đơn hàng:
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-            {steps.map((step) => (
-              <button
-                key={step.key}
-                onClick={() => handleUpdateStatus(step.key)}
-                className={`py-1.5 px-2 rounded text-[11px] font-medium transition-colors cursor-pointer truncate ${
-                  order.orderStatus === step.key
-                    ? 'bg-stone-900 text-white'
-                    : 'bg-white text-stone-700 hover:bg-stone-200 border border-stone-300'
-                }`}
-              >
-                {step.label}
-              </button>
-            ))}
+        {/* Simulation Control for testing (Chỉ hiển thị cho STAFF & ADMIN) */}
+        {isStaffOrAdmin ? (
+          <div className="p-3 bg-stone-100 rounded-xl border border-stone-200">
+            <p className="text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-2">
+              Điều phối hành trình đơn hàng (Dành cho STAFF / ADMIN):
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              {steps.map((step) => (
+                <button
+                  key={step.key}
+                  onClick={() => handleUpdateStatus(step.key)}
+                  className={`py-1.5 px-2 rounded text-[11px] font-medium transition-colors cursor-pointer truncate ${
+                    order.orderStatus === step.key
+                      ? 'bg-stone-900 text-white'
+                      : 'bg-white text-stone-700 hover:bg-stone-200 border border-stone-300'
+                  }`}
+                >
+                  {step.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="p-3.5 bg-rose-50/80 rounded-xl border border-rose-200 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-rose-900">
+            <div className="flex items-center gap-2">
+              <Flower2 className="w-4 h-4 text-rose-700 shrink-0" />
+              <span>Tiệm hoa sáp Rose luôn cập nhật tiến độ theo thời gian thực đến bạn.</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                dispatch({ type: 'SET_MODAL', payload: { modal: 'isTrackingOpen', isOpen: false } });
+                dispatch({ type: 'SET_MODAL', payload: { modal: 'isZaloOpen', isOpen: true } });
+              }}
+              className="px-3 py-1.5 bg-rose-900 hover:bg-rose-800 text-white text-[11px] font-semibold rounded-lg shadow-2xs whitespace-nowrap transition-colors cursor-pointer"
+            >
+              Cần hỗ trợ về đơn hàng
+            </button>
+          </div>
+        )}
 
       </div>
     </div>
