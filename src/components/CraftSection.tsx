@@ -47,7 +47,7 @@ export const CraftSection: React.FC = () => {
                 <Feather className="w-6 h-6 text-amber-600" />
               </div>
               <h3 className="font-display font-medium text-xl text-stone-900 mb-3">
-                2. Lưu Hương Tinh Dầu Tự Nhiên 3-5 Năm
+                2. Lưu Hương Tinh Dầu Tự Nhiên
               </h3>
               <p className="text-xs sm:text-sm text-stone-600 leading-relaxed mb-6">
                 Được ướp tinh dầu hoa hồng thiên nhiên dịu ngọt, an toàn cho sức khỏe. Đặt trong phòng ngủ hay bàn làm việc giúp không gian luôn thơm mát thư thái.

@@ -3732,17 +3732,7 @@ export const BRANCHES: BranchLocation[] = [
     "lat": 10.8258,
     "lng": 106.6385
   },
-  {
-    "id": "rose-studio-go-vap",
-    "name": "Rose - Kho Sỉ & Xưởng Gia Công Quang Trung",
-    "address": "680 Quang Trung, Phường 11, Quận Gò Vấp",
-    "district": "Quận Gò Vấp",
-    "city": "TP. Hồ Chí Minh",
-    "phone": "0888 208 306",
-    "operatingHours": "08:30 - 21:00",
-    "lat": 10.8385,
-    "lng": 106.6542
-  }
+  
 ];
 
 export const INITIAL_REVIEWS: Record<string, Review[]> = {

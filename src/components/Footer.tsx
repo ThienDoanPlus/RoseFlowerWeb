@@ -23,10 +23,6 @@ export const Footer: React.FC = () => {
               Thương hiệu hoa sáp thơm nghệ thuật cao cấp. 
               Mỗi tác phẩm lưu giữ trọn vẹn tình cảm ngọt ngào, không bao giờ phai tàn theo thời gian.
             </p>
-            <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Cam kết độ bền và lưu hương thơm 3-5 năm</span>
-            </div>
           </div>
 
           {/* Col 2: Chi nhánh */}
@@ -83,14 +79,6 @@ export const Footer: React.FC = () => {
               <div>
                 Email: <a href="mailto:nguyenthiendoan2@gmail.com" className="text-white font-mono hover:underline">nguyenthiendoan2@gmail.com</a>
               </div>
-              <div className="pt-2">
-                <span className="text-[11px] text-rose-400 block mb-1">Phương thức thanh toán bảo mật:</span>
-                <div className="flex flex-wrap gap-1.5 text-[10px] font-mono text-white">
-                  <span className="bg-emerald-950/80 text-emerald-300 px-2.5 py-1 rounded border border-emerald-700 font-semibold">
-                    Chuyển khoản VietQR (Vietcombank 1027210627 · Napas 24/7)
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -99,11 +87,6 @@ export const Footer: React.FC = () => {
         {/* Bottom Line */}
         <div className="pt-8 border-t border-rose-900 flex flex-col sm:flex-row items-center justify-between text-xs text-rose-400 gap-4">
           <p>© 2026 Rose - Tiệm Hoa Sáp Thơm Vĩnh Cửu (294 Phạm Văn Bạch, Phường Tân Sơn, TP.HCM).</p>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>Đã đăng ký Bộ Công Thương</span>
-            <span>·</span>
-            <span>Bảo mật SSL 256-bit</span>
-          </div>
         </div>
 
       </div>

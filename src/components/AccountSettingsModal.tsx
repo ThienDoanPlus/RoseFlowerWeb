@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   User as UserIcon,
@@ -19,17 +19,12 @@ import {
   ShieldCheck,
   Camera,
   Calendar,
+  Upload,
 } from 'lucide-react';
 import { useStore } from '../store';
 import { FlowerAPI } from '../services/api';
 
-const PRESET_AVATARS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
-];
+const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80';
 
 export const AccountSettingsModal: React.FC = () => {
   const { state, dispatch } = useStore();
@@ -57,16 +52,46 @@ export const AccountSettingsModal: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   useEffect(() => {
     if (user) {
       setFullName(user.name || '');
       setPhoneNumber(user.phone || '');
-      setAvatarUrl(user.avatarUrl || PRESET_AVATARS[0]);
+      setAvatarUrl(user.avatarUrl || DEFAULT_AVATAR);
       setSavedAddress(user.savedAddress || state.deliveryInfo.address || '');
       setDistrict(user.district || state.deliveryInfo.district || 'Phường Tân Sơn');
       setCity(user.city || state.deliveryInfo.city || 'TP. Hồ Chí Minh');
     }
   }, [user, state.isAccountSettingsOpen]);
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Vui lòng chọn file hình ảnh hợp lệ (JPG, PNG, WebP, GIF).');
+      return;
+    }
+
+    // Limit to 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('Kích thước ảnh quá lớn (tối đa 5MB). Vui lòng chọn ảnh có dung lượng nhỏ hơn.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setAvatarUrl(reader.result);
+        setErrorMessage('');
+      }
+    };
+    reader.onerror = () => {
+      setErrorMessage('Có lỗi xảy ra khi đọc file ảnh. Vui lòng thử lại.');
+    };
+    reader.readAsDataURL(file);
+  };
 
   if (!state.isAccountSettingsOpen || !user) return null;
 
@@ -231,29 +256,71 @@ export const AccountSettingsModal: React.FC = () => {
         <form onSubmit={handleSaveProfile} className="space-y-4">
           {activeSection === 'profile' && (
             <div className="space-y-4">
-              {/* Preset Avatars Selector */}
-              <div>
-                <label className="block text-[11px] font-medium text-stone-700 mb-1.5 flex items-center gap-1.5">
-                  <Camera className="w-3.5 h-3.5 text-stone-400" />
-                  <span>Chọn ảnh đại diện phong cách</span>
-                </label>
-                <div className="flex gap-2.5 items-center overflow-x-auto pb-1">
-                  {PRESET_AVATARS.map((av, idx) => (
+              {/* Custom Avatar Upload */}
+              <div className="p-3.5 sm:p-4 bg-stone-50 rounded-xl border border-stone-200">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-semibold text-stone-900 flex items-center gap-1.5">
+                    <Camera className="w-4 h-4 text-rose-800" />
+                    <span>Ảnh đại diện</span>
+                  </label>
+                  <span className="text-[11px] text-stone-500">
+                    JPG, PNG, WEBP (tối đa 5MB)
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  {/* Avatar Preview with Camera Overlay */}
+                  <div className="relative group shrink-0">
+                    <img
+                      src={avatarUrl || user.avatarUrl || DEFAULT_AVATAR}
+                      alt={fullName || user.name}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-stone-300 shadow-sm"
+                    />
                     <button
-                      key={idx}
                       type="button"
-                      onClick={() => setAvatarUrl(av)}
-                      className={`relative rounded-full p-0.5 transition-transform cursor-pointer ${
-                        avatarUrl === av ? 'ring-2 ring-rose-900 scale-105' : 'opacity-70 hover:opacity-100'
-                      }`}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-white"
+                      title="Bấm để tải ảnh mới từ máy"
                     >
-                      <img
-                        src={av}
-                        alt={`Preset ${idx}`}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
+                      <Camera className="w-5 h-5" />
                     </button>
-                  ))}
+                  </div>
+
+                  {/* Upload Button & Actions */}
+                  <div className="flex-1 space-y-1.5 min-w-0">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageFileChange}
+                      className="hidden"
+                    />
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3.5 py-1.5 bg-stone-900 hover:bg-stone-800 active:scale-98 text-white text-xs font-semibold rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Tải ảnh từ máy lên</span>
+                      </button>
+
+                      {avatarUrl && avatarUrl !== user.avatarUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setAvatarUrl(user.avatarUrl)}
+                          className="px-2.5 py-1.5 bg-white hover:bg-stone-100 text-stone-600 text-xs font-medium rounded-lg border border-stone-200 transition-colors cursor-pointer"
+                        >
+                          Khôi phục ảnh cũ
+                        </button>
+                      )}
+                    </div>
+
+                    <p className="text-[11px] text-stone-500 leading-relaxed">
+                      Bạn có thể tự chọn và tải lên bất kỳ hình ảnh nào từ máy tính hoặc điện thoại của mình.
+                    </p>
+                  </div>
                 </div>
               </div>
 
