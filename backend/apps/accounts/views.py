@@ -235,3 +235,69 @@ class ProfileView(APIView):
             'user': UserSerializer(user).data
         }, status=status.HTTP_200_OK)
 
+
+class AvatarUploadView(APIView):
+    """
+    POST /api/auth/upload-avatar/
+    Tải file ảnh đại diện trực tiếp lên Cloud Storage (Cloudinary) và trả về URL ảnh online (HTTPS).
+    Không lưu dữ liệu ảnh ở local.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        file = request.FILES.get('avatar_file') or request.FILES.get('file')
+        user_id = request.data.get('user_id')
+        email = request.data.get('email')
+
+        if not file:
+            base64_data = request.data.get('avatar_base64')
+            if base64_data:
+                file = base64_data
+
+        if not file:
+            return Response({'error': 'Vui lòng chọn file ảnh để tải lên.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        from django.conf import settings
+        from django.utils import timezone
+        from apps.catalog.cloudinary_service import upload_image_to_cloudinary, is_cloudinary_configured
+
+        if not is_cloudinary_configured():
+            return Response({
+                'error': 'Dịch vụ lưu trữ đám mây Cloudinary chưa được cấu hình trên máy chủ.'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        try:
+            folder_name = f"{getattr(settings, 'CLOUDINARY_FOLDER', 'RoseFlowerWeb')}/avatars"
+            clean_id = (user_id or email or 'guest').replace('@', '_').replace('.', '_')
+            public_id = f"avatar_{clean_id}_{int(timezone.now().timestamp())}"
+
+            result = upload_image_to_cloudinary(
+                file,
+                folder=folder_name,
+                public_id=public_id,
+                tags=['avatar', 'user_profile']
+            )
+
+            avatar_url = result.get('url')
+
+            # Tự động cập nhật trực tiếp vào tài khoản người dùng trong cơ sở dữ liệu
+            if user_id or email:
+                user = None
+                if user_id:
+                    user = User.objects.filter(id=user_id).first()
+                if not user and email:
+                    user = User.objects.filter(email=email).first()
+                if user:
+                    user.avatar_url = avatar_url
+                    user.save(update_fields=['avatar_url'])
+
+            return Response({
+                'success': True,
+                'avatar_url': avatar_url,
+                'message': 'Đã tải ảnh đại diện lên máy chủ Cloudinary thành công!'
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                'error': f'Không thể tải ảnh lên đám mây: {str(e)}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

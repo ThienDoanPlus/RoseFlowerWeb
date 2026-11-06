@@ -49,6 +49,7 @@ export const AccountSettingsModal: React.FC = () => {
 
   // Status
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -65,7 +66,7 @@ export const AccountSettingsModal: React.FC = () => {
     }
   }, [user, state.isAccountSettingsOpen]);
 
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -80,52 +81,23 @@ export const AccountSettingsModal: React.FC = () => {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        const img = new Image();
-        img.onload = () => {
-          // Resize to max 256x256 to optimize memory and fast loading
-          const MAX_SIZE = 256;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_SIZE) {
-              height = Math.round((height * MAX_SIZE) / width);
-              width = MAX_SIZE;
-            }
-          } else {
-            if (height > MAX_SIZE) {
-              width = Math.round((width * MAX_SIZE) / height);
-              height = MAX_SIZE;
-            }
-          }
-
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-            setAvatarUrl(optimizedDataUrl);
-          } else {
-            setAvatarUrl(reader.result as string);
-          }
-          setErrorMessage('');
-        };
-        img.onerror = () => {
-          setAvatarUrl(reader.result as string);
-          setErrorMessage('');
-        };
-        img.src = reader.result;
+    setIsUploadingAvatar(true);
+    setErrorMessage('');
+    try {
+      const res = await FlowerAPI.uploadAvatar(file, user?.id, user?.email);
+      if (res.avatarUrl) {
+        setAvatarUrl(res.avatarUrl);
+        setSuccessMessage('Đã tải ảnh lên máy chủ đám mây Cloud Storage (Cloudinary) thành công!');
+        setTimeout(() => setSuccessMessage(''), 3000);
       }
-    };
-    reader.onerror = () => {
-      setErrorMessage('Có lỗi xảy ra khi đọc file ảnh. Vui lòng thử lại.');
-    };
-    reader.readAsDataURL(file);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Không thể tải ảnh lên máy chủ đám mây. Vui lòng thử lại.');
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   if (!state.isAccountSettingsOpen || !user) return null;
@@ -335,13 +307,23 @@ export const AccountSettingsModal: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="px-3.5 py-1.5 bg-stone-900 hover:bg-stone-800 active:scale-98 text-white text-xs font-semibold rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                        disabled={isUploadingAvatar}
+                        className="px-3.5 py-1.5 bg-stone-900 hover:bg-stone-800 disabled:opacity-60 active:scale-98 text-white text-xs font-semibold rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
                       >
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>Tải ảnh từ máy lên</span>
+                        {isUploadingAvatar ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <span>Đang tải lên Cloud Storage...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>Tải ảnh lên Đám Mây</span>
+                          </>
+                        )}
                       </button>
 
-                      {avatarUrl && avatarUrl !== user.avatarUrl && (
+                      {avatarUrl && avatarUrl !== user.avatarUrl && !isUploadingAvatar && (
                         <button
                           type="button"
                           onClick={() => setAvatarUrl(user.avatarUrl)}
@@ -353,7 +335,7 @@ export const AccountSettingsModal: React.FC = () => {
                     </div>
 
                     <p className="text-[11px] text-stone-500 leading-relaxed">
-                      Bạn có thể tự chọn và tải lên bất kỳ hình ảnh nào từ máy tính hoặc điện thoại của mình.
+                      Ảnh được tải trực tiếp lên máy chủ đám mây (Cloudinary), không lưu dữ liệu file ảnh ở máy cục bộ (local).
                     </p>
                   </div>
                 </div>
