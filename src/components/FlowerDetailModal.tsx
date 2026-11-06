@@ -117,13 +117,13 @@ export const FlowerDetailModal: React.FC = () => {
 
             {/* Thumbnail selector */}
             {gallery.length > 1 && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar scroll-smooth">
                 {gallery.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImageIndex(idx)}
-                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${
-                      activeImageIndex === idx ? 'border-stone-900 shadow-sm' : 'border-transparent opacity-70 hover:opacity-100'
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 cursor-pointer transition-all shrink-0 ${
+                      activeImageIndex === idx ? 'border-stone-900 shadow-sm ring-1 ring-stone-900' : 'border-transparent opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img src={img} alt="Thumbnail" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
@@ -132,20 +132,20 @@ export const FlowerDetailModal: React.FC = () => {
               </div>
             )}
 
-            {/* Flower Meaning & Care Guide Tabs */}
-            <div className="bg-stone-50 rounded-xl p-4 border border-stone-200/80 space-y-3">
+            {/* Flower Meaning & Care Guide */}
+            <div className="bg-stone-50 rounded-xl p-3.5 sm:p-4 border border-stone-200/80 space-y-3">
               <div>
                 <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <Flower2 className="w-3.5 h-3.5 text-rose-700" />
-                  Ý nghĩa loài hoa
+                  <Flower2 className="w-3.5 h-3.5 text-rose-700 shrink-0" />
+                  <span>Ý nghĩa loài hoa</span>
                 </h4>
                 <p className="text-xs text-stone-600 leading-relaxed">{flower.meaning}</p>
               </div>
 
               <div className="pt-2 border-t border-stone-200/60">
                 <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-emerald-700" />
-                  Hướng dẫn bảo quản hoa sáp thơm
+                  <Shield className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                  <span>Hướng dẫn bảo quản hoa sáp thơm</span>
                 </h4>
                 <p className="text-xs text-stone-600 leading-relaxed">{flower.careGuide}</p>
               </div>
@@ -156,47 +156,51 @@ export const FlowerDetailModal: React.FC = () => {
           <div className="md:col-span-6 flex flex-col justify-between">
             <div>
               {/* Header Info */}
-              <div className="flex items-center gap-2 text-xs text-stone-500 mb-2">
-                <span className="uppercase tracking-wider font-medium">{flower.categoryId.replace(/-/g, ' ')}</span>
-                <span>·</span>
-                <span className="italic">{flower.botanicalName}</span>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-stone-500 mb-1.5 sm:mb-2">
+                <span className="uppercase tracking-wider font-semibold text-[10px] sm:text-xs text-rose-800 bg-rose-50 px-2 py-0.5 rounded border border-rose-200/60">
+                  {flower.categoryId.replace(/-/g, ' ')}
+                </span>
+                <span className="text-stone-300">·</span>
+                <span className="italic truncate max-w-[200px] sm:max-w-none text-stone-500 text-[11px] sm:text-xs">
+                  {flower.botanicalName}
+                </span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-display font-medium text-stone-900 mb-2">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-display font-medium text-stone-900 mb-2 leading-tight">
                 {flower.name}
               </h2>
 
               {/* Price & Rating */}
-              <div className="flex items-center justify-between pb-4 border-b border-stone-200 mb-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3.5 sm:pb-4 border-b border-stone-200 mb-4 sm:mb-5">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-mono font-bold text-stone-900">
+                  <span className="text-xl sm:text-2xl font-mono font-bold text-stone-900">
                     {formatVND(currentUnitPrice)}
                   </span>
                   {flower.salePrice && (
-                    <span className="text-sm font-mono text-stone-400 line-through">
+                    <span className="text-xs sm:text-sm font-mono text-stone-400 line-through">
                       {formatVND(Math.round(flower.basePrice * multiplier))}
                     </span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs text-stone-700">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <div className="flex items-center gap-1.5 text-xs text-stone-700 bg-amber-50/70 px-2.5 py-1 rounded-full border border-amber-200/50">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
                   <span className="font-bold font-mono text-stone-900">{flower.ratingAvg.toFixed(1)}</span>
-                  <span className="text-stone-400">({reviews.length} đánh giá)</span>
+                  <span className="text-stone-500 text-[11px]">({reviews.length} đánh giá)</span>
                 </div>
               </div>
 
               {/* Short description */}
-              <p className="text-xs text-stone-600 leading-relaxed mb-5">
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed mb-4 sm:mb-5">
                 {flower.shortDescription}
               </p>
 
               {/* Size Variant Selector */}
-              <div className="mb-5">
+              <div className="mb-4 sm:mb-5">
                 <label className="block text-xs font-semibold text-stone-900 uppercase tracking-wider mb-2">
                   Chọn kích cỡ bó hoa:
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {(['standard', 'deluxe', 'premium'] as SizeVariant[]).map((variant) => {
                     const isSelected = selectedVariant === variant;
                     const label = variant === 'standard' ? 'Tiêu chuẩn' : variant === 'deluxe' ? 'Thịnh soạn' : 'Vương giả';
@@ -205,17 +209,25 @@ export const FlowerDetailModal: React.FC = () => {
                     return (
                       <button
                         key={variant}
+                        type="button"
                         onClick={() => setSelectedVariant(variant)}
-                        className={`p-2.5 rounded-lg border text-left cursor-pointer transition-all ${
+                        className={`p-2.5 sm:p-3 rounded-xl border text-left cursor-pointer transition-all flex sm:flex-col items-center sm:items-start justify-between sm:justify-start gap-1 ${
                           isSelected
-                            ? 'border-stone-900 bg-stone-900 text-white shadow-sm'
-                            : 'border-stone-200 bg-white hover:border-stone-300 text-stone-800'
+                            ? 'border-stone-900 bg-stone-900 text-white shadow-sm ring-1 ring-stone-900'
+                            : 'border-stone-200 bg-white hover:border-stone-300 text-stone-800 hover:bg-stone-50'
                         }`}
                       >
-                        <span className="block text-xs font-semibold">{label}</span>
-                        {desc && (
-                          <span className={`block text-[10px] mt-0.5 line-clamp-1 ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
-                            {desc}
+                        <div className="min-w-0">
+                          <span className="block text-xs font-semibold">{label}</span>
+                          {desc && (
+                            <span className={`block text-[10px] mt-0.5 truncate sm:line-clamp-2 ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
+                              {desc}
+                            </span>
+                          )}
+                        </div>
+                        {isSelected && (
+                          <span className="sm:hidden text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-full shrink-0">
+                            Đã chọn
                           </span>
                         )}
                       </button>
@@ -225,11 +237,11 @@ export const FlowerDetailModal: React.FC = () => {
               </div>
 
               {/* Handwritten Greeting Card Input */}
-              <div className="mb-5 bg-rose-50/50 p-3.5 rounded-xl border border-rose-100">
-                <label className="block text-xs font-semibold text-stone-900 mb-1 flex items-center justify-between">
+              <div className="mb-4 sm:mb-5 bg-rose-50/50 p-3 sm:p-3.5 rounded-xl border border-rose-100">
+                <label className="block text-xs font-semibold text-stone-900 mb-1.5 flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-rose-900">
-                    <MessageSquare className="w-3.5 h-3.5 text-rose-700" />
-                    Thiệp viết tay gửi kèm (Miễn phí):
+                    <MessageSquare className="w-3.5 h-3.5 text-rose-700 shrink-0" />
+                    <span>Thiệp viết tay gửi kèm (Miễn phí):</span>
                   </span>
                 </label>
                 <textarea
@@ -242,21 +254,23 @@ export const FlowerDetailModal: React.FC = () => {
               </div>
 
               {/* Quantity Stepper */}
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center justify-between sm:justify-start gap-4 mb-5 sm:mb-6">
                 <span className="text-xs font-semibold text-stone-900 uppercase tracking-wider">Số lượng:</span>
-                <div className="flex items-center border border-stone-300 rounded-lg bg-white">
+                <div className="flex items-center border border-stone-300 rounded-lg bg-white shadow-2xs">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-1 text-stone-600 hover:text-stone-900 text-sm cursor-pointer"
+                    className="px-3.5 py-1.5 text-stone-600 hover:text-stone-900 text-sm cursor-pointer transition-colors"
+                    title="Giảm số lượng"
                   >
                     -
                   </button>
-                  <span className="px-3 py-1 font-mono text-xs font-bold text-stone-900 border-x border-stone-200">
+                  <span className="px-3.5 py-1.5 font-mono text-xs font-bold text-stone-900 border-x border-stone-200 min-w-[36px] text-center">
                     {quantity}
                   </span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="px-3 py-1 text-stone-600 hover:text-stone-900 text-sm cursor-pointer"
+                    className="px-3.5 py-1.5 text-stone-600 hover:text-stone-900 text-sm cursor-pointer transition-colors"
+                    title="Tăng số lượng"
                   >
                     +
                   </button>
@@ -266,16 +280,16 @@ export const FlowerDetailModal: React.FC = () => {
 
             {/* CTAs */}
             <div className="space-y-2 pt-4 border-t border-stone-200">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <button
                   onClick={handleAddToCart}
-                  className="py-3 px-4 bg-white border border-stone-900 text-stone-900 hover:bg-stone-100 text-xs font-semibold rounded-lg transition-colors cursor-pointer text-center"
+                  className="w-full py-3 px-4 bg-white border border-stone-900 text-stone-900 hover:bg-stone-100 text-xs font-semibold rounded-xl transition-all cursor-pointer text-center active:scale-98 shadow-xs"
                 >
                   Thêm vào giỏ hàng
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer text-center shadow-sm"
+                  className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer text-center shadow-md active:scale-98"
                 >
                   Mua ngay ({formatVND(currentUnitPrice * quantity)})
                 </button>
