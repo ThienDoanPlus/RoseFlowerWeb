@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { X, Star, Heart, Check, Clock, Shield, Sparkles, Send, Calendar, MessageSquare, Flower2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Star, Heart, Check, Clock, Shield, Sparkles, Send, Calendar, MessageSquare, Flower2, Share2 } from 'lucide-react';
 import { useStore } from '../store';
 import { SizeVariant } from '../types';
 import { formatVND } from '../utils/calculations';
@@ -88,18 +88,73 @@ export const FlowerDetailModal: React.FC = () => {
     }, 300);
   };
 
+  // Close modal when pressing Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        dispatch({ type: 'SELECT_FLOWER', payload: null });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [dispatch]);
+
+  const handleCopyShareLink = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('flower', flower.id);
+      const shareUrl = url.toString();
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        dispatch({
+          type: 'SHOW_TOAST',
+          payload: {
+            message: `Đã sao chép đường dẫn sản phẩm: ${flower.name}`,
+            type: 'success',
+          },
+        });
+      }).catch(() => {
+        dispatch({
+          type: 'SHOW_TOAST',
+          payload: {
+            message: 'Đã cập nhật đường dẫn trên thanh địa chỉ trình duyệt!',
+            type: 'info',
+          },
+        });
+      });
+    } catch {
+      // ignore
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          dispatch({ type: 'SELECT_FLOWER', payload: null });
+        }
+      }}
+      className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200"
+    >
       <div className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-stone-200">
         
-        {/* Sticky Close Button */}
-        <button
-          onClick={() => dispatch({ type: 'SELECT_FLOWER', payload: null })}
-          className="absolute top-4 right-4 z-20 p-2 bg-white/90 hover:bg-white text-stone-700 hover:text-stone-950 rounded-full shadow-md transition-colors cursor-pointer"
-          title="Đóng cửa sổ"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        {/* Sticky Action Buttons */}
+        <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+          <button
+            onClick={handleCopyShareLink}
+            className="p-2 bg-white/90 hover:bg-white text-stone-700 hover:text-stone-950 rounded-full shadow-md transition-colors cursor-pointer"
+            title="Sao chép link chia sẻ sản phẩm"
+          >
+            <Share2 className="w-5 h-5 text-stone-600 hover:text-stone-900" />
+          </button>
+          <button
+            onClick={() => dispatch({ type: 'SELECT_FLOWER', payload: null })}
+            className="p-2 bg-white/90 hover:bg-white text-stone-700 hover:text-stone-950 rounded-full shadow-md transition-colors cursor-pointer"
+            title="Đóng cửa sổ"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 p-4 sm:p-6 sm:p-8">
           

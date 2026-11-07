@@ -1159,6 +1159,64 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, []);
 
+  // 1. Đồng bộ URL Parameter khi chọn hoặc đóng sản phẩm hoa (Deep-linking & Shareable Link)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const url = new URL(window.location.href);
+      const currentFlowerParam = url.searchParams.get('flower') || url.searchParams.get('sp');
+
+      if (state.selectedFlower) {
+        if (currentFlowerParam !== state.selectedFlower.id) {
+          url.searchParams.set('flower', state.selectedFlower.id);
+          window.history.pushState({ flowerId: state.selectedFlower.id }, '', url.toString());
+        }
+        document.title = `${state.selectedFlower.name} | Tiệm Hoa Sáp Rose - 294 Phạm Văn Bạch`;
+      } else {
+        if (currentFlowerParam) {
+          url.searchParams.delete('flower');
+          url.searchParams.delete('sp');
+          window.history.pushState({}, '', url.toString());
+        }
+        document.title = 'Rose Flowers - Tiệm Hoa Sáp Nghệ Thuật & Thiết Kế Hoa Tinh Xảo 294 Phạm Văn Bạch';
+      }
+    } catch {
+      // ignore
+    }
+  }, [state.selectedFlower]);
+
+  // 2. Tự động mở sản phẩm khi load trang có ?flower=<id> hoặc khi bấm Back / Forward (popstate)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const checkAndSyncFromUrl = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const flowerId = params.get('flower') || params.get('sp');
+        if (flowerId) {
+          const matchedFlower = state.flowers.find((f) => f.id === flowerId);
+          if (matchedFlower && (!state.selectedFlower || state.selectedFlower.id !== matchedFlower.id)) {
+            dispatch({ type: 'SELECT_FLOWER', payload: matchedFlower });
+          }
+        } else if (state.selectedFlower) {
+          dispatch({ type: 'SELECT_FLOWER', payload: null });
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    // Kiểm tra ngay khi danh sách hoa sẵn sàng hoặc lần đầu vào trang
+    checkAndSyncFromUrl();
+
+    // Lắng nghe sự kiện người dùng bấm Back / Forward trên trình duyệt
+    window.addEventListener('popstate', checkAndSyncFromUrl);
+    return () => {
+      window.removeEventListener('popstate', checkAndSyncFromUrl);
+    };
+  }, [state.flowers, state.selectedFlower]);
+
   // Computed values
   const subtotal = calculateCartSubtotal(state.cart);
   const totalQuantity = state.cart.reduce((s, i) => s + i.quantity, 0);

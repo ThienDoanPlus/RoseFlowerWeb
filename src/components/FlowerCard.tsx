@@ -28,9 +28,13 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Product Image Container */}
-      <div
-        className="relative aspect-[4/3] w-full overflow-hidden bg-stone-100 cursor-pointer"
-        onClick={() => dispatch({ type: 'SELECT_FLOWER', payload: flower })}
+      <a
+        href={`?flower=${flower.id}`}
+        className="relative aspect-[4/3] w-full overflow-hidden bg-stone-100 cursor-pointer block"
+        onClick={(e) => {
+          e.preventDefault();
+          dispatch({ type: 'SELECT_FLOWER', payload: flower });
+        }}
       >
         {!imageError ? (
           <img
@@ -50,8 +54,10 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
 
         {/* Hover Quick Action Overlay */}
         <div className="absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
-          <button
+          <a
+            href={`?flower=${flower.id}`}
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               dispatch({ type: 'SELECT_FLOWER', payload: flower });
             }}
@@ -60,7 +66,7 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
           >
             <Eye className="w-3.5 h-3.5" />
             <span>Chi tiết</span>
-          </button>
+          </a>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -80,7 +86,7 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
             <span>Chọn nhanh</span>
           </button>
         </div>
-      </div>
+      </a>
 
       {/* Card Content */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
@@ -98,11 +104,17 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
           </div>
 
           {/* Product Name */}
-          <h3
-            onClick={() => dispatch({ type: 'SELECT_FLOWER', payload: flower })}
-            className="font-medium text-stone-900 text-base leading-snug hover:text-stone-700 transition-colors cursor-pointer line-clamp-1 mb-1"
-          >
-            {flower.name}
+          <h3 className="font-medium text-stone-900 text-base leading-snug line-clamp-1 mb-1">
+            <a
+              href={`?flower=${flower.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                dispatch({ type: 'SELECT_FLOWER', payload: flower });
+              }}
+              className="hover:text-rose-700 transition-colors"
+            >
+              {flower.name}
+            </a>
           </h3>
 
           {/* Botanical subtitle */}
