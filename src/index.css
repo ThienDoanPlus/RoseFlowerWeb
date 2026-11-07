@@ -42,3 +42,45 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #f472b6;
 }
+
+/* Blooming Rose Background & Petal Animations */
+@keyframes roseBloomBreathe {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+    filter: brightness(0.96) saturate(1.02);
+  }
+  50% {
+    transform: scale(1.06) translate3d(0, -6px, 0);
+    filter: brightness(1.05) saturate(1.12);
+  }
+  100% {
+    transform: scale(1.02) translate3d(0, 4px, 0);
+    filter: brightness(0.98) saturate(1.05);
+  }
+}
+
+@keyframes petalBloomFloat {
+  0% {
+    transform: translateY(0px) rotate(0deg) scale(0.9);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translateY(-28px) translateX(14px) rotate(45deg) scale(1.18);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(-56px) translateX(-12px) rotate(90deg) scale(1.02);
+    opacity: 0.3;
+  }
+}
+
+@keyframes flowerBloomPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.4));
+  }
+  50% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 14px rgba(244, 63, 94, 0.7));
+  }
+}

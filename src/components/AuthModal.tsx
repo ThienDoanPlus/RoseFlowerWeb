@@ -29,6 +29,21 @@ import { FlowerAPI } from '../services/api';
 
 type AuthTab = 'login' | 'register';
 
+const BLOOMING_PETALS = [
+  { left: '6%', top: '12%', size: '1.4rem', duration: 7, delay: 0, rotate: 15, opacity: 0.75, symbol: '🌸' },
+  { left: '16%', top: '68%', size: '1.2rem', duration: 8.5, delay: 1.2, rotate: -30, opacity: 0.65, symbol: '🌺' },
+  { left: '22%', top: '22%', size: '1.6rem', duration: 9, delay: 0.5, rotate: 45, opacity: 0.7, symbol: '🌸' },
+  { left: '32%', top: '82%', size: '1.1rem', duration: 6.8, delay: 2, rotate: -15, opacity: 0.6, symbol: '💮' },
+  { left: '74%', top: '18%', size: '1.5rem', duration: 8, delay: 1.5, rotate: 60, opacity: 0.75, symbol: '🌸' },
+  { left: '84%', top: '62%', size: '1.3rem', duration: 9.5, delay: 0.8, rotate: -40, opacity: 0.65, symbol: '🌺' },
+  { left: '90%', top: '28%', size: '1.7rem', duration: 7.5, delay: 2.5, rotate: 25, opacity: 0.8, symbol: '🌸' },
+  { left: '62%', top: '86%', size: '1.2rem', duration: 8.2, delay: 3, rotate: -20, opacity: 0.6, symbol: '💮' },
+  { left: '10%', top: '42%', size: '1.3rem', duration: 10, delay: 1, rotate: 35, opacity: 0.65, symbol: '🌸' },
+  { left: '82%', top: '10%', size: '1.4rem', duration: 6.5, delay: 0.2, rotate: -50, opacity: 0.75, symbol: '🌺' },
+  { left: '4%', top: '88%', size: '1.2rem', duration: 8.8, delay: 2.2, rotate: 20, opacity: 0.55, symbol: '🌸' },
+  { left: '94%', top: '82%', size: '1.5rem', duration: 7.8, delay: 1.8, rotate: -35, opacity: 0.7, symbol: '🌸' },
+];
+
 export const AuthModal: React.FC = () => {
   const { state, dispatch } = useStore();
   
@@ -237,15 +252,59 @@ export const AuthModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="relative bg-white rounded-2xl max-w-md w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 sm:p-8 shadow-2xl border border-stone-200">
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto overflow-x-hidden flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-300"
+      onClick={handleClose}
+    >
+      {/* Blooming Rose Arch Background with Motion */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none">
+        {/* Animated Rose Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-transform will-change-transform"
+          style={{
+            backgroundImage: `url('/images/auth-blooming-roses-bg.jpg')`,
+            animation: 'roseBloomBreathe 14s ease-in-out infinite alternate',
+          }}
+        />
+
+        {/* Gentle Rose Petal Shimmer / Vignette Overlay for focus on the center heart opening */}
+        <div className="absolute inset-0 bg-radial from-transparent via-rose-950/20 to-stone-950/70 backdrop-blur-[1px]" />
+
+        {/* Floating & Blooming Rose Petals Effect */}
+        <div className="absolute inset-0 overflow-hidden">
+          {BLOOMING_PETALS.map((petal, i) => (
+            <span
+              key={i}
+              className="absolute pointer-events-none select-none"
+              style={{
+                left: petal.left,
+                top: petal.top,
+                fontSize: petal.size,
+                opacity: petal.opacity,
+                animation: `petalBloomFloat ${petal.duration}s ease-in-out ${petal.delay}s infinite alternate`,
+                transform: `rotate(${petal.rotate}deg)`,
+                filter: 'drop-shadow(0 2px 6px rgba(225, 29, 72, 0.35))',
+              }}
+            >
+              {petal.symbol}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Center Form Card */}
+      <div
+        className="relative z-10 bg-white/94 sm:bg-white/96 backdrop-blur-xl rounded-3xl max-w-md w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 sm:p-7 shadow-[0_25px_60px_-12px_rgba(225,29,72,0.35)] border border-white/80 ring-1 ring-rose-200/60 animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-1.5 text-stone-400 hover:text-stone-900 rounded-full transition-colors cursor-pointer z-10"
+          className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-2 text-stone-500 hover:text-stone-900 bg-white/80 hover:bg-white rounded-full transition-all cursor-pointer z-20 shadow-xs border border-rose-100"
+          title="Đóng cửa sổ"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         {state.user ? (
@@ -374,6 +433,12 @@ export const AuthModal: React.FC = () => {
           <div className="space-y-4">
             {/* Header */}
             <div className="text-center pt-1">
+              <div className="relative inline-flex items-center justify-center mx-auto mb-2.5">
+                <div className="absolute inset-0 rounded-full bg-rose-400/35 blur-md animate-pulse" />
+                <div className="relative w-12 h-12 rounded-full bg-gradient-to-tr from-rose-600 via-rose-500 to-pink-400 text-white flex items-center justify-center text-xl shadow-md ring-4 ring-white/90">
+                  <span className="inline-block animate-[flowerBloomPulse_3s_ease-in-out_infinite]">🌹</span>
+                </div>
+              </div>
               <h3 className="font-display font-medium text-2xl text-stone-900">
                 Rose Flowers Xin chào!
               </h3>
