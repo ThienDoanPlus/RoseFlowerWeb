@@ -20,6 +20,9 @@ export const MobileBottomBar: React.FC = () => {
         <button
           onClick={() => {
             dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+            if (typeof window !== 'undefined') {
+              window.history.pushState({}, '', '/');
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           className={`flex flex-col items-center justify-center py-1 transition-colors cursor-pointer ${
@@ -43,7 +46,15 @@ export const MobileBottomBar: React.FC = () => {
           </button>
         ) : (
           <a
-            href="#collection"
+            href="/#collection"
+            onClick={() => {
+              if (state.activeView === 'product-detail') {
+                dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+                if (typeof window !== 'undefined') {
+                  window.history.pushState({}, '', '/#collection');
+                }
+              }
+            }}
             className="flex flex-col items-center justify-center py-1 text-stone-600 hover:text-rose-900 transition-colors"
           >
             <Flower2 className="w-5 h-5 text-stone-600" />

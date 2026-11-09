@@ -45,7 +45,10 @@ export const Navbar: React.FC = () => {
           <button
             onClick={() => {
               dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              if (typeof window !== 'undefined') {
+                window.history.pushState({}, '', '/');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
             }}
             className="text-xl sm:text-2xl font-display font-medium tracking-tight text-rose-950 whitespace-nowrap shrink-0 hover:text-rose-700 transition-colors flex items-center gap-2 cursor-pointer text-left"
           >
@@ -63,18 +66,76 @@ export const Navbar: React.FC = () => {
 
         {/* Zone 2: Navigation Links (Adaptive per View) */}
         <nav className="hidden lg:flex items-center gap-5 text-xs sm:text-sm font-medium text-stone-700">
-          {state.activeView === 'storefront' ? (
+          {state.activeView === 'storefront' || state.activeView === 'product-detail' ? (
             <>
-              <a href="#collection" className="hover:text-rose-900 transition-colors whitespace-nowrap">
+              {state.activeView === 'product-detail' && (
+                <button
+                  onClick={() => {
+                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState({}, '', '/');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
+                  className="text-rose-900 font-bold hover:underline flex items-center gap-1 cursor-pointer mr-2"
+                >
+                  <span>&larr; Về Cửa Hàng</span>
+                </button>
+              )}
+              <a
+                href="/#collection"
+                onClick={() => {
+                  if (state.activeView === 'product-detail') {
+                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState({}, '', '/#collection');
+                    }
+                  }
+                }}
+                className="hover:text-rose-900 transition-colors whitespace-nowrap"
+              >
                 Bộ Sưu Tập Hoa
               </a>
-              <a href="#vouchers" className="hover:text-rose-900 transition-colors whitespace-nowrap">
+              <a
+                href="/#vouchers"
+                onClick={() => {
+                  if (state.activeView === 'product-detail') {
+                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState({}, '', '/#vouchers');
+                    }
+                  }
+                }}
+                className="hover:text-rose-900 transition-colors whitespace-nowrap"
+              >
                 Ưu Đãi Dịp Lễ
               </a>
-              <a href="#craft" className="hover:text-rose-900 transition-colors whitespace-nowrap">
+              <a
+                href="/#craft"
+                onClick={() => {
+                  if (state.activeView === 'product-detail') {
+                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState({}, '', '/#craft');
+                    }
+                  }
+                }}
+                className="hover:text-rose-900 transition-colors whitespace-nowrap"
+              >
                 Đặc Tính Hoa Sáp
               </a>
-              <a href="#branches" className="hover:text-rose-900 transition-colors whitespace-nowrap">
+              <a
+                href="/#branches"
+                onClick={() => {
+                  if (state.activeView === 'product-detail') {
+                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState({}, '', '/#branches');
+                    }
+                  }
+                }}
+                className="hover:text-rose-900 transition-colors whitespace-nowrap"
+              >
                 Chi Nhánh 294 Phạm Văn Bạch
               </a>
 
@@ -312,6 +373,9 @@ export const Navbar: React.FC = () => {
               <button
                 onClick={() => {
                   dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+                  if (typeof window !== 'undefined') {
+                    window.history.pushState({}, '', '/');
+                  }
                   setIsMobileMenuOpen(false);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}

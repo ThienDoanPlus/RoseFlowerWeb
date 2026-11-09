@@ -14,6 +14,7 @@ import { CraftSection } from './components/CraftSection';
 import { GoogleMapsSection } from './components/GoogleMapsSection';
 import { Footer } from './components/Footer';
 import { FlowerDetailModal } from './components/FlowerDetailModal';
+import { ProductDetailPage } from './components/ProductDetailPage';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderSuccessModal } from './components/OrderSuccessModal';
@@ -44,12 +45,14 @@ function AppContent() {
       {/* Adaptive Header Navigation */}
       <Navbar />
 
-      {/* Main Content Sections based on Active View (Storefront, Staff Kanban, Admin Portal) */}
+      {/* Main Content Sections based on Active View (Storefront, Product Detail, Staff Kanban, Admin Portal) */}
       <main className="flex-1">
         {state.activeView === 'staff' ? (
           <StaffOrderBoard />
         ) : state.activeView === 'admin' ? (
           <AdminDashboard />
+        ) : state.activeView === 'product-detail' && state.selectedFlower ? (
+          <ProductDetailPage flower={state.selectedFlower} />
         ) : (
           <>
             {/* Hero Section with featured boutique design */}

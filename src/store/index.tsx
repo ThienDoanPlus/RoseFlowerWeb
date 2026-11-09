@@ -444,11 +444,45 @@ const loadStoredVoucher = (): Voucher | null => {
   return null;
 };
 
+export const getFlowerIdFromCurrentUrl = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  // 1. Path format: /san-pham/:id or /san-pham/:id/
+  const pathname = window.location.pathname;
+  const match = pathname.match(/^\/san-pham\/([^/?#]+)/i);
+  if (match && match[1]) {
+    return decodeURIComponent(match[1]);
+  }
+  // 2. Hash fallback: #/san-pham/:id
+  const hash = window.location.hash;
+  const hashMatch = hash.match(/#\/san-pham\/([^/?#]+)/i);
+  if (hashMatch && hashMatch[1]) {
+    return decodeURIComponent(hashMatch[1]);
+  }
+  // 3. Query param fallback: ?flower=:id or ?sp=:id
+  const params = new URLSearchParams(window.location.search);
+  const paramId = params.get('flower') || params.get('sp') || params.get('san-pham');
+  if (paramId) {
+    return decodeURIComponent(paramId);
+  }
+  return null;
+};
+
+const initialFlowerId = getFlowerIdFromCurrentUrl();
+const initialFlower = initialFlowerId ? FLOWERS.find((f) => f.id === initialFlowerId) || null : null;
+
 const storedUser = loadStoredUser();
 
 const initialState: AppState = {
   currentRole: storedUser ? storedUser.role : 'CUSTOMER',
-  activeView: storedUser ? (storedUser.role === 'ADMIN' ? 'admin' : storedUser.role === 'STAFF' ? 'staff' : 'storefront') : 'storefront',
+  activeView: initialFlower
+    ? 'product-detail'
+    : storedUser
+    ? storedUser.role === 'ADMIN'
+      ? 'admin'
+      : storedUser.role === 'STAFF'
+      ? 'staff'
+      : 'storefront'
+    : 'storefront',
   staffActiveTab: 'kanban',
   adminActiveTab: 'overview',
 
@@ -464,7 +498,7 @@ const initialState: AppState = {
   searchQuery: '',
   priceRange: [0, 5000000],
   sortBy: 'popular',
-  selectedFlower: null,
+  selectedFlower: initialFlower,
 
   cart: loadStoredCart(),
   selectedBranch: BRANCHES[0],
@@ -526,6 +560,7 @@ function appReducer(state: AppState, action: Action): AppState {
         return {
           ...state,
           activeView: 'storefront',
+          selectedFlower: null,
           isAuthOpen: true,
           toast: {
             message: 'Khu vực quản trị chỉ dành cho Quản lý (ADMIN). Vui lòng đăng nhập tài khoản Quản trị!',
@@ -537,6 +572,7 @@ function appReducer(state: AppState, action: Action): AppState {
         return {
           ...state,
           activeView: 'storefront',
+          selectedFlower: null,
           isAuthOpen: true,
           toast: {
             message: 'Bảng Florist chỉ dành cho Nhân viên hoặc Quản lý. Vui lòng đăng nhập tài khoản!',
@@ -544,7 +580,11 @@ function appReducer(state: AppState, action: Action): AppState {
           },
         };
       }
-      return { ...state, activeView: targetView };
+      return {
+        ...state,
+        activeView: targetView,
+        selectedFlower: targetView === 'product-detail' ? state.selectedFlower : null,
+      };
     }
 
     case 'SET_STAFF_TAB':
@@ -621,7 +661,11 @@ function appReducer(state: AppState, action: Action): AppState {
       return { ...state, sortBy: action.payload };
 
     case 'SELECT_FLOWER':
-      return { ...state, selectedFlower: action.payload };
+      return {
+        ...state,
+        selectedFlower: action.payload,
+        activeView: action.payload ? 'product-detail' : 'storefront',
+      };
 
     case 'ADD_TO_CART': {
       const { flower, sizeVariant, quantity, cardMessage } = action.payload;
@@ -1159,63 +1203,64 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, []);
 
-  // 1. Đồng bộ URL Parameter khi chọn hoặc đóng sản phẩm hoa (Deep-linking & Shareable Link)
+  // 1. Đồng bộ URL và Document Title theo View và Selected Flower (/san-pham/:id)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     try {
-      const url = new URL(window.location.href);
-      const currentFlowerParam = url.searchParams.get('flower') || url.searchParams.get('sp');
-
-      if (state.selectedFlower) {
-        if (currentFlowerParam !== state.selectedFlower.id) {
-          url.searchParams.set('flower', state.selectedFlower.id);
-          window.history.pushState({ flowerId: state.selectedFlower.id }, '', url.toString());
+      if (state.activeView === 'product-detail' && state.selectedFlower) {
+        const targetPath = `/san-pham/${state.selectedFlower.id}`;
+        if (window.location.pathname !== targetPath) {
+          window.history.pushState({ flowerId: state.selectedFlower.id }, '', targetPath);
         }
         document.title = `${state.selectedFlower.name} | Tiệm Hoa Sáp Rose - 294 Phạm Văn Bạch`;
-      } else {
-        if (currentFlowerParam) {
-          url.searchParams.delete('flower');
-          url.searchParams.delete('sp');
-          window.history.pushState({}, '', url.toString());
+      } else if (state.activeView === 'storefront') {
+        if (window.location.pathname.startsWith('/san-pham/')) {
+          window.history.pushState({}, '', '/');
         }
         document.title = 'Rose Flowers - Tiệm Hoa Sáp Nghệ Thuật & Thiết Kế Hoa Tinh Xảo 294 Phạm Văn Bạch';
       }
     } catch {
       // ignore
     }
-  }, [state.selectedFlower]);
+  }, [state.activeView, state.selectedFlower]);
 
-  // 2. Tự động mở sản phẩm khi load trang có ?flower=<id> hoặc khi bấm Back / Forward (popstate)
+  // 2. Tự động chuyển tới trang chi tiết khi vào qua link /san-pham/:id hoặc bấm Back/Forward trình duyệt
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const checkAndSyncFromUrl = () => {
+    const syncStateFromUrl = () => {
       try {
-        const params = new URLSearchParams(window.location.search);
-        const flowerId = params.get('flower') || params.get('sp');
-        if (flowerId) {
-          const matchedFlower = state.flowers.find((f) => f.id === flowerId);
-          if (matchedFlower && (!state.selectedFlower || state.selectedFlower.id !== matchedFlower.id)) {
-            dispatch({ type: 'SELECT_FLOWER', payload: matchedFlower });
+        const targetFlowerId = getFlowerIdFromCurrentUrl();
+        if (targetFlowerId) {
+          const matched = state.flowers.find((f) => f.id === targetFlowerId);
+          if (matched) {
+            if (!state.selectedFlower || state.selectedFlower.id !== matched.id || state.activeView !== 'product-detail') {
+              dispatch({ type: 'SELECT_FLOWER', payload: matched });
+            }
           }
-        } else if (state.selectedFlower) {
-          dispatch({ type: 'SELECT_FLOWER', payload: null });
+        } else {
+          // Nếu URL là trang chủ và đang ở product-detail thì quay về storefront
+          if (window.location.pathname === '/' || window.location.pathname === '') {
+            if (state.activeView === 'product-detail') {
+              dispatch({ type: 'SELECT_FLOWER', payload: null });
+            }
+          }
         }
       } catch {
         // ignore
       }
     };
 
-    // Kiểm tra ngay khi danh sách hoa sẵn sàng hoặc lần đầu vào trang
-    checkAndSyncFromUrl();
+    // Kiểm tra ngay khi mount hoặc khi danh sách hoa được nạp
+    syncStateFromUrl();
 
     // Lắng nghe sự kiện người dùng bấm Back / Forward trên trình duyệt
-    window.addEventListener('popstate', checkAndSyncFromUrl);
+    window.addEventListener('popstate', syncStateFromUrl);
     return () => {
-      window.removeEventListener('popstate', checkAndSyncFromUrl);
+      window.removeEventListener('popstate', syncStateFromUrl);
     };
-  }, [state.flowers, state.selectedFlower]);
+  }, [state.flowers, state.activeView, state.selectedFlower]);
 
   // Computed values
   const subtotal = calculateCartSubtotal(state.cart);

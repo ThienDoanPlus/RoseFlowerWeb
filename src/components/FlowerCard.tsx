@@ -29,11 +29,15 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
     >
       {/* Product Image Container */}
       <a
-        href={`?flower=${flower.id}`}
+        href={`/san-pham/${flower.id}`}
         className="relative aspect-[4/3] w-full overflow-hidden bg-stone-100 cursor-pointer block"
         onClick={(e) => {
           e.preventDefault();
           dispatch({ type: 'SELECT_FLOWER', payload: flower });
+          if (typeof window !== 'undefined') {
+            window.history.pushState({ flowerId: flower.id }, '', `/san-pham/${flower.id}`);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         }}
       >
         {!imageError ? (
@@ -55,11 +59,15 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
         {/* Hover Quick Action Overlay */}
         <div className="absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
           <a
-            href={`?flower=${flower.id}`}
+            href={`/san-pham/${flower.id}`}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               dispatch({ type: 'SELECT_FLOWER', payload: flower });
+              if (typeof window !== 'undefined') {
+                window.history.pushState({ flowerId: flower.id }, '', `/san-pham/${flower.id}`);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
             }}
             className="px-3.5 py-2 bg-white/95 hover:bg-white text-stone-900 text-xs font-medium rounded-lg shadow-md transition-transform hover:scale-105 flex items-center gap-1.5 cursor-pointer"
             title="Xem chi tiết & ý nghĩa hoa"
@@ -106,12 +114,16 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
           {/* Product Name */}
           <h3 className="font-medium text-stone-900 text-base leading-snug line-clamp-1 mb-1">
             <a
-              href={`?flower=${flower.id}`}
+              href={`/san-pham/${flower.id}`}
               onClick={(e) => {
                 e.preventDefault();
                 dispatch({ type: 'SELECT_FLOWER', payload: flower });
+                if (typeof window !== 'undefined') {
+                  window.history.pushState({ flowerId: flower.id }, '', `/san-pham/${flower.id}`);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
               }}
-              className="hover:text-rose-700 transition-colors"
+              className="hover:text-rose-900 transition-colors"
             >
               {flower.name}
             </a>
