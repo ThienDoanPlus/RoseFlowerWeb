@@ -41,7 +41,7 @@ export const AutoTopButton: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-36 md:bottom-24 right-4 sm:right-6 z-30 animate-in fade-in zoom-in-75 duration-200">
+    <div className="fixed bottom-[290px] md:bottom-[280px] right-4 sm:right-6 z-30 animate-in fade-in zoom-in-75 duration-200">
       <button
         onClick={scrollToTop}
         className="relative p-3 bg-white hover:bg-rose-50 text-rose-900 rounded-full shadow-lg border border-rose-300 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center group"

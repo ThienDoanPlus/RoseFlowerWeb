@@ -505,21 +505,90 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
 
           </div>
         ) : (
-          /* Floating Button with Badge */
-          <button
-            type="button"
-            onClick={() => setIsOpen(true)}
-            className="p-3.5 bg-rose-900 hover:bg-rose-800 text-white rounded-full shadow-2xl transition-transform hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-2.5 group ring-4 ring-rose-200/60"
-            title="Mở Chatbot AI tư vấn hoa sáp & Zalo 0888208306"
-          >
-            <div className="relative">
-              <MessageCircle className="w-5 h-5" />
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute -top-1 -right-1 ring-2 ring-rose-900" />
-            </div>
-            <span className="hidden sm:inline text-xs font-semibold pr-1">
-              Chatbot AI · Zalo 0888208306
-            </span>
-          </button>
+          /* Floating Quick Contact Stack (Zalo, Hotline, Email & Chatbot AI) */
+          <div className="flex flex-col items-end gap-2.5 sm:gap-3">
+            {/* 1. Email Hỗ Trợ Đơn Hàng */}
+            <a
+              href="mailto:nguyenthiendoan2@gmail.com"
+              className="group flex items-center justify-end transition-all cursor-pointer"
+              title="Email hỗ trợ đơn hàng: nguyenthiendoan2@gmail.com"
+              aria-label="Email hỗ trợ đơn hàng: nguyenthiendoan2@gmail.com"
+            >
+              {/* Slide-out tooltip card */}
+              <div className="hidden md:flex flex-col items-end mr-2.5 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-200 pointer-events-none bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-rose-200 shadow-lg text-right">
+                <span className="text-xs font-bold text-rose-950">Email hỗ trợ đơn hàng</span>
+                <span className="text-[10px] text-stone-600 font-mono">nguyenthiendoan2@gmail.com</span>
+              </div>
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-rose-800 hover:bg-rose-700 text-white flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 ring-2 ring-white">
+                <Mail className="w-5 h-5" />
+              </div>
+            </a>
+
+            {/* 2. Hotline Gọi Ngay */}
+            <a
+              href="tel:0888208306"
+              className="group flex items-center justify-end transition-all cursor-pointer relative"
+              title="Hotline: 0888 208 306 - Giao nhanh 30-45 phút nội thành"
+              aria-label="Gọi ngay Hotline 0888 208 306"
+            >
+              {/* Slide-out tooltip card */}
+              <div className="hidden md:flex flex-col items-end mr-2.5 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-200 pointer-events-none bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-emerald-200 shadow-lg text-right">
+                <span className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Hotline: <strong className="font-mono text-emerald-900">0888 208 306</strong></span>
+                </span>
+                <span className="text-[10px] text-emerald-700 font-medium">Giao nhanh 30-45 phút nội thành</span>
+              </div>
+              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 ring-2 ring-white">
+                <span className="absolute -inset-1 rounded-full bg-emerald-400 opacity-40 animate-ping pointer-events-none" />
+                <Phone className="w-5 h-5 relative z-10" />
+              </div>
+            </a>
+
+            {/* 3. Chat Zalo 24/7 */}
+            <a
+              href="https://zalo.me/0888208306"
+              target="_blank"
+              rel="noreferrer"
+              className="group flex items-center justify-end transition-all cursor-pointer relative"
+              title="Chat Zalo: 0888 208 306 - Gửi ảnh mẫu hoa thực tế & chốt đơn 24/7"
+              aria-label="Chat Zalo 0888 208 306"
+            >
+              {/* Slide-out tooltip card */}
+              <div className="hidden md:flex flex-col items-end mr-2.5 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-200 pointer-events-none bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-blue-200 shadow-lg text-right">
+                <span className="text-xs font-bold text-blue-950 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                  <span>Chat Zalo: <strong className="font-mono text-blue-900">0888 208 306</strong></span>
+                </span>
+                <span className="text-[10px] text-blue-700 font-medium">Gửi ảnh mẫu hoa thực tế & chốt đơn 24/7</span>
+              </div>
+              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#0068FF] hover:bg-[#0055d4] text-white flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 ring-2 ring-white">
+                <span className="absolute -inset-1 rounded-full bg-blue-400 opacity-40 animate-ping pointer-events-none" />
+                <span className="font-black font-sans text-xs sm:text-[13px] tracking-tight relative z-10">Zalo</span>
+              </div>
+            </a>
+
+            {/* 4. Trợ Lý AI Tư Vấn Hoa & Viết Thiệp */}
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              className="group flex items-center justify-end transition-all cursor-pointer"
+              title="Mở Trợ Lý AI tư vấn hoa sáp & viết thiệp chúc"
+              aria-label="Trợ lý AI tư vấn hoa sáp"
+            >
+              <div className="hidden md:flex flex-col items-end mr-2.5 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-200 pointer-events-none bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-rose-200 shadow-lg text-right">
+                <span className="text-xs font-bold text-rose-950 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                  <span>Trợ Lý AI Hoa Sáp</span>
+                </span>
+                <span className="text-[10px] text-stone-500">Tư vấn mẫu hoa & thiệp 24/7</span>
+              </div>
+              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-stone-900 hover:bg-stone-800 text-white flex items-center justify-center shadow-xl transition-all hover:scale-110 active:scale-95 ring-2 ring-white">
+                <Bot className="w-5 h-5 text-white" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 ring-2 ring-white" />
+              </div>
+            </button>
+          </div>
         )}
       </aside>
     </>
