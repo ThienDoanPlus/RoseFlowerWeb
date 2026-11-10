@@ -221,28 +221,6 @@ export const Navbar: React.FC = () => {
         {/* Zone 3: Actions Cluster */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           
-          {/* Hotline & Zalo Quick Access for Desktop */}
-          <div className="hidden xl:flex items-center gap-1.5 mr-1">
-            <a
-              href="tel:0888208306"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-200/80 transition-colors text-xs font-semibold shadow-2xs"
-              title="Hotline: 0888 208 306 - Giao nhanh 30-45 phút nội thành"
-            >
-              <Phone className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-              <span className="font-mono">0888 208 306</span>
-            </a>
-            <a
-              href="https://zalo.me/0888208306"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-950 border border-blue-200/80 transition-colors text-xs font-semibold shadow-2xs"
-              title="Chat Zalo: 0888 208 306 - Gửi ảnh mẫu hoa thực tế & chốt đơn 24/7"
-            >
-              <span className="w-4 h-4 rounded-full bg-[#0068FF] text-white text-[9px] font-black flex items-center justify-center shrink-0">Z</span>
-              <span>Chat Zalo</span>
-            </a>
-          </div>
-          
           {/* Hiển thị vai trò tài khoản nếu là Staff/Admin */}
           {state.user && state.currentRole === 'ADMIN' && (
             <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">

@@ -44,6 +44,16 @@ const QUICK_PROMPTS = [
   '🎁 Mã giảm giá hôm nay có gì?',
 ];
 
+const GmailIcon: React.FC<{ className?: string }> = ({ className = 'w-5 h-5' }) => (
+  <svg viewBox="0 0 48 48" className={className} xmlns="http://www.w3.org/2000/svg">
+    <path fill="#4285F4" d="M45,16.2l-5,2.75v19.55c0,1.93-1.57,3.5-3.5,3.5h-5.5V23.73l-7,5.27l-7-5.27V42h-5.5 c-1.93,0-3.5-1.57-3.5-3.5V18.95l-5-2.75C2.65,15.75,2,14.81,2,13.78V9.5c0-1.93,1.57-3.5,3.5-3.5c0.69,0,1.35,0.2,1.91,0.56L24,18.06 l16.59-11.5C41.15,6.2,41.81,6,42.5,6c1.93,0,3.5,1.57,3.5,3.5v4.28C46,14.81,45.35,15.75,45,16.2z"/>
+    <path fill="#34A853" d="M12,42V23.73l-4-3.02V38.5c0,1.93,1.57,3.5,3.5,3.5H12z"/>
+    <path fill="#FBBC05" d="M36,42h0.5c1.93,0,3.5-1.57,3.5-3.5V20.71l-4,3.02V42z"/>
+    <path fill="#EA4335" d="M36,23.73V42h0.5c1.93,0,3.5-1.57,3.5-3.5V20.71L36,23.73z"/>
+    <path fill="#EA4335" d="M12,23.73L24,32.8l12-9.07V9.5c0-1.93-1.57-3.5-3.5-3.5c-0.69,0-1.35,0.2-1.91,0.56L24,11.5L13.41,6.56 C12.85,6.2,12.19,6,11.5,6C9.57,6,8,7.57,8,9.5v14.23L12,23.73z"/>
+  </svg>
+);
+
 export const ZaloChatWidget: React.FC = () => {
   const { state, dispatch } = useStore();
   const isOpen = state.isZaloOpen;
@@ -466,8 +476,8 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
                     className="p-3 sm:p-3.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl flex items-center justify-between transition-colors text-xs text-rose-950 group"
                   >
                     <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-rose-700 text-white flex items-center justify-center shadow-xs shrink-0">
-                        <Mail className="w-4 h-4" />
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white border border-rose-200/80 flex items-center justify-center shadow-xs shrink-0">
+                        <GmailIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
                       <div className="min-w-0">
                         <span className="font-bold text-xs sm:text-sm block truncate">Email hỗ trợ đơn hàng</span>
@@ -507,20 +517,23 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
         ) : (
           /* Floating Quick Contact Stack (Zalo, Hotline, Email & Chatbot AI) */
           <div className="flex flex-col items-end gap-2.5 sm:gap-3">
-            {/* 1. Email Hỗ Trợ Đơn Hàng */}
+            {/* 1. Email Hỗ Trợ Đơn Hàng (Gmail) */}
             <a
               href="mailto:nguyenthiendoan2@gmail.com"
               className="group flex items-center justify-end transition-all cursor-pointer"
-              title="Email hỗ trợ đơn hàng: nguyenthiendoan2@gmail.com"
-              aria-label="Email hỗ trợ đơn hàng: nguyenthiendoan2@gmail.com"
+              title="Gmail hỗ trợ đơn hàng: nguyenthiendoan2@gmail.com"
+              aria-label="Gmail hỗ trợ đơn hàng: nguyenthiendoan2@gmail.com"
             >
               {/* Slide-out tooltip card */}
               <div className="hidden md:flex flex-col items-end mr-2.5 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-200 pointer-events-none bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-rose-200 shadow-lg text-right">
-                <span className="text-xs font-bold text-rose-950">Email hỗ trợ đơn hàng</span>
+                <span className="text-xs font-bold text-rose-950 flex items-center gap-1.5">
+                  <GmailIcon className="w-3.5 h-3.5" />
+                  <span>Email hỗ trợ đơn hàng</span>
+                </span>
                 <span className="text-[10px] text-stone-600 font-mono">nguyenthiendoan2@gmail.com</span>
               </div>
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-rose-800 hover:bg-rose-700 text-white flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 ring-2 ring-white">
-                <Mail className="w-5 h-5" />
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white hover:bg-stone-50 text-stone-800 flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 ring-2 ring-white border border-stone-200/80">
+                <GmailIcon className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
             </a>
 
@@ -568,24 +581,26 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
               </div>
             </a>
 
-            {/* 4. Trợ Lý AI Tư Vấn Hoa & Viết Thiệp */}
+            {/* 4. Trợ Lý AI Tư Vấn Hoa & Viết Thiệp (Logo R đỏ thương hiệu) */}
             <button
               type="button"
               onClick={() => setIsOpen(true)}
               className="group flex items-center justify-end transition-all cursor-pointer"
-              title="Mở Trợ Lý AI tư vấn hoa sáp & viết thiệp chúc"
-              aria-label="Trợ lý AI tư vấn hoa sáp"
+              title="Mở Trợ Lý AI Rose tư vấn hoa sáp & thiệp chúc 24/7"
+              aria-label="Trợ lý AI Rose tư vấn hoa sáp"
             >
               <div className="hidden md:flex flex-col items-end mr-2.5 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-200 pointer-events-none bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-rose-200 shadow-lg text-right">
-                <span className="text-xs font-bold text-rose-950 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-amber-500" />
-                  <span>Trợ Lý AI Hoa Sáp</span>
+                <span className="text-xs font-bold text-rose-950 flex items-center gap-1.5">
+                  <span className="w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center font-serif text-[10px] font-bold">R</span>
+                  <span>Trợ Lý AI Hoa Sáp Rose</span>
                 </span>
-                <span className="text-[10px] text-stone-500">Tư vấn mẫu hoa & thiệp 24/7</span>
+                <span className="text-[10px] text-stone-500 font-medium">Tư vấn mẫu hoa & thiệp 24/7</span>
               </div>
-              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-stone-900 hover:bg-stone-800 text-white flex items-center justify-center shadow-xl transition-all hover:scale-110 active:scale-95 ring-2 ring-white">
-                <Bot className="w-5 h-5 text-white" />
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 ring-2 ring-white" />
+              <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-rose-500 via-rose-600 to-rose-900 hover:from-rose-600 hover:to-rose-800 text-white flex items-center justify-center shadow-xl transition-all hover:scale-110 active:scale-95 ring-2 ring-white">
+                <span className="font-serif font-bold text-xl sm:text-2xl text-white select-none leading-none drop-shadow-xs">
+                  R
+                </span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 ring-2 ring-white shadow-xs" />
               </div>
             </button>
           </div>
