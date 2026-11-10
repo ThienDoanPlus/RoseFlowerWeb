@@ -43,7 +43,6 @@ export const CheckoutModal: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('VIETQR');
 
   // VietQR interactive states
-  const [qrMode, setQrMode] = useState<'card' | 'dynamic'>('card');
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isZoomQrOpen, setIsZoomQrOpen] = useState(false);
 
@@ -439,7 +438,7 @@ export const CheckoutModal: React.FC = () => {
                 <div className="p-3 mb-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
                   <div>
-                    <strong>Quy trình xử lý đơn:</strong> Quý khách quét mã QR để chuyển khoản. Khi chủ tiệm (Admin) kiểm tra thấy tiền vào tài khoản Vietcombank sẽ lập tức <strong>phê duyệt</strong>, hệ thống sẽ gửi thông báo và xưởng bắt đầu lên đơn cắm hoa giao đến bạn.
+                    <strong>Quy trình xử lý đơn:</strong> Quý khách quét mã QR để chuyển khoản. Chúng tôi sẽ <strong>phê duyệt</strong> đơn hàng khi nhận được thanh toán từ quý khách , hệ thống sẽ gửi thông báo và xưởng bắt đầu lên đơn giao đến bạn sớm nhất.
                   </div>
                 </div>
 
@@ -463,54 +462,17 @@ export const CheckoutModal: React.FC = () => {
                           </p>
                         </div>
                       </div>
-
-                      {/* Mode switcher tabs */}
-                      <div className="inline-flex p-1 bg-stone-100/90 rounded-lg text-[11px] font-medium border border-stone-200/60">
-                        <button
-                          type="button"
-                          onClick={() => setQrMode('card')}
-                          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                            qrMode === 'card'
-                              ? 'bg-white text-emerald-900 font-bold shadow-2xs'
-                              : 'text-stone-600 hover:text-stone-900'
-                          }`}
-                        >
-                          Thẻ QR Chính Thức
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setQrMode('dynamic')}
-                          className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                            qrMode === 'dynamic'
-                              ? 'bg-white text-emerald-900 font-bold shadow-2xs'
-                              : 'text-stone-600 hover:text-stone-900'
-                          }`}
-                        >
-                          Mã QR Tự Điền Tiền
-                        </button>
-                      </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
                       {/* QR Display Card */}
                       <div className="flex flex-col items-center shrink-0">
                         <div className="relative group p-2 bg-white rounded-xl border-2 border-emerald-300 shadow-sm overflow-hidden max-w-[215px] sm:max-w-[230px]">
-                          {qrMode === 'card' ? (
-                            <img
-                              src={vietQRConfig.staticQrUrl}
-                              alt="Thẻ VietQR NGUYEN THIEN DOAN"
-                              className="w-48 sm:w-52 h-auto object-contain rounded-lg transition-transform group-hover:scale-102"
-                            />
-                          ) : (
-                            <div className="w-48 h-48 sm:w-52 sm:h-52 bg-white flex items-center justify-center p-1">
-                              <img
-                                src={vietQRConfig.qrImageUrl}
-                                alt="Mã VietQR tự động điền tiền"
-                                referrerPolicy="no-referrer"
-                                className="w-full h-full object-contain"
-                              />
-                            </div>
-                          )}
+                          <img
+                            src={vietQRConfig.staticQrUrl}
+                            alt="Thẻ VietQR NGUYEN THIEN DOAN"
+                            className="w-48 sm:w-52 h-auto object-contain rounded-lg transition-transform group-hover:scale-102"
+                          />
 
                           {/* Hover action overlay */}
                           <div className="absolute inset-0 bg-stone-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -537,7 +499,7 @@ export const CheckoutModal: React.FC = () => {
                           </button>
                           <span className="text-stone-300">·</span>
                           <a
-                            href={qrMode === 'card' ? vietQRConfig.staticQrUrl : vietQRConfig.qrImageUrl}
+                            href={vietQRConfig.staticQrUrl}
                             download="vietqr-rose-flowers.png"
                             target="_blank"
                             rel="noreferrer"
@@ -776,7 +738,7 @@ export const CheckoutModal: React.FC = () => {
 
             <div className="p-2 bg-stone-50 rounded-xl border border-stone-200 inline-block shadow-inner">
               <img
-                src={qrMode === 'card' ? vietQRConfig.staticQrUrl : vietQRConfig.qrImageUrl}
+                src={vietQRConfig.staticQrUrl}
                 alt="VietQR Full Size"
                 className="w-64 h-auto object-contain rounded-lg mx-auto"
               />
