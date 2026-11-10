@@ -359,32 +359,42 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ flower }) 
                   {(['standard', 'deluxe', 'premium'] as SizeVariant[]).map((variant) => {
                     const isSelected = selectedVariant === variant;
                     const label = variant === 'standard' ? 'Tiêu chuẩn' : variant === 'deluxe' ? 'Thịnh soạn' : 'Vương giả';
-                    const desc = flower.flowerCountDescription?.[variant];
+                    const variantMultiplier = variant === 'deluxe' ? 1.35 : variant === 'premium' ? 1.75 : 1;
+                    const variantPrice = Math.round(baseUnitPrice * variantMultiplier);
+
+                    const customDesc = flower.flowerCountDescription?.[variant]?.trim();
+                    const desc = customDesc || (
+                      variant === 'standard'
+                        ? 'Bó hoa chuẩn theo mẫu thiết kế'
+                        : variant === 'deluxe'
+                        ? 'Bó lớn đầy đặn, tăng 35% hoa & phụ kiện nơ lụa'
+                        : 'Bó đại VIP, tăng 75% hoa kèm phụ kiện sang trọng'
+                    );
 
                     return (
                       <button
                         key={variant}
                         type="button"
                         onClick={() => setSelectedVariant(variant)}
-                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between gap-1.5 ${
+                        className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between h-full relative ${
                           isSelected
                             ? 'border-stone-900 bg-stone-900 text-white shadow-md ring-1 ring-stone-900'
                             : 'border-stone-200 bg-white hover:border-stone-300 text-stone-800 hover:bg-stone-50'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold">{label}</span>
-                          {isSelected && (
-                            <span className="text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">
-                              Đang chọn
+                        <div className="w-full">
+                          <div className="flex items-baseline justify-between gap-1.5 mb-1.5">
+                            <span className={`text-xs font-bold tracking-wide ${isSelected ? 'text-white' : 'text-stone-900'}`}>
+                              {label}
                             </span>
-                          )}
-                        </div>
-                        {desc && (
-                          <span className={`text-[11px] leading-relaxed break-words ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
+                            <span className={`text-[11px] font-mono font-semibold ${isSelected ? 'text-rose-200' : 'text-rose-800'}`}>
+                              {formatVND(variantPrice)}
+                            </span>
+                          </div>
+                          <p className={`text-[11px] leading-relaxed break-words ${isSelected ? 'text-stone-300' : 'text-stone-600'}`}>
                             {desc}
-                          </span>
-                        )}
+                          </p>
+                        </div>
                       </button>
                     );
                   })}

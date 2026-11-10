@@ -280,37 +280,45 @@ export const FlowerDetailModal: React.FC = () => {
                 <label className="block text-xs font-semibold text-stone-900 uppercase tracking-wider mb-2">
                   Chọn kích cỡ bó hoa:
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   {(['standard', 'deluxe', 'premium'] as SizeVariant[]).map((variant) => {
                     const isSelected = selectedVariant === variant;
                     const label = variant === 'standard' ? 'Tiêu chuẩn' : variant === 'deluxe' ? 'Thịnh soạn' : 'Vương giả';
-                    const desc = flower.flowerCountDescription?.[variant];
+                    const variantMultiplier = variant === 'deluxe' ? 1.35 : variant === 'premium' ? 1.75 : 1;
+                    const variantPrice = Math.round(baseUnitPrice * variantMultiplier);
+
+                    const customDesc = flower.flowerCountDescription?.[variant]?.trim();
+                    const desc = customDesc || (
+                      variant === 'standard'
+                        ? 'Bó hoa chuẩn theo mẫu thiết kế'
+                        : variant === 'deluxe'
+                        ? 'Bó lớn đầy đặn, tăng 35% hoa & phụ kiện nơ lụa'
+                        : 'Bó đại VIP, tăng 75% hoa kèm phụ kiện sang trọng'
+                    );
 
                     return (
                       <button
                         key={variant}
                         type="button"
                         onClick={() => setSelectedVariant(variant)}
-                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between h-full ${
+                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between h-full relative ${
                           isSelected
-                            ? 'border-stone-900 bg-stone-900 text-white shadow-sm ring-1 ring-stone-900'
+                            ? 'border-stone-900 bg-stone-900 text-white shadow-md ring-1 ring-stone-900'
                             : 'border-stone-200 bg-white hover:border-stone-300 text-stone-800 hover:bg-stone-50'
                         }`}
                       >
                         <div className="w-full">
-                          <div className="flex items-center justify-between gap-1 mb-1">
-                            <span className="block text-xs font-bold">{label}</span>
-                            {isSelected && (
-                              <span className="text-[10px] font-bold bg-white/20 text-white px-1.5 py-0.5 rounded-full shrink-0">
-                                ✓ Đang chọn
-                              </span>
-                            )}
+                          <div className="flex items-baseline justify-between gap-1.5 mb-1.5">
+                            <span className={`text-xs font-bold tracking-wide ${isSelected ? 'text-white' : 'text-stone-900'}`}>
+                              {label}
+                            </span>
+                            <span className={`text-[11px] font-mono font-semibold ${isSelected ? 'text-rose-200' : 'text-rose-800'}`}>
+                              {formatVND(variantPrice)}
+                            </span>
                           </div>
-                          {desc && (
-                            <p className={`text-[10.5px] leading-relaxed break-words ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
-                              {desc}
-                            </p>
-                          )}
+                          <p className={`text-[11px] leading-relaxed break-words ${isSelected ? 'text-stone-300' : 'text-stone-600'}`}>
+                            {desc}
+                          </p>
                         </div>
                       </button>
                     );
