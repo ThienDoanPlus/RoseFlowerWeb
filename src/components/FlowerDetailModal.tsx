@@ -233,25 +233,25 @@ export const FlowerDetailModal: React.FC = () => {
           </div>
 
           {/* Right Column: Contiguous Purchase Module */}
-          <div className="md:col-span-6 flex flex-col justify-between">
+          <div className="md:col-span-6 flex flex-col justify-between space-y-4">
             <div>
               {/* Header Info */}
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-stone-500 mb-1.5 sm:mb-2 pr-16 sm:pr-20">
-                <span className="uppercase tracking-wider font-semibold text-[10px] sm:text-xs text-rose-800 bg-rose-50 px-2 py-0.5 rounded border border-rose-200/60">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-stone-500 mb-1.5 sm:mb-2 pr-20 sm:pr-24">
+                <span className="uppercase tracking-wider font-semibold text-[10px] sm:text-xs text-rose-800 bg-rose-50 px-2 py-0.5 rounded border border-rose-200/60 shrink-0">
                   {flower.categoryId.replace(/-/g, ' ')}
                 </span>
                 <span className="text-stone-300">·</span>
-                <span className="italic truncate max-w-[150px] sm:max-w-none text-stone-500 text-[11px] sm:text-xs">
+                <span className="italic text-stone-500 text-[11px] sm:text-xs font-serif break-words">
                   {flower.botanicalName}
                 </span>
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-display font-medium text-stone-900 mb-2 leading-tight pr-12 sm:pr-16">
+              <h2 className="text-lg sm:text-2xl font-display font-medium text-stone-900 mb-2 leading-snug sm:leading-tight pr-20 sm:pr-24 break-words">
                 {flower.name}
               </h2>
 
               {/* Price & Rating */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pb-3.5 sm:pb-4 border-b border-stone-200 mb-4 sm:mb-5">
+              <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 sm:pb-4 border-b border-stone-200 mb-3.5 sm:mb-4">
                 <div className="flex items-baseline gap-2">
                   <span className="text-xl sm:text-2xl font-mono font-bold text-rose-900">
                     {formatVND(currentUnitPrice)}
@@ -263,7 +263,7 @@ export const FlowerDetailModal: React.FC = () => {
                   )}
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs text-stone-700 bg-amber-50/70 px-2.5 py-1 rounded-full border border-amber-200/50">
+                <div className="flex items-center gap-1.5 text-xs text-stone-700 bg-amber-50/70 px-2.5 py-1 rounded-full border border-amber-200/50 shrink-0">
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
                   <span className="font-bold font-mono text-stone-900">{flower.ratingAvg.toFixed(1)}</span>
                   <span className="text-stone-500 text-[11px]">({reviews.length} đánh giá)</span>
@@ -271,16 +271,16 @@ export const FlowerDetailModal: React.FC = () => {
               </div>
 
               {/* Short description */}
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed mb-4 sm:mb-5">
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed mb-3.5 sm:mb-4 break-words">
                 {flower.shortDescription}
               </p>
 
               {/* Size Variant Selector */}
-              <div className="mb-4 sm:mb-5">
+              <div className="mb-3.5 sm:mb-4">
                 <label className="block text-xs font-semibold text-stone-900 uppercase tracking-wider mb-2">
                   Chọn kích cỡ bó hoa:
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
                   {(['standard', 'deluxe', 'premium'] as SizeVariant[]).map((variant) => {
                     const isSelected = selectedVariant === variant;
                     const label = variant === 'standard' ? 'Tiêu chuẩn' : variant === 'deluxe' ? 'Thịnh soạn' : 'Vương giả';
@@ -291,25 +291,27 @@ export const FlowerDetailModal: React.FC = () => {
                         key={variant}
                         type="button"
                         onClick={() => setSelectedVariant(variant)}
-                        className={`p-2.5 sm:p-3 rounded-xl border text-left cursor-pointer transition-all flex sm:flex-col items-center sm:items-start justify-between sm:justify-start gap-1 ${
+                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between h-full ${
                           isSelected
                             ? 'border-stone-900 bg-stone-900 text-white shadow-sm ring-1 ring-stone-900'
                             : 'border-stone-200 bg-white hover:border-stone-300 text-stone-800 hover:bg-stone-50'
                         }`}
                       >
-                        <div className="min-w-0">
-                          <span className="block text-xs font-semibold">{label}</span>
+                        <div className="w-full">
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <span className="block text-xs font-bold">{label}</span>
+                            {isSelected && (
+                              <span className="text-[10px] font-bold bg-white/20 text-white px-1.5 py-0.5 rounded-full shrink-0">
+                                ✓ Đang chọn
+                              </span>
+                            )}
+                          </div>
                           {desc && (
-                            <span className={`block text-[10px] mt-0.5 truncate sm:line-clamp-2 ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
+                            <p className={`text-[10.5px] leading-relaxed break-words ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
                               {desc}
-                            </span>
+                            </p>
                           )}
                         </div>
-                        {isSelected && (
-                          <span className="sm:hidden text-[10px] font-bold bg-white/20 text-white px-2 py-0.5 rounded-full shrink-0">
-                            Đã chọn
-                          </span>
-                        )}
                       </button>
                     );
                   })}
@@ -317,8 +319,8 @@ export const FlowerDetailModal: React.FC = () => {
               </div>
 
               {/* Handwritten Greeting Card Input */}
-              <div className="mb-4 sm:mb-5 bg-rose-50/50 p-3 sm:p-3.5 rounded-xl border border-rose-100">
-                <label className="block text-xs font-semibold text-stone-900 mb-1.5 flex items-center justify-between">
+              <div className="mb-3.5 sm:mb-4 bg-rose-50/50 p-3 sm:p-3.5 rounded-xl border border-rose-100">
+                <label className="block text-xs font-semibold text-stone-900 mb-1.5 flex items-center justify-between flex-wrap gap-1">
                   <span className="flex items-center gap-1.5 text-rose-900">
                     <MessageSquare className="w-3.5 h-3.5 text-rose-700 shrink-0" />
                     <span>Thiệp viết tay gửi kèm (Miễn phí):</span>
@@ -334,13 +336,13 @@ export const FlowerDetailModal: React.FC = () => {
                 />
 
                 {/* Preset Chips */}
-                <div className="flex flex-wrap gap-1 mt-1.5">
+                <div className="flex flex-wrap gap-1.5 mt-2">
                   {sampleMessages.map((msg, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setPersonalCardMessage(msg)}
-                      className="text-[10px] bg-white hover:bg-rose-100 text-stone-700 px-2 py-0.5 rounded border border-rose-200/60 transition-colors cursor-pointer"
+                      className="text-[10px] sm:text-[11px] bg-white hover:bg-rose-100 text-stone-700 px-2.5 py-1 rounded-lg border border-rose-200/60 transition-colors cursor-pointer text-left leading-snug shadow-2xs"
                     >
                       + {msg}
                     </button>
@@ -349,28 +351,28 @@ export const FlowerDetailModal: React.FC = () => {
               </div>
 
               {/* Delivery Date & Time Slot */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4 sm:mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3.5 sm:mb-4">
                 <div>
                   <label className="block text-[11px] font-semibold text-stone-700 mb-1 flex items-center gap-1">
-                    <Calendar className="w-3 h-3 text-stone-500" />
+                    <Calendar className="w-3 h-3 text-stone-500 shrink-0" />
                     <span>Ngày giao hoa:</span>
                   </label>
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="w-full text-xs p-2 bg-stone-50 border border-stone-200 rounded-lg text-stone-800"
+                    className="w-full text-xs p-2.5 bg-stone-50 border border-stone-200 rounded-lg text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-900"
                   />
                 </div>
                 <div>
                   <label className="block text-[11px] font-semibold text-stone-700 mb-1 flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-stone-500" />
+                    <Clock className="w-3 h-3 text-stone-500 shrink-0" />
                     <span>Khung giờ giao:</span>
                   </label>
                   <select
                     value={selectedSlot}
                     onChange={(e) => setSelectedSlot(e.target.value)}
-                    className="w-full text-xs p-2 bg-stone-50 border border-stone-200 rounded-lg text-stone-800"
+                    className="w-full text-xs p-2.5 bg-stone-50 border border-stone-200 rounded-lg text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-900"
                   >
                     <option value="Giao hỏa tốc 45-60 phút">Giao hỏa tốc 45-60 phút</option>
                     <option value="08:00 - 10:00 (Sáng)">08:00 - 10:00 (Sáng)</option>
@@ -381,31 +383,35 @@ export const FlowerDetailModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Quantity Stepper */}
-              <div className="flex items-center justify-between sm:justify-start gap-4 mb-5 sm:mb-6">
-                <span className="text-xs font-semibold text-stone-900 uppercase tracking-wider">Số lượng:</span>
-                <div className="flex items-center border border-stone-300 rounded-lg bg-white shadow-2xs">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3.5 py-1.5 text-stone-600 hover:text-stone-900 text-sm cursor-pointer transition-colors"
-                    title="Giảm số lượng"
-                  >
-                    -
-                  </button>
-                  <span className="px-3.5 py-1.5 font-mono text-xs font-bold text-stone-900 border-x border-stone-200 min-w-[36px] text-center">
-                    {quantity}
-                  </span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3.5 py-1.5 text-stone-600 hover:text-stone-900 text-sm cursor-pointer transition-colors"
-                    title="Tăng số lượng"
-                  >
-                    +
-                  </button>
+              {/* Quantity Stepper & Temporary Total */}
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-5 bg-stone-50/80 p-2.5 sm:p-3 rounded-xl border border-stone-200/80">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-semibold text-stone-900 uppercase tracking-wider">Số lượng:</span>
+                  <div className="flex items-center border border-stone-300 rounded-lg bg-white shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-3.5 py-1.5 text-stone-600 hover:text-stone-900 text-sm cursor-pointer transition-colors active:bg-stone-100"
+                      title="Giảm số lượng"
+                    >
+                      -
+                    </button>
+                    <span className="px-3.5 py-1.5 font-mono text-xs font-bold text-stone-900 border-x border-stone-200 min-w-[36px] text-center">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="px-3.5 py-1.5 text-stone-600 hover:text-stone-900 text-sm cursor-pointer transition-colors active:bg-stone-100"
+                      title="Tăng số lượng"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-                <span className="text-xs text-stone-500 font-mono">
-                  Tạm tính: <strong className="text-stone-900">{formatVND(currentUnitPrice * quantity)}</strong>
-                </span>
+                <div className="text-xs text-stone-600 font-mono">
+                  Tạm tính: <strong className="text-rose-900 text-sm font-bold">{formatVND(currentUnitPrice * quantity)}</strong>
+                </div>
               </div>
             </div>
 
@@ -413,16 +419,19 @@ export const FlowerDetailModal: React.FC = () => {
             <div className="space-y-2 pt-3 border-t border-stone-200">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <button
+                  type="button"
                   onClick={handleAddToCart}
-                  className="w-full py-3 px-4 bg-white border border-stone-900 text-stone-900 hover:bg-stone-100 text-xs font-semibold rounded-xl transition-all cursor-pointer text-center active:scale-98 shadow-xs"
+                  className="w-full py-3 px-4 bg-white border border-stone-900 text-stone-900 hover:bg-stone-100 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer text-center active:scale-98 shadow-xs"
                 >
                   Thêm vào giỏ hàng
                 </button>
                 <button
+                  type="button"
                   onClick={handleBuyNow}
-                  className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer text-center shadow-md active:scale-98"
+                  className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer text-center shadow-md active:scale-98 flex items-center justify-center gap-1.5"
                 >
-                  Mua ngay ({formatVND(currentUnitPrice * quantity)})
+                  <span>Mua ngay</span>
+                  <span className="font-mono">({formatVND(currentUnitPrice * quantity)})</span>
                 </button>
               </div>
 

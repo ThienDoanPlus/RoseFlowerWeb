@@ -381,7 +381,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ flower }) 
                           )}
                         </div>
                         {desc && (
-                          <span className={`text-[11px] leading-snug line-clamp-2 ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
+                          <span className={`text-[11px] leading-relaxed break-words ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
                             {desc}
                           </span>
                         )}
