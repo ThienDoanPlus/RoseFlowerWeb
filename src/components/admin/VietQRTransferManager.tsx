@@ -510,3 +510,4 @@ export const VietQRTransferManager: React.FC = () => {
     </div>
   );
 };
+

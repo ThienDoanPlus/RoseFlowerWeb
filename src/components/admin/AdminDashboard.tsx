@@ -76,45 +76,63 @@ export const AdminDashboard: React.FC = () => {
   const shippingCount = state.orders.filter((o) => o.orderStatus === 'SHIPPING').length;
   const deliveredCount = state.orders.filter((o) => o.orderStatus === 'DELIVERED').length;
 
-  // 7-day revenue chart mock distribution based on actual totalRevenue
-  const chartDays = [
-    { label: 'T.Hai', day: '04/11', revenue: Math.round(totalRevenue * 0.11), orders: 4 },
-    { label: 'T.Ba', day: '05/11', revenue: Math.round(totalRevenue * 0.13), orders: 5 },
-    { label: 'T.Tư', day: '06/11', revenue: Math.round(totalRevenue * 0.09), orders: 3 },
-    { label: 'T.Năm', day: '07/11', revenue: Math.round(totalRevenue * 0.16), orders: 6 },
-    { label: 'T.Sáu', day: '08/11', revenue: Math.round(totalRevenue * 0.19), orders: 8 },
-    { label: 'T.Bảy', day: '09/11', revenue: Math.round(totalRevenue * 0.20), orders: 9 },
-    { label: 'C.Nhật', day: '10/11', revenue: Math.round(totalRevenue * 0.12), orders: 5 },
-  ];
+  // Biểu đồ doanh thu 7 ngày gần nhất được tính toán động 100% từ dữ liệu đơn hàng thực tế (state.orders)
+  const chartDays = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const dayName = i === 6 ? 'Hôm nay' : `T.${d.getDay() === 0 ? 'CN' : d.getDay() + 1}`;
+    const dayStr = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+    const dateKey = d.toISOString().split('T')[0];
+
+    // Lọc đơn hàng thực tế theo từng ngày
+    const dayOrders = state.orders.filter((o) => o.createdAt && o.createdAt.startsWith(dateKey));
+    const dayRevenue = dayOrders
+      .filter((o) => o.paymentStatus === 'PAID')
+      .reduce((sum, o) => sum + o.totalAmount, 0);
+
+    return {
+      label: dayName,
+      day: dayStr,
+      revenue: dayRevenue,
+      orders: dayOrders.length,
+    };
+  });
   const maxDayRevenue = Math.max(...chartDays.map((d) => d.revenue), 100000);
 
-  // Price Segment Breakdown (Mini, Standard, Premium, Giant 99)
+  // Cơ cấu doanh thu theo phân khúc bó hoa tính toán trực tiếp từ các đơn hàng đã thanh toán thực tế
   const categorySegments = [
     {
       name: 'Bó Mini & Xinh Xắn (189k - 259k)',
-      share: 22,
-      amount: Math.round(totalRevenue * 0.22),
+      amount: state.orders
+        .filter((o) => o.paymentStatus === 'PAID')
+        .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice <= 259000).reduce((s, it) => s + it.unitPrice * it.quantity, 0), 0),
       color: 'bg-pink-500',
     },
     {
       name: 'Bó Tiêu Chuẩn (279k - 359k)',
-      share: 36,
-      amount: Math.round(totalRevenue * 0.36),
+      amount: state.orders
+        .filter((o) => o.paymentStatus === 'PAID')
+        .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice > 259000 && it.unitPrice <= 359000).reduce((s, it) => s + it.unitPrice * it.quantity, 0), 0),
       color: 'bg-rose-600',
     },
     {
       name: 'Bó Thiết Kế Cao Cấp (459k - 559k)',
-      share: 28,
-      amount: Math.round(totalRevenue * 0.28),
+      amount: state.orders
+        .filter((o) => o.paymentStatus === 'PAID')
+        .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice > 359000 && it.unitPrice <= 559000).reduce((s, it) => s + it.unitPrice * it.quantity, 0), 0),
       color: 'bg-amber-500',
     },
     {
       name: 'Bó Đại Khổng Lồ 99 Bông (679k)',
-      share: 14,
-      amount: Math.round(totalRevenue * 0.14),
+      amount: state.orders
+        .filter((o) => o.paymentStatus === 'PAID')
+        .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice > 559000).reduce((s, it) => s + it.unitPrice * it.quantity, 0), 0),
       color: 'bg-rose-900',
     },
-  ];
+  ].map((seg) => ({
+    ...seg,
+    share: totalRevenue > 0 ? Math.round((seg.amount / totalRevenue) * 100) : 0,
+  }));
 
   const tabs: { key: AdminTab; label: string; icon: React.ReactNode; badge?: number }[] = [
     { key: 'overview', label: 'Tổng Quan Tài Chính & KPIs', icon: <TrendingUp className="w-4 h-4" /> },
