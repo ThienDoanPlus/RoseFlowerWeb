@@ -7,7 +7,7 @@ export type Role = 'CUSTOMER' | 'STAFF' | 'ADMIN';
 
 export type AppView = 'storefront' | 'product-detail' | 'staff' | 'admin';
 export type StaffTab = 'kanban' | 'chat' | 'inventory';
-export type AdminTab = 'overview' | 'flowers' | 'vouchers' | 'users' | 'reviews';
+export type AdminTab = 'overview' | 'transfers' | 'flowers' | 'vouchers' | 'users' | 'reviews';
 
 export type SizeVariant = 'standard' | 'deluxe' | 'premium';
 
@@ -33,6 +33,7 @@ export interface Flower {
   ratingAvg: number;
   reviewsCount: number;
   isInStock: boolean;
+  stockQuantity?: number;
   isFeatured?: boolean;
   bloomSeason?: string;
   flowerCountDescription?: {
@@ -122,6 +123,7 @@ export interface Order {
   createdAt: string;
   updatedAt?: string;
   transactionCode?: string;
+  greetingCardMessage?: string;
   assignedStaffId?: string;
   assignedStaffName?: string;
   floristNotes?: string;

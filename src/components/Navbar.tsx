@@ -150,8 +150,8 @@ export const Navbar: React.FC = () => {
                 Chi Nhánh 294 Phạm Văn Bạch
               </a>
 
-              {/* Chỉ hiển thị tra cứu đơn và điều phối nếu tài khoản đã đăng nhập có vai trò STAFF hoặc ADMIN */}
-              {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') && (
+              {/* Chỉ hiển thị tra cứu đơn và điều phối nếu tài khoản có vai trò STAFF (Admin không làm nghiệp vụ của Staff) */}
+              {state.currentRole === 'STAFF' && (
                 <>
                   <button
                     onClick={() => {
@@ -185,11 +185,11 @@ export const Navbar: React.FC = () => {
               {state.currentRole === 'ADMIN' && (
                 <button
                   onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' })}
-                  className="px-2.5 py-1 rounded-md text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 transition-colors cursor-pointer border border-amber-300 flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-950 bg-amber-100 hover:bg-amber-200 transition-colors cursor-pointer border border-amber-300 flex items-center gap-1.5 shadow-2xs"
                   title="Bảng điều khiển Quản lý Admin"
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
-                  <span>Admin Tiệm</span>
+                  <span>Bảng Điều Hành Admin</span>
                 </button>
               )}
             </>
@@ -352,20 +352,22 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
 
-          {/* Shopping Cart Bag (Primary Action) */}
-          <button
-            onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isCartOpen', isOpen: true } })}
-            className="relative flex items-center justify-center p-2.5 bg-rose-900 hover:bg-rose-800 text-white rounded-full transition-transform active:scale-95 cursor-pointer shadow-sm mr-1"
-            title="Xem giỏ hàng"
-            aria-label="Giỏ hàng"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            {totalQuantity > 0 && (
-              <span className="absolute -top-1 -right-1 bg-white text-rose-900 text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md border border-rose-200">
-                {totalQuantity}
-              </span>
-            )}
-          </button>
+          {/* Shopping Cart Bag (Chỉ hiển thị cho Khách và Staff, Role Admin không có giỏ hoa) */}
+          {state.currentRole !== 'ADMIN' && (
+            <button
+              onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isCartOpen', isOpen: true } })}
+              className="relative flex items-center justify-center p-2.5 bg-rose-900 hover:bg-rose-800 text-white rounded-full transition-transform active:scale-95 cursor-pointer shadow-sm mr-1"
+              title="Xem giỏ hàng"
+              aria-label="Giỏ hàng"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              {totalQuantity > 0 && (
+                <span className="absolute -top-1 -right-1 bg-white text-rose-900 text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md border border-rose-200">
+                  {totalQuantity}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
@@ -444,7 +446,7 @@ export const Navbar: React.FC = () => {
                 <span className="text-[11px] text-stone-400">#branches</span>
               </a>
 
-              {(state.currentRole === 'STAFF' || state.currentRole === 'ADMIN') && (
+              {state.currentRole === 'STAFF' && (
                 <button
                   onClick={() => {
                     dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' });

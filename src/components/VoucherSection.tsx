@@ -215,7 +215,7 @@ export const VoucherSection: React.FC = () => {
                         <span>Mã ưu đãi bạn được chia sẻ</span>
                       </span>
                       <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-mono">
-                        ✓ Đang chọn
+                        Đang áp dụng ✓ 
                       </span>
                     </div>
                   )}

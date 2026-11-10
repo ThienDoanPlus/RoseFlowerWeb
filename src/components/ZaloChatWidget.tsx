@@ -56,6 +56,12 @@ const GmailIcon: React.FC<{ className?: string }> = ({ className = 'w-5 h-5' }) 
 
 export const ZaloChatWidget: React.FC = () => {
   const { state, dispatch } = useStore();
+
+  // Role ADMIN là cấp điều hành quản trị: ẩn toàn bộ icon khách hàng (Gmail, Hotline, Zalo, Trợ lý AI)
+  if (state.currentRole === 'ADMIN') {
+    return null;
+  }
+
   const isOpen = state.isZaloOpen;
   const setIsOpen = (open: boolean) =>
     dispatch({ type: 'SET_MODAL', payload: { modal: 'isZaloOpen', isOpen: open } });

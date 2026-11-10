@@ -10,9 +10,10 @@ import { useStore } from '../store';
 export const PromoBanner: React.FC = () => {
   const [isDismissed, setIsDismissed] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const { dispatch } = useStore();
+  const { state, dispatch } = useStore();
 
-  if (isDismissed) return null;
+  // Role ADMIN không hiển thị banner khuyến mãi mua hoa của khách
+  if (isDismissed || state.currentRole === 'ADMIN') return null;
 
   const handleCopyCode = (e: React.MouseEvent) => {
     e.stopPropagation();

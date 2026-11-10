@@ -146,6 +146,7 @@ export type Action =
   | { type: 'LOGOUT_USER' }
   | { type: 'UPDATE_USER_PROFILE'; payload: Partial<User> }
   | { type: 'UPDATE_USER_ROLE'; payload: { userId: string; role: Role } }
+  | { type: 'ADD_USER'; payload: User }
   | { type: 'CREATE_ORDER'; payload: Order }
   | { type: 'APPROVE_ORDER_PAYMENT'; payload: { orderId: string; adminName?: string } }
   | { type: 'UPDATE_ORDER_STATUS'; payload: { orderId: string; status: OrderStatus; floristNotes?: string; assignedStaffName?: string } }
@@ -915,6 +916,15 @@ function appReducer(state: AppState, action: Action): AppState {
         user: updatedUser,
         currentRole: state.user?.id === userId ? role : state.currentRole,
         toast: { message: `Đã cập nhật vai trò thành ${role}`, type: 'success' },
+      };
+    }
+
+    case 'ADD_USER': {
+      const newUser = action.payload;
+      return {
+        ...state,
+        usersList: [newUser, ...state.usersList],
+        toast: { message: `Đã thêm nhân sự "${newUser.name}" với vai trò ${newUser.role}`, type: 'success' },
       };
     }
 
