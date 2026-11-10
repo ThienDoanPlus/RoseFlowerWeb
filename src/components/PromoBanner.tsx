@@ -29,6 +29,8 @@ export const PromoBanner: React.FC = () => {
           timestamp: 'Vừa xong',
           type: 'promo',
           read: false,
+          targetRole: 'CUSTOMER',
+          targetUserId: state.user?.id,
         },
       });
       setTimeout(() => setIsCopied(false), 2500);

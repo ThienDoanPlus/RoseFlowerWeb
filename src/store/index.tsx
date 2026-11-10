@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import React, { createContext, useContext, useEffect, useReducer, useMemo } from 'react';
 import { BRANCHES, FLOWERS, CATEGORIES, VOUCHERS, INITIAL_REVIEWS } from '../data/mockData';
 import { FlowerAPI } from '../services/api';
 import {
@@ -155,7 +155,7 @@ export type Action =
   | { type: 'SET_TRACKING_ORDER_ID'; payload: string | null }
   | { type: 'SEND_CHAT_MESSAGE'; payload: ChatMessage }
   | { type: 'ADD_PUSH_NOTIFICATION'; payload: PushNotification }
-  | { type: 'MARK_NOTIFICATIONS_READ' }
+  | { type: 'MARK_NOTIFICATIONS_READ'; payload?: string[] }
   | { type: 'ADD_GMAIL_EMAIL'; payload: GmailEmail }
   | { type: 'ADD_REVIEW'; payload: Review }
   | { type: 'MODERATE_REVIEW'; payload: { flowerId: string; reviewId: string; action: 'approve' | 'hide' | 'delete' } }
@@ -276,6 +276,81 @@ const loadStoredNotifications = (): PushNotification[] => {
     // ignore
   }
   return [];
+};
+
+/**
+ * Lọc thông báo đẩy chính xác theo vai trò và danh tính người dùng (Role-Based Notification Filtering)
+ * Đảm bảo tính riêng tư và bảo mật tuyệt đối:
+ * - Khách hàng chỉ thấy thông báo đơn hàng của chính mình và ưu đãi chung.
+ * - Khách vãng lai không thấy đơn hàng của người khác hay thông báo nội bộ.
+ * - Staff thấy thông báo phân công cắm hoa và điều phối giao hàng.
+ * - Admin thấy thông báo đối soát nhận tiền VietQR, đơn hàng mới và cảnh báo hệ thống.
+ */
+export const filterRelevantNotifications = (
+  notifications: PushNotification[],
+  currentRole: Role,
+  currentUser: User | null,
+  currentOrderId: string | null,
+  trackingOrderId: string | null,
+  userOrders: Order[]
+): PushNotification[] => {
+  return notifications.filter((notif) => {
+    // 1. Phân quyền cho ADMIN (Chủ tiệm):
+    if (currentRole === 'ADMIN') {
+      if (notif.targetRole === 'ADMIN' || notif.targetRole === 'ALL') return true;
+      if (notif.type === 'order' && notif.targetRole !== 'CUSTOMER') return true;
+      return false;
+    }
+
+    // 2. Phân quyền cho STAFF (Florist & Shipper):
+    if (currentRole === 'STAFF') {
+      if (notif.targetRole === 'STAFF' || notif.targetRole === 'ALL') return true;
+      if (notif.type === 'order' && notif.targetRole !== 'ADMIN') return true;
+      return false;
+    }
+
+    // 3. Phân quyền cho CUSTOMER (Khách hàng đã đăng nhập tài khoản):
+    if (currentUser) {
+      if (notif.targetUserId && notif.targetUserId === currentUser.id) return true;
+      if (notif.targetUserEmail && notif.targetUserEmail.toLowerCase() === currentUser.email.toLowerCase()) return true;
+      if (notif.targetUserPhone && currentUser.phone && notif.targetUserPhone === currentUser.phone) return true;
+
+      // Đơn hàng thuộc về chính khách này
+      if (notif.orderId) {
+        const isMyOrder = userOrders.some(
+          (o) =>
+            o.id === notif.orderId &&
+            (o.userId === currentUser.id ||
+              o.deliveryInfo.recipientEmail.toLowerCase() === currentUser.email.toLowerCase() ||
+              (currentUser.phone && o.deliveryInfo.recipientPhone === currentUser.phone))
+        );
+        if (isMyOrder || notif.orderId === currentOrderId || notif.orderId === trackingOrderId) {
+          return notif.targetRole === 'CUSTOMER' || notif.targetRole === 'ALL' || !notif.targetRole;
+        }
+        return false;
+      }
+
+      if (notif.type === 'promo') {
+        return notif.targetRole === 'CUSTOMER' || notif.targetRole === 'ALL' || !notif.targetRole;
+      }
+
+      return notif.targetRole === 'CUSTOMER' || notif.targetRole === 'ALL';
+    }
+
+    // 4. Phân quyền cho GUEST (Khách vãng lai xem web, chưa đăng nhập):
+    if (notif.orderId) {
+      if ((currentOrderId && notif.orderId === currentOrderId) || (trackingOrderId && notif.orderId === trackingOrderId)) {
+        return notif.targetRole === 'CUSTOMER' || notif.targetRole === 'ALL' || !notif.targetRole;
+      }
+      return false;
+    }
+
+    if (notif.type === 'promo' && (!notif.targetUserId || notif.targetRole === 'ALL' || notif.targetRole === 'CUSTOMER')) {
+      return true;
+    }
+
+    return false;
+  });
 };
 
 const loadStoredVoucher = (): Voucher | null => {
@@ -937,7 +1012,10 @@ function appReducer(state: AppState, action: Action): AppState {
     }
 
     case 'MARK_NOTIFICATIONS_READ': {
-      const newNotifs = state.notifications.map((n) => ({ ...n, read: true }));
+      const idsToMark = action.payload;
+      const newNotifs = state.notifications.map((n) =>
+        !idsToMark || idsToMark.includes(n.id) ? { ...n, read: true } : n
+      );
       try {
         if (typeof window !== 'undefined') {
           localStorage.setItem('rose_notifications', JSON.stringify(newNotifs));
@@ -1023,6 +1101,7 @@ interface StoreContextType {
   shippingFee: number;
   finalTotal: number;
   unreadNotifsCount: number;
+  relevantNotifications: PushNotification[];
 }
 
 const StoreContext = createContext<StoreContextType | null>(null);
@@ -1184,7 +1263,27 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     shippingFee
   );
 
-  const unreadNotifsCount = state.notifications.filter((n) => !n.read).length;
+  const relevantNotifications = useMemo(() => {
+    return filterRelevantNotifications(
+      state.notifications,
+      state.currentRole,
+      state.user,
+      state.currentOrder ? state.currentOrder.id : null,
+      state.trackingOrderId,
+      state.orders
+    );
+  }, [
+    state.notifications,
+    state.currentRole,
+    state.user,
+    state.currentOrder,
+    state.trackingOrderId,
+    state.orders,
+  ]);
+
+  const unreadNotifsCount = useMemo(() => {
+    return relevantNotifications.filter((n) => !n.read).length;
+  }, [relevantNotifications]);
 
   return (
     <StoreContext.Provider
@@ -1198,6 +1297,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         shippingFee,
         finalTotal,
         unreadNotifsCount,
+        relevantNotifications,
       }}
     >
       {children}

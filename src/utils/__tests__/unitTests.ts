@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CartItem, Review, TestResult, Voucher } from '../../types';
+import { CartItem, Review, TestResult, Voucher, PushNotification, User, Order } from '../../types';
 import {
   calculateAverageRating,
   calculateBulkDiscount,
@@ -15,6 +15,7 @@ import {
   formatVND,
   validateAndCalculateVoucher,
 } from '../calculations';
+import { filterRelevantNotifications } from '../../store';
 
 // Real flower fixture for testing
 const mockFlower = {
@@ -246,6 +247,124 @@ export function runAllUnitTests(): {
         customerProtected: !customerAccessStaff && !customerAccessAdmin,
         staffProtected: staffAccessBoard && !staffDeleteFlower && !staffViewFinancial,
         adminFullAccess: adminDeleteFlower && adminViewFinancial,
+      },
+      passed,
+    };
+  });
+
+  // [12/12] Phân quyền thông báo riêng tư theo vai trò (Role-Based Notification Privacy)
+  test('testRoleBasedNotificationPrivacy', 'Đảm bảo thông báo chỉ hiển thị đúng cho người có liên quan', () => {
+    const mockNotifs: PushNotification[] = [
+      {
+        id: 'notif-1',
+        title: 'Đơn hàng #ROSE-1234',
+        message: 'Đang cắm hoa',
+        timestamp: '10:00',
+        type: 'order',
+        read: false,
+        orderId: 'ROSE-1234',
+        targetRole: 'CUSTOMER',
+        targetUserId: 'user-cust-1',
+      },
+      {
+        id: 'notif-2',
+        title: 'Đơn hàng #ROSE-5678',
+        message: 'Đang giao hoa',
+        timestamp: '10:05',
+        type: 'order',
+        read: false,
+        orderId: 'ROSE-5678',
+        targetRole: 'CUSTOMER',
+        targetUserId: 'user-cust-2',
+      },
+      {
+        id: 'notif-3',
+        title: 'Duyệt VietQR',
+        message: 'Chờ Admin duyệt tiền STK Vietcombank',
+        timestamp: '10:10',
+        type: 'order',
+        read: false,
+        orderId: 'ROSE-1234',
+        targetRole: 'ADMIN',
+      },
+      {
+        id: 'notif-4',
+        title: 'Ưu đãi chào bạn mới',
+        message: 'Mã ROSE10',
+        timestamp: '10:15',
+        type: 'promo',
+        read: false,
+        targetRole: 'ALL',
+      },
+    ];
+
+    const customer1: User = {
+      id: 'user-cust-1',
+      name: 'Nguyen Van A',
+      email: 'a@gmail.com',
+      role: 'CUSTOMER',
+      avatarUrl: '/avatars/1.jpg',
+    };
+
+    const mockOrders: Order[] = [
+      {
+        id: 'ROSE-1234',
+        userId: 'user-cust-1',
+        items: [],
+        subtotal: 500000,
+        discountAmount: 0,
+        bulkDiscountAmount: 0,
+        shippingFee: 0,
+        totalAmount: 500000,
+        paymentStatus: 'PAID',
+        paymentMethod: 'VIETQR',
+        orderStatus: 'ARRANGING',
+        deliveryInfo: {
+          recipientName: 'Nguyen Van A',
+          recipientPhone: '0901234567',
+          recipientEmail: 'a@gmail.com',
+          address: '294 Phạm Văn Bạch',
+          district: 'Tân Sơn',
+          city: 'TP.HCM',
+          branchId: 'branch-pvb',
+          distanceKm: 1,
+          deliveryDate: '2026-11-10',
+          deliveryTimeSlot: '45p',
+          cardMessage: '',
+          senderName: '',
+        },
+        createdAt: '2026-11-10T10:00:00Z',
+      },
+    ];
+
+    // Khách hàng 1 chỉ thấy notif-1 (đơn của mình) và notif-4 (ưu đãi chung)
+    const cust1Notifs = filterRelevantNotifications(mockNotifs, 'CUSTOMER', customer1, null, null, mockOrders);
+    const cust1Ids = cust1Notifs.map((n) => n.id);
+
+    // Admin thấy notif-3 (cần duyệt tiền)
+    const adminNotifs = filterRelevantNotifications(mockNotifs, 'ADMIN', null, null, null, mockOrders);
+    const adminIds = adminNotifs.map((n) => n.id);
+
+    // Khách vãng lai chỉ thấy notif-4 (ưu đãi chung), không thấy đơn của khách 1 hay admin
+    const guestNotifs = filterRelevantNotifications(mockNotifs, 'CUSTOMER', null, null, null, mockOrders);
+    const guestIds = guestNotifs.map((n) => n.id);
+
+    const passed =
+      cust1Ids.includes('notif-1') &&
+      !cust1Ids.includes('notif-2') &&
+      !cust1Ids.includes('notif-3') &&
+      cust1Ids.includes('notif-4') &&
+      adminIds.includes('notif-3') &&
+      !adminIds.includes('notif-1') &&
+      guestIds.length === 1 &&
+      guestIds[0] === 'notif-4';
+
+    return {
+      expected: { cust1SeesOwnOnly: true, adminSeesBankOnly: true, guestSeesPromoOnly: true },
+      actual: {
+        cust1SeesOwnOnly: cust1Ids.includes('notif-1') && !cust1Ids.includes('notif-2') && !cust1Ids.includes('notif-3'),
+        adminSeesBankOnly: adminIds.includes('notif-3') && !adminIds.includes('notif-1'),
+        guestSeesPromoOnly: guestIds.length === 1 && guestIds[0] === 'notif-4',
       },
       passed,
     };

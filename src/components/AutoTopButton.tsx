@@ -11,19 +11,34 @@ export const AutoTopButton: React.FC = () => {
   const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      
-      if (scrollTop > 250) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+    let ticking = false;
+    let lastProgress = 0;
+    let lastVisible = false;
 
-      if (docHeight > 0) {
-        const progress = Math.min(100, Math.round((scrollTop / docHeight) * 100));
-        setScrollProgress(progress);
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollTop = window.scrollY;
+          const visible = scrollTop > 250;
+          if (visible !== lastVisible) {
+            lastVisible = visible;
+            setIsVisible(visible);
+          }
+
+          if (visible) {
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            if (docHeight > 0) {
+              const progress = Math.min(100, Math.round((scrollTop / docHeight) * 100));
+              // Throttle state update: only update if changed by at least 2% to avoid render spam
+              if (Math.abs(progress - lastProgress) >= 2 || progress === 100 || progress === 0) {
+                lastProgress = progress;
+                setScrollProgress(progress);
+              }
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 

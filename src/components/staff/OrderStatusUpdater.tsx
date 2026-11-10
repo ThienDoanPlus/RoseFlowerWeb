@@ -68,7 +68,7 @@ export const OrderStatusUpdater: React.FC = () => {
       },
     });
 
-    // Add push notification for customer
+    // Add push notification for customer (Chỉ người đặt đơn hàng này nhận được)
     const statusObj = statusOptions.find((s) => s.value === selectedStatus);
     dispatch({
       type: 'ADD_PUSH_NOTIFICATION',
@@ -80,6 +80,10 @@ export const OrderStatusUpdater: React.FC = () => {
         type: 'order',
         read: false,
         orderId: order.id,
+        targetRole: 'CUSTOMER',
+        targetUserId: order.userId,
+        targetUserEmail: order.deliveryInfo?.recipientEmail,
+        targetUserPhone: order.deliveryInfo?.recipientPhone,
       },
     });
 

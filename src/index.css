@@ -84,10 +84,10 @@
   }
 }
 
-/* Luxury Shine & Glossy Reflection Effects */
+/* Luxury Shine & Glossy Reflection Effects (GPU-Accelerated) */
 @keyframes shineSweep {
   0% {
-    transform: translateX(-150%) skewX(-25deg);
+    transform: translate3d(-150%, 0, 0) skewX(-25deg);
     opacity: 0;
   }
   15% {
@@ -97,7 +97,7 @@
     opacity: 0.85;
   }
   100% {
-    transform: translateX(250%) skewX(-25deg);
+    transform: translate3d(250%, 0, 0) skewX(-25deg);
     opacity: 0;
   }
 }
@@ -164,10 +164,11 @@
   transform: translateX(150%) skewX(-25deg);
 }
 
-/* Continuous periodic luxury shine sweep */
+/* Continuous periodic luxury shine sweep (GPU Optimized) */
 .shine-auto {
   position: relative;
   overflow: hidden;
+  contain: paint;
 }
 .shine-auto::after {
   content: '';
@@ -184,15 +185,23 @@
   );
   pointer-events: none;
   animation: shineSweep 4.5s ease-in-out infinite;
+  will-change: transform;
+  transform: translate3d(-150%, 0, 0) skewX(-25deg);
 }
 
-/* Ambient glow light pools */
+/* Ambient glow light pools (GPU Composited) */
 .ambient-glow-rose {
   background: radial-gradient(circle, rgba(244, 63, 94, 0.22) 0%, rgba(251, 113, 133, 0.08) 50%, transparent 70%);
   animation: ambientLightBreathe 6.5s ease-in-out infinite;
+  will-change: transform, opacity;
+  contain: layout paint;
+  transform: translate3d(0, 0, 0);
 }
 .ambient-glow-gold {
   background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(254, 240, 138, 0.06) 50%, transparent 70%);
   animation: ambientLightBreathe 8s ease-in-out infinite reverse;
+  will-change: transform, opacity;
+  contain: layout paint;
+  transform: translate3d(0, 0, 0);
 }
 

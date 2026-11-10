@@ -68,10 +68,46 @@ export const VietQRTransferManager: React.FC = () => {
   const pendingAmount = pendingApprovalOrders.reduce((sum, o) => sum + o.totalAmount, 0);
 
   const handleApprove = (orderId: string) => {
+    const targetOrder = state.orders.find((o) => o.id === orderId);
+
     dispatch({
       type: 'APPROVE_ORDER_PAYMENT',
       payload: { orderId, adminName: state.user?.name || 'Nguyễn Thiện Đoàn (Admin)' },
     });
+
+    // Thông báo cho khách hàng đã thanh toán thành công
+    dispatch({
+      type: 'ADD_PUSH_NOTIFICATION',
+      payload: {
+        id: `notif-${Date.now()}-cust-paid`,
+        title: `✅ Thanh toán thành công đơn #${orderId}!`,
+        message: `Admin đã xác nhận nhận tiền Vietcombank thành công. Xưởng Florist đang tiến hành cắm hoa theo mẫu cho bạn.`,
+        timestamp: 'Vừa xong',
+        type: 'order',
+        read: false,
+        orderId,
+        targetRole: 'CUSTOMER',
+        targetUserId: targetOrder?.userId,
+        targetUserEmail: targetOrder?.deliveryInfo?.recipientEmail,
+        targetUserPhone: targetOrder?.deliveryInfo?.recipientPhone,
+      },
+    });
+
+    // Thông báo cho STAFF (Florist) nhận lệnh cắm hoa
+    dispatch({
+      type: 'ADD_PUSH_NOTIFICATION',
+      payload: {
+        id: `notif-${Date.now()}-staff-arrange`,
+        title: `🎨 Đơn #${orderId} đã duyệt tiền - Bắt đầu cắm hoa`,
+        message: `Đơn #${orderId} đã được Admin phê duyệt nhận tiền. Florist tiến hành chọn hoa và hoàn thiện bó.`,
+        timestamp: 'Vừa xong',
+        type: 'order',
+        read: false,
+        orderId,
+        targetRole: 'STAFF',
+      },
+    });
+
     dispatch({
       type: 'SHOW_TOAST',
       payload: {

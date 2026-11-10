@@ -139,17 +139,36 @@ export const CheckoutModal: React.FC = () => {
     // Create Order in Store
     dispatch({ type: 'CREATE_ORDER', payload: newOrder });
 
-    // Send push notification
+    // Send push notification for CUSTOMER (Chỉ khách hàng này thấy)
     dispatch({
       type: 'ADD_PUSH_NOTIFICATION',
       payload: {
-        id: `notif-${Date.now()}`,
+        id: `notif-${Date.now()}-cust`,
         title: `Đơn hàng #${orderId} đang chờ Admin duyệt chuyển khoản`,
         message: `Hệ thống đã tiếp nhận đơn hoa của bạn. Ngay sau khi Admin kiểm tra và xác nhận chuyển khoản vào Vietcombank (1027210627 - NGUYEN THIEN DOAN), xưởng sẽ tiến hành cắm hoa ngay!`,
         timestamp: 'Vừa xong',
         type: 'order',
         read: false,
         orderId,
+        targetRole: 'CUSTOMER',
+        targetUserId: state.user?.id,
+        targetUserEmail: recipientEmail || state.user?.email,
+        targetUserPhone: recipientPhone || state.user?.phone,
+      },
+    });
+
+    // Send push notification for ADMIN (Chỉ Admin thấy để đối soát nhận tiền)
+    dispatch({
+      type: 'ADD_PUSH_NOTIFICATION',
+      payload: {
+        id: `notif-${Date.now()}-adm`,
+        title: `🔔 Đơn mới #${orderId} (${formatVND(finalTotal)}) chờ duyệt VietQR`,
+        message: `Khách ${recipientName || 'vãng lai'} vừa đặt đơn #${orderId}. Vui lòng kiểm tra STK Vietcombank 1027210627 để phê duyệt nhận tiền.`,
+        timestamp: 'Vừa xong',
+        type: 'order',
+        read: false,
+        orderId,
+        targetRole: 'ADMIN',
       },
     });
 

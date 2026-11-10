@@ -17,10 +17,10 @@ export const HeroSection: React.FC = () => {
 
   return (
     <section className="relative overflow-hidden pt-6 sm:pt-8 pb-12 sm:pb-16 lg:py-20 border-b border-rose-200/60 bg-gradient-to-b from-[#FFF5F7] via-[#FFF0F4] to-[#FFF5F7]">
-      {/* Ambient Luxury Lighting Orbs (Shine & Glossy Light Pools) */}
-      <div className="absolute -top-32 -right-32 w-[420px] h-[420px] ambient-glow-rose rounded-full blur-3xl pointer-events-none -z-0" />
-      <div className="absolute top-1/3 -left-36 w-[380px] h-[380px] ambient-glow-gold rounded-full blur-3xl pointer-events-none -z-0" />
-      <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] ambient-glow-rose rounded-full blur-2xl pointer-events-none -z-0 opacity-60" />
+      {/* Ambient Luxury Lighting Orbs (Shine & Glossy Light Pools - GPU Accelerated) */}
+      <div className="absolute -top-32 -right-32 w-[420px] h-[420px] ambient-glow-rose rounded-full blur-xl pointer-events-none -z-0 transform-gpu" />
+      <div className="absolute top-1/3 -left-36 w-[380px] h-[380px] ambient-glow-gold rounded-full blur-xl pointer-events-none -z-0 transform-gpu" />
+      <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] ambient-glow-rose rounded-full blur-lg pointer-events-none -z-0 opacity-60 transform-gpu" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-8 items-center">

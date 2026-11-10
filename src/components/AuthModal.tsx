@@ -85,7 +85,7 @@ export const AuthModal: React.FC = () => {
     setSuccessMessage('');
   };
 
-  const grantWelcomeBonus = () => {
+  const grantWelcomeBonus = (userId?: string) => {
     const welcomeVoucher = state.vouchers.find((v) => v.code === 'ROSE10') || state.vouchers[0];
     if (welcomeVoucher) {
       dispatch({ type: 'APPLY_VOUCHER', payload: welcomeVoucher });
@@ -100,6 +100,8 @@ export const AuthModal: React.FC = () => {
         timestamp: 'Vừa xong',
         type: 'promo',
         read: false,
+        targetRole: 'CUSTOMER',
+        targetUserId: userId,
       },
     });
   };
@@ -163,7 +165,7 @@ export const AuthModal: React.FC = () => {
       });
 
       // Tự động kích hoạt ưu đãi Chào Bạn Mới Tiệm Hoa Rose
-      grantWelcomeBonus();
+      grantWelcomeBonus(res.data?.id);
 
       setSuccessMessage('Đăng ký tài khoản thành công! Tặng bạn ưu đãi "Chào Bạn Mới Tiệm Hoa Rose" (Mã: ROSE10)!');
       setTimeout(() => {

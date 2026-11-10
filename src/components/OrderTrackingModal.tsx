@@ -65,6 +65,10 @@ export const OrderTrackingModal: React.FC = () => {
         type: 'order',
         read: false,
         orderId: order.id,
+        targetRole: 'CUSTOMER',
+        targetUserId: order.userId,
+        targetUserEmail: order.deliveryInfo?.recipientEmail,
+        targetUserPhone: order.deliveryInfo?.recipientPhone,
       },
     });
 

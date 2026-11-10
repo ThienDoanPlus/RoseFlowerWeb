@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ShoppingBag,
   Bell,
@@ -22,13 +22,15 @@ import {
 import { useStore } from '../store';
 
 export const Navbar: React.FC = () => {
-  const { state, dispatch, totalQuantity, unreadNotifsCount } = useStore();
+  const { state, dispatch, totalQuantity, unreadNotifsCount, relevantNotifications } = useStore();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const pendingTransfersCount = state.orders.filter(
-    (o) => o.paymentStatus === 'UNPAID' || o.orderStatus === 'PENDING'
-  ).length;
+  const pendingTransfersCount = useMemo(() => {
+    return state.orders.filter(
+      (o) => o.paymentStatus === 'UNPAID' || o.orderStatus === 'PENDING'
+    ).length;
+  }, [state.orders]);
 
   const navigateToSection = (hash: string) => {
     if (state.activeView !== 'storefront') {
@@ -50,7 +52,7 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#FFF5F7]/95 backdrop-blur-md border-b border-rose-200/70 transition-all">
+    <header className="sticky top-0 z-40 bg-[#FFF5F7]/95 backdrop-blur-md border-b border-rose-200/70 transform-gpu will-change-transform">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3 sm:gap-6">
         
         {/* Mobile Hamburger Menu Toggle Button */}
@@ -216,7 +218,10 @@ export const Navbar: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
-                          dispatch({ type: 'MARK_NOTIFICATIONS_READ' });
+                          dispatch({
+                            type: 'MARK_NOTIFICATIONS_READ',
+                            payload: relevantNotifications.map((n) => n.id),
+                          });
                           setIsNotifOpen(false);
                         }}
                         className="text-xs text-rose-700 hover:underline cursor-pointer"
@@ -234,10 +239,10 @@ export const Navbar: React.FC = () => {
                     </div>
                   </div>
                   <div className="max-h-[60vh] sm:max-h-72 overflow-y-auto divide-y divide-stone-100 mt-2">
-                    {state.notifications.length === 0 ? (
+                    {relevantNotifications.length === 0 ? (
                       <p className="text-xs text-stone-500 py-4 text-center">Không có thông báo mới</p>
                     ) : (
-                      state.notifications.map((n) => (
+                      relevantNotifications.map((n) => (
                         <div
                           key={n.id}
                           className={`py-2.5 px-2 rounded-lg transition-colors cursor-pointer ${

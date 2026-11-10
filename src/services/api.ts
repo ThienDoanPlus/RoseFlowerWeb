@@ -11,11 +11,11 @@ import { Flower, Category, Order, Review, User, Voucher, Role } from '../types';
  * Tự động chuyển đổi giữa Cloud Backend API và Local Cache khi offline
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) || 'http://localhost:8000';
 
-const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dskfdyywt';
-const CLOUDINARY_API_KEY = import.meta.env.VITE_CLOUDINARY_API_KEY || '651955371931117';
-const CLOUDINARY_API_SECRET = import.meta.env.VITE_CLOUDINARY_API_SECRET || 'v_CC-hPpEtuXwwHLzP1YdLMds0M';
+const CLOUDINARY_CLOUD_NAME = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLOUDINARY_CLOUD_NAME) || 'dskfdyywt';
+const CLOUDINARY_API_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLOUDINARY_API_KEY) || '651955371931117';
+const CLOUDINARY_API_SECRET = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLOUDINARY_API_SECRET) || 'v_CC-hPpEtuXwwHLzP1YdLMds0M';
 const CLOUDINARY_FOLDER = 'RoseFlowerWeb/avatars';
 
 async function computeSha1(text: string): Promise<string> {

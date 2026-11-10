@@ -109,6 +109,7 @@ export type OrderStatus = 'PENDING' | 'ARRANGING' | 'SHIPPING' | 'DELIVERED' | '
 
 export interface Order {
   id: string;
+  userId?: string;
   items: CartItem[];
   deliveryInfo: DeliveryInfo;
   subtotal: number;
@@ -154,6 +155,8 @@ export interface User {
   dateJoined?: string;
 }
 
+export type NotificationTargetRole = 'ALL' | 'CUSTOMER' | 'STAFF' | 'ADMIN';
+
 export interface PushNotification {
   id: string;
   title: string;
@@ -162,6 +165,10 @@ export interface PushNotification {
   type: 'order' | 'promo' | 'system';
   read: boolean;
   orderId?: string;
+  targetRole?: NotificationTargetRole;
+  targetUserId?: string;
+  targetUserEmail?: string;
+  targetUserPhone?: string;
 }
 
 export interface GmailEmail {
