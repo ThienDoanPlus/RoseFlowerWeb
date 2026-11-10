@@ -6,14 +6,14 @@
 import React, { useState } from 'react';
 import { X, CheckCircle2, Clock, Flower2, Truck, HeartHandshake, Ban, FileEdit, UserCheck } from 'lucide-react';
 import { useStore } from '../../store';
-import { OrderStatus } from '../../types';
+import { OrderStatus, Order } from '../../types';
 
-export const OrderStatusUpdater: React.FC = () => {
+interface OrderStatusUpdaterModalProps {
+  order: Order;
+}
+
+const OrderStatusUpdaterModal: React.FC<OrderStatusUpdaterModalProps> = ({ order }) => {
   const { state, dispatch } = useStore();
-
-  if (!state.isStatusUpdaterOpen || !state.selectedOrderForUpdate) return null;
-
-  const order = state.selectedOrderForUpdate;
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(order.orderStatus);
   const [notes, setNotes] = useState(order.floristNotes || '');
   const [staffName, setStaffName] = useState(order.assignedStaffName || state.user?.name || 'Trần Thị Mai (Florist)');
@@ -215,4 +215,10 @@ export const OrderStatusUpdater: React.FC = () => {
       </div>
     </div>
   );
+};
+
+export const OrderStatusUpdater: React.FC = () => {
+  const { state } = useStore();
+  if (!state.isStatusUpdaterOpen || !state.selectedOrderForUpdate) return null;
+  return <OrderStatusUpdaterModal order={state.selectedOrderForUpdate} />;
 };

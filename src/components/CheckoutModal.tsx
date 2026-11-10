@@ -54,18 +54,6 @@ export const CheckoutModal: React.FC = () => {
   const [processingStatus, setProcessingStatus] = useState('');
   const [activeTab, setActiveTab] = useState<'info' | 'payment'>('info');
 
-  const handleCopy = (text: string, field: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedField(field);
-    dispatch({
-      type: 'SHOW_TOAST',
-      payload: { message: `Đã sao chép: ${text}`, type: 'success' },
-    });
-    setTimeout(() => setCopiedField(null), 2500);
-  };
-
-  if (!state.isCheckoutOpen) return null;
-
   const currentBranch = state.selectedBranch;
 
   // Tính toán khoảng cách thực tế và cước vận chuyển dựa trên thuật toán địa lý / Google Maps
@@ -92,6 +80,18 @@ export const CheckoutModal: React.FC = () => {
       });
     }
   }, [state.isCheckoutOpen, distanceEstimate.distanceKm, address, district, city, state.deliveryInfo.distanceKm, dispatch]);
+
+  const handleCopy = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    dispatch({
+      type: 'SHOW_TOAST',
+      payload: { message: `Đã sao chép: ${text}`, type: 'success' },
+    });
+    setTimeout(() => setCopiedField(null), 2500);
+  };
+
+  if (!state.isCheckoutOpen) return null;
 
   const handleProceedToPayment = (e: React.FormEvent) => {
     e.preventDefault();
