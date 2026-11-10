@@ -26,6 +26,29 @@ export const Navbar: React.FC = () => {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const pendingTransfersCount = state.orders.filter(
+    (o) => o.paymentStatus === 'UNPAID' || o.orderStatus === 'PENDING'
+  ).length;
+
+  const navigateToSection = (hash: string) => {
+    if (state.activeView !== 'storefront') {
+      dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+    }
+    if (state.selectedFlower) {
+      dispatch({ type: 'SELECT_FLOWER', payload: null });
+    }
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', `/${hash}`);
+      const id = hash.replace('#', '');
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-[#FFF5F7]/95 backdrop-blur-md border-b border-rose-200/70 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3 sm:gap-6">
@@ -67,172 +90,100 @@ export const Navbar: React.FC = () => {
           </button>
         </div>
 
-        {/* Zone 2: Navigation Links (Adaptive per View) */}
-        <nav className="hidden lg:flex items-center gap-5 text-xs sm:text-sm font-medium text-stone-700">
-          {state.activeView === 'storefront' || state.activeView === 'product-detail' ? (
-            <>
-              {state.activeView === 'product-detail' && (
-                <button
-                  onClick={() => {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                    if (typeof window !== 'undefined') {
-                      window.history.pushState({}, '', '/');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                  }}
-                  className="text-rose-900 font-bold hover:underline flex items-center gap-1 cursor-pointer mr-2"
-                >
-                  <span>&larr; Về Cửa Hàng</span>
-                </button>
-              )}
-              <a
-                href="/#collection"
-                onClick={() => {
-                  if (state.activeView === 'product-detail') {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                    if (typeof window !== 'undefined') {
-                      window.history.pushState({}, '', '/#collection');
-                    }
-                  } else if (state.selectedFlower) {
-                    dispatch({ type: 'SELECT_FLOWER', payload: null });
-                  }
-                }}
-                className="hover:text-rose-900 transition-colors whitespace-nowrap"
-              >
-                Bộ Sưu Tập Hoa
-              </a>
-              <a
-                href="/#vouchers"
-                onClick={() => {
-                  if (state.activeView === 'product-detail') {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                    if (typeof window !== 'undefined') {
-                      window.history.pushState({}, '', '/#vouchers');
-                    }
-                  } else if (state.selectedFlower) {
-                    dispatch({ type: 'SELECT_FLOWER', payload: null });
-                  }
-                }}
-                className="hover:text-rose-900 transition-colors whitespace-nowrap"
-              >
-                Ưu Đãi Dịp Lễ
-              </a>
-              <a
-                href="/#craft"
-                onClick={() => {
-                  if (state.activeView === 'product-detail') {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                    if (typeof window !== 'undefined') {
-                      window.history.pushState({}, '', '/#craft');
-                    }
-                  } else if (state.selectedFlower) {
-                    dispatch({ type: 'SELECT_FLOWER', payload: null });
-                  }
-                }}
-                className="hover:text-rose-900 transition-colors whitespace-nowrap"
-              >
-                Đặc Tính Hoa Sáp
-              </a>
-              <a
-                href="/#branches"
-                onClick={() => {
-                  if (state.activeView === 'product-detail') {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                    if (typeof window !== 'undefined') {
-                      window.history.pushState({}, '', '/#branches');
-                    }
-                  } else if (state.selectedFlower) {
-                    dispatch({ type: 'SELECT_FLOWER', payload: null });
-                  }
-                }}
-                className="hover:text-rose-900 transition-colors whitespace-nowrap"
-              >
-                Chi Nhánh 294 Phạm Văn Bạch
-              </a>
-
-              {/* Chỉ hiển thị tra cứu đơn và điều phối nếu tài khoản có vai trò STAFF (Admin không làm nghiệp vụ của Staff) */}
-              {state.currentRole === 'STAFF' && (
-                <>
-                  <button
-                    onClick={() => {
-                      if (state.orders.length > 0) {
-                        dispatch({ type: 'SET_TRACKING_ORDER_ID', payload: state.orders[0].id });
-                      } else {
-                        dispatch({
-                          type: 'SHOW_TOAST',
-                          payload: { message: 'Chưa có đơn hàng nào cần tra cứu.', type: 'info' },
-                        });
-                      }
-                    }}
-                    className="hover:text-rose-900 transition-colors whitespace-nowrap cursor-pointer text-stone-700 flex items-center gap-1 font-medium"
-                    title="Tra cứu tiến độ đơn hàng nội bộ (Dành cho STAFF)"
-                  >
-                    <Truck className="w-3.5 h-3.5 text-stone-500" />
-                    <span>Tra Cứu Đơn</span>
-                  </button>
-
-                  <button
-                    onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' })}
-                    className="px-2.5 py-1 rounded-md text-xs font-semibold text-rose-800 bg-rose-100 hover:bg-rose-200 transition-colors cursor-pointer border border-rose-300 flex items-center gap-1.5"
-                    title="Bảng Kanban điều phối hoa của Florist"
-                  >
-                    <LayoutDashboard className="w-3.5 h-3.5 text-rose-700" />
-                    <span>Kanban Florist</span>
-                  </button>
-                </>
-              )}
-
-              {state.currentRole === 'ADMIN' && (
-                <button
-                  onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' })}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-amber-950 bg-amber-100 hover:bg-amber-200 transition-colors cursor-pointer border border-amber-300 flex items-center gap-1.5 shadow-2xs"
-                  title="Bảng điều khiển Quản lý Admin"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
-                  <span>Bảng Điều Hành Admin</span>
-                </button>
-              )}
-            </>
-          ) : (
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' })}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-900 bg-white hover:bg-rose-100/60 rounded-lg border border-rose-300 transition-colors cursor-pointer shadow-2xs"
-              >
-                <Store className="w-3.5 h-3.5" />
-                <span>Quay lại Trang Cửa Hàng</span>
-              </button>
-
-              {state.activeView === 'staff' && (
-                <span className="text-xs font-medium text-stone-600 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200">
-                  Đang xem: <strong>Staff Order Kanban Board</strong>
-                </span>
-              )}
-
-              {state.activeView === 'admin' && (
-                <span className="text-xs font-medium text-stone-600 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
-                  Đang xem: <strong>Admin Dashboard & Managers</strong>
-                </span>
-              )}
-            </div>
-          )}
+        {/* Zone 2: Navigation Links (Clean, Centered, Symmetrical) */}
+        <nav className="hidden lg:flex items-center gap-6 text-xs sm:text-sm font-medium text-stone-700">
+          <a
+            href="/#collection"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToSection('#collection');
+            }}
+            className="hover:text-rose-900 transition-colors whitespace-nowrap cursor-pointer"
+          >
+            Bộ Sưu Tập Hoa
+          </a>
+          <a
+            href="/#vouchers"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToSection('#vouchers');
+            }}
+            className="hover:text-rose-900 transition-colors whitespace-nowrap cursor-pointer"
+          >
+            Ưu Đãi Dịp Lễ
+          </a>
+          <a
+            href="/#craft"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToSection('#craft');
+            }}
+            className="hover:text-rose-900 transition-colors whitespace-nowrap cursor-pointer"
+          >
+            Đặc Tính Hoa Sáp
+          </a>
+          <a
+            href="/#branches"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToSection('#branches');
+            }}
+            className="hover:text-rose-900 transition-colors whitespace-nowrap cursor-pointer"
+          >
+            Chi Nhánh 294 Phạm Văn Bạch
+          </a>
         </nav>
 
         {/* Zone 3: Actions Cluster */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           
-          {/* Hiển thị vai trò tài khoản nếu là Staff/Admin */}
-          {state.user && state.currentRole === 'ADMIN' && (
-            <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
-              <span>Quản Lý (Admin)</span>
-            </span>
+          {/* Executive Role Switcher: Role ADMIN */}
+          {state.currentRole === 'ADMIN' && (
+            state.activeView !== 'admin' ? (
+              <button
+                onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' })}
+                className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold text-amber-950 bg-amber-100 hover:bg-amber-200 active:scale-95 rounded-xl border border-amber-300/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer whitespace-nowrap"
+                title="Mở Bảng Điều Hành Quản Trị Hệ Thống"
+              >
+                <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0" />
+                <span>Bảng Điều Hành Admin</span>
+                {pendingTransfersCount > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0" />
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' })}
+                className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-semibold text-rose-950 bg-rose-100 hover:bg-rose-200 active:scale-95 rounded-xl border border-rose-300/80 shadow-2xs hover:shadow-xs transition-all cursor-pointer whitespace-nowrap"
+                title="Quay lại giao diện mua sắm cửa hàng"
+              >
+                <Store className="w-4 h-4 text-rose-700 shrink-0" />
+                <span>Về Trang Cửa Hàng</span>
+              </button>
+            )
           )}
-          {state.user && state.currentRole === 'STAFF' && (
-            <span className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-rose-100 text-rose-900 border border-rose-300">
-              <LayoutDashboard className="w-3.5 h-3.5 text-rose-700" />
-              <span>Florist (Staff)</span>
-            </span>
+
+          {/* Executive Role Switcher: Role STAFF */}
+          {state.currentRole === 'STAFF' && (
+            state.activeView !== 'staff' ? (
+              <button
+                onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'staff' })}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-rose-950 bg-rose-100 hover:bg-rose-200 active:scale-95 rounded-xl border border-rose-300 shadow-2xs hover:shadow-xs transition-all cursor-pointer whitespace-nowrap"
+                title="Bảng Kanban điều phối cắm hoa"
+              >
+                <LayoutDashboard className="w-4 h-4 text-rose-700 shrink-0" />
+                <span>Kanban Florist</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' })}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-rose-950 bg-rose-50 hover:bg-rose-100 active:scale-95 rounded-xl border border-rose-200 shadow-2xs transition-all cursor-pointer whitespace-nowrap"
+                title="Quay lại giao diện mua sắm cửa hàng"
+              >
+                <Store className="w-4 h-4 text-rose-700 shrink-0" />
+                <span>Về Trang Cửa Hàng</span>
+              </button>
+            )
           )}
 
           {/* Real-time Push Notifications Bell */}
@@ -469,7 +420,10 @@ export const Navbar: React.FC = () => {
               {state.currentRole === 'ADMIN' && (
                 <button
                   onClick={() => {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'admin' });
+                    dispatch({
+                      type: 'SET_ACTIVE_VIEW',
+                      payload: state.activeView === 'admin' ? 'storefront' : 'admin',
+                    });
                     setIsMobileMenuOpen(false);
                   }}
                   className={`p-3 rounded-xl transition-colors flex items-center justify-between text-left font-semibold cursor-pointer ${
@@ -479,8 +433,17 @@ export const Navbar: React.FC = () => {
                   }`}
                 >
                   <span className="flex items-center gap-2.5">
-                    <ShieldCheck className="w-4 h-4 text-amber-700" />
-                    <span>Admin Portal Quản Trị Tiệm</span>
+                    {state.activeView === 'admin' ? (
+                      <>
+                        <Store className="w-4 h-4 text-rose-700" />
+                        <span>Về Trang Cửa Hàng</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-4 h-4 text-amber-700" />
+                        <span>Bảng Điều Hành Admin</span>
+                      </>
+                    )}
                   </span>
                   <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded-full font-bold">ADMIN</span>
                 </button>

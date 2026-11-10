@@ -30,6 +30,7 @@ import {
   Percent,
   Wallet,
   ArrowRight,
+  Store,
 } from 'lucide-react';
 import { useStore } from '../../store';
 import { AdminTab } from '../../types';
@@ -341,7 +342,16 @@ export const AdminDashboard: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={() => dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' })}
+              className="inline-flex items-center gap-2 px-3.5 py-3 rounded-xl text-xs font-semibold text-rose-950 bg-white hover:bg-rose-50 border border-stone-200 shadow-2xs hover:shadow-xs transition-all cursor-pointer whitespace-nowrap active:scale-95"
+              title="Xem giao diện khách mua hoa trên trang chủ"
+            >
+              <Store className="w-4 h-4 text-rose-700 shrink-0" />
+              <span>Xem Cửa Hàng</span>
+            </button>
+
             <div className="bg-[#FAF8F5] p-3.5 rounded-xl border border-stone-200 text-right">
               <span className="text-[11px] text-stone-500 block font-semibold">Doanh Thu Thực Nhận (Vietcombank)</span>
               <span className="font-mono text-base sm:text-xl font-bold text-rose-950">
