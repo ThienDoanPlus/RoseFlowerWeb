@@ -148,22 +148,24 @@ export const FlowerDetailModal: React.FC = () => {
     >
       <div className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-stone-200">
         
-        {/* Sticky Action Buttons */}
-        <div className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 z-20 flex items-center gap-2">
-          <button
-            onClick={handleCopyShareLink}
-            className="p-2 bg-white/95 hover:bg-white text-stone-700 hover:text-stone-950 rounded-full shadow-md transition-colors cursor-pointer border border-stone-200"
-            title="Sao chép link chia sẻ sản phẩm"
-          >
-            <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-stone-700 hover:text-rose-900" />
-          </button>
-          <button
-            onClick={() => dispatch({ type: 'SELECT_FLOWER', payload: null })}
-            className="p-2 bg-white/95 hover:bg-white text-stone-700 hover:text-stone-950 rounded-full shadow-md transition-colors cursor-pointer border border-stone-200"
-            title="Đóng cửa sổ (Esc)"
-          >
-            <X className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+        {/* Persistent Sticky Action Buttons (Always visible on scroll) */}
+        <div className="sticky top-0 z-30 flex justify-end pointer-events-none p-3 sm:p-4 -mb-12 sm:-mb-14">
+          <div className="flex items-center gap-2 pointer-events-auto">
+            <button
+              onClick={handleCopyShareLink}
+              className="p-2 bg-white/95 hover:bg-white text-stone-700 hover:text-stone-950 rounded-full shadow-md transition-all cursor-pointer border border-stone-200 backdrop-blur-xs hover:scale-105 active:scale-95"
+              title="Sao chép link chia sẻ sản phẩm"
+            >
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-stone-700 hover:text-rose-900" />
+            </button>
+            <button
+              onClick={() => dispatch({ type: 'SELECT_FLOWER', payload: null })}
+              className="p-2 bg-white/95 hover:bg-white text-stone-700 hover:text-stone-950 rounded-full shadow-md transition-all cursor-pointer border border-stone-200 backdrop-blur-xs hover:scale-105 active:scale-95"
+              title="Đóng cửa sổ (Esc)"
+            >
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 p-4 sm:p-6 sm:p-8">
