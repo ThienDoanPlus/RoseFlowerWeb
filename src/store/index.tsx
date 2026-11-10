@@ -1288,6 +1288,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (voucherCode) {
         const matched = state.vouchers.find((v) => v.code.toUpperCase() === voucherCode.trim().toUpperCase());
         if (matched) {
+          // 1. Đảm bảo hiển thị storefront để mục ưu đãi được mount
+          if (state.activeView !== 'storefront') {
+            dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+          }
+          if (state.selectedFlower) {
+            dispatch({ type: 'SELECT_FLOWER', payload: null });
+          }
+
           dispatch({ type: 'APPLY_VOUCHER', payload: matched });
           const discountStr = matched.discountType === 'PERCENT' ? `${matched.discountValue}%` : formatVND(matched.discountValue);
           dispatch({
@@ -1298,11 +1306,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             },
           });
 
-          // Nếu URL có kèm #vouchers hoặc là link chia sẻ voucher, cuộn mượt đến mục ưu đãi
-          setTimeout(() => {
-            const el = document.getElementById('vouchers');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }, 350);
+          // 2. Cuộn mượt màn hình trực tiếp đến thẻ mã ưu đãi đó
+          const scrollToVoucher = () => {
+            const cardEl = document.getElementById(`voucher-${matched.code.toUpperCase()}`) || document.getElementById('vouchers');
+            if (cardEl) {
+              const navHeight = 96; // Trừ chiều cao thanh Header sticky (80px + 16px khoảng thở)
+              const y = cardEl.getBoundingClientRect().top + window.pageYOffset - navHeight;
+              window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+            }
+          };
+
+          requestAnimationFrame(scrollToVoucher);
+          setTimeout(scrollToVoucher, 200);
+          setTimeout(scrollToVoucher, 650);
         }
       }
     } catch {

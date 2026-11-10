@@ -16,6 +16,56 @@ export const VoucherSection: React.FC = () => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [copiedLinkCode, setCopiedLinkCode] = useState<string | null>(null);
 
+  // Lấy mã voucher từ URL query params (?voucher=...)
+  const getUrlVoucherCode = () => {
+    if (typeof window === 'undefined') return '';
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return (params.get('voucher') || params.get('magiamgia') || params.get('code') || '').toUpperCase();
+    } catch {
+      return '';
+    }
+  };
+  const sharedUrlVoucher = getUrlVoucherCode();
+
+  // Tự động điều hướng và cuộn chính xác đến thẻ mã ưu đãi đó
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const scrollToTargetVoucher = () => {
+      const code = getUrlVoucherCode();
+      const hash = window.location.hash.replace('#', '');
+      const targetId = code ? `voucher-${code}` : hash;
+      if (!targetId) return;
+
+      const targetEl = document.getElementById(targetId) || (code ? document.getElementById('vouchers') : null);
+      if (targetEl) {
+        const navHeight = 96; // Tránh bị che bởi Navbar sticky (80px + 16px khoảng đệm)
+        const y = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight;
+        window.scrollTo({
+          top: Math.max(0, y),
+          behavior: 'smooth',
+        });
+      }
+    };
+
+    // Cuộn qua 3 giai đoạn để vượt qua layout shift khi ảnh tải
+    const t1 = setTimeout(scrollToTargetVoucher, 150);
+    const t2 = setTimeout(scrollToTargetVoucher, 500);
+    const t3 = setTimeout(scrollToTargetVoucher, 950);
+
+    window.addEventListener('hashchange', scrollToTargetVoucher);
+    window.addEventListener('popstate', scrollToTargetVoucher);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      window.removeEventListener('hashchange', scrollToTargetVoucher);
+      window.removeEventListener('popstate', scrollToTargetVoucher);
+    };
+  }, []);
+
   // 1. Sao chép trực tiếp mã voucher để dán vào giỏ hàng hoặc thanh toán
   const handleCopyVoucherCode = (code: string) => {
     if (typeof window === 'undefined') return;
@@ -44,7 +94,7 @@ export const VoucherSection: React.FC = () => {
   // 2. Sao chép link chia sẻ riêng biệt cho từng mã voucher (mỗi mã có 1 URL riêng)
   const handleShareVoucher = (voucher: Voucher) => {
     if (typeof window === 'undefined') return;
-    const shareUrl = `${window.location.origin}/?voucher=${encodeURIComponent(voucher.code)}#vouchers`;
+    const shareUrl = `${window.location.origin}/?voucher=${encodeURIComponent(voucher.code)}#voucher-${encodeURIComponent(voucher.code.toUpperCase())}`;
     try {
       navigator.clipboard.writeText(shareUrl).then(() => {
         setCopiedLinkCode(voucher.code);
@@ -133,12 +183,16 @@ export const VoucherSection: React.FC = () => {
             const isMinOrderMet = subtotal >= voucher.minOrderValue;
             const isMinQtyMet = !voucher.minQuantity || totalQuantity >= voucher.minQuantity;
             const isFullyEligible = isMinOrderMet && isMinQtyMet;
+            const isSharedTarget = sharedUrlVoucher === voucher.code.toUpperCase();
 
             return (
               <div
+                id={`voucher-${voucher.code.toUpperCase()}`}
                 key={voucher.code}
-                className={`bg-white rounded-2xl p-5 border transition-all flex flex-col justify-between ${
-                  isApplied
+                className={`scroll-mt-28 bg-white rounded-2xl p-5 border transition-all flex flex-col justify-between relative ${
+                  isSharedTarget
+                    ? 'ring-4 ring-rose-500 shadow-2xl border-rose-500 scale-[1.02] bg-rose-50/20'
+                    : isApplied
                     ? isFullyEligible
                       ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
                       : 'border-amber-400 ring-2 ring-amber-400/20 shadow-md'
@@ -146,6 +200,19 @@ export const VoucherSection: React.FC = () => {
                 }`}
               >
                 <div>
+                  {/* Glowing banner for shared voucher */}
+                  {isSharedTarget && (
+                    <div className="bg-gradient-to-r from-rose-600 to-rose-700 text-white text-[11px] font-bold px-3.5 py-1.5 rounded-t-2xl -mt-5 -mx-5 mb-3.5 flex items-center justify-between shadow-xs">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+                        <span>Mã ưu đãi bạn được chia sẻ</span>
+                      </span>
+                      <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-mono">
+                        ✓ Đang chọn
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div>
                       {voucher.holidayTag ? (
