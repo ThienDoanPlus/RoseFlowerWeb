@@ -45,7 +45,8 @@ export const AdminDashboard: React.FC = () => {
 
   const activeTab = state.adminActiveTab;
   const [timeRange, setTimeRange] = useState<'today' | '7days' | 'month' | 'all'>('7days');
-  const [hoveredChartDay, setHoveredChartDay] = useState<number | null>(null);
+  const [chartPeriod, setChartPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
+  const [hoveredChartIndex, setHoveredChartIndex] = useState<number | null>(null);
 
   const setActiveTab = (tab: AdminTab) => {
     dispatch({ type: 'SET_ADMIN_TAB', payload: tab });
@@ -76,28 +77,145 @@ export const AdminDashboard: React.FC = () => {
   const shippingCount = state.orders.filter((o) => o.orderStatus === 'SHIPPING').length;
   const deliveredCount = state.orders.filter((o) => o.orderStatus === 'DELIVERED').length;
 
-  // Biểu đồ doanh thu 7 ngày gần nhất được tính toán động 100% từ dữ liệu đơn hàng thực tế (state.orders)
-  const chartDays = Array.from({ length: 7 }).map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    const dayName = i === 6 ? 'Hôm nay' : `T.${d.getDay() === 0 ? 'CN' : d.getDay() + 1}`;
-    const dayStr = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
-    const dateKey = d.toISOString().split('T')[0];
+  // Tính toán dữ liệu biểu đồ doanh thu động theo Ngày, Tuần, Tháng, Năm từ 100% dữ liệu đơn hàng thực tế (state.orders)
+  const getChartData = () => {
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth();
 
-    // Lọc đơn hàng thực tế theo từng ngày
-    const dayOrders = state.orders.filter((o) => o.createdAt && o.createdAt.startsWith(dateKey));
-    const dayRevenue = dayOrders
-      .filter((o) => o.paymentStatus === 'PAID')
-      .reduce((sum, o) => sum + o.totalAmount, 0);
+    if (chartPeriod === 'day') {
+      // Theo Ngày: 6 khung giờ trong ngày hôm nay
+      const todayKey = now.toISOString().split('T')[0];
+      const todayOrders = state.orders.filter((o) => o.createdAt && o.createdAt.startsWith(todayKey));
+
+      const timeSlots = [
+        { label: '00h - 04h', subLabel: 'Sáng sớm', minHour: 0, maxHour: 4 },
+        { label: '04h - 08h', subLabel: 'Bình minh', minHour: 4, maxHour: 8 },
+        { label: '08h - 12h', subLabel: 'Buổi sáng', minHour: 8, maxHour: 12 },
+        { label: '12h - 16h', subLabel: 'Trưa - Chiều', minHour: 12, maxHour: 16 },
+        { label: '16h - 20h', subLabel: 'Chiều tối', minHour: 16, maxHour: 20 },
+        { label: '20h - 24h', subLabel: 'Đêm muộn', minHour: 20, maxHour: 24 },
+      ];
+
+      return {
+        title: 'Biểu Đồ Doanh Thu Theo Khung Giờ (Hôm Nay)',
+        subtitle: `Dữ liệu 6 khung giờ ngày ${now.toLocaleDateString('vi-VN')}`,
+        gridCols: 'grid-cols-6',
+        items: timeSlots.map((slot) => {
+          const slotOrders = todayOrders.filter((o) => {
+            const h = new Date(o.createdAt).getHours();
+            return h >= slot.minHour && h < slot.maxHour;
+          });
+          const slotRevenue = slotOrders
+            .filter((o) => o.paymentStatus === 'PAID')
+            .reduce((sum, o) => sum + o.totalAmount, 0);
+
+          return {
+            label: slot.label,
+            subLabel: slot.subLabel,
+            revenue: slotRevenue,
+            orders: slotOrders.length,
+          };
+        }),
+      };
+    }
+
+    if (chartPeriod === 'week') {
+      // Theo Tuần: 7 ngày gần nhất
+      const days = Array.from({ length: 7 }).map((_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        const dayName = i === 6 ? 'Hôm nay' : `T.${d.getDay() === 0 ? 'CN' : d.getDay() + 1}`;
+        const dayStr = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+        const dateKey = d.toISOString().split('T')[0];
+
+        const dayOrders = state.orders.filter((o) => o.createdAt && o.createdAt.startsWith(dateKey));
+        const dayRevenue = dayOrders
+          .filter((o) => o.paymentStatus === 'PAID')
+          .reduce((sum, o) => sum + o.totalAmount, 0);
+
+        return {
+          label: dayName,
+          subLabel: dayStr,
+          revenue: dayRevenue,
+          orders: dayOrders.length,
+        };
+      });
+
+      return {
+        title: 'Biểu Đồ Doanh Thu & Số Lượng Đơn (7 Ngày Qua)',
+        subtitle: 'Tương quan biến động doanh thu và đơn hàng 7 ngày gần nhất',
+        gridCols: 'grid-cols-7',
+        items: days,
+      };
+    }
+
+    if (chartPeriod === 'month') {
+      // Theo Tháng: 4 tuần trong tháng hiện tại
+      const lastDayOfMonth = new Date(curYear, curMonth + 1, 0).getDate();
+      const monthPrefix = `${curYear}-${String(curMonth + 1).padStart(2, '0')}`;
+
+      const weeks = [
+        { label: 'Tuần 1', subLabel: '01 - 07', startDay: 1, endDay: 7 },
+        { label: 'Tuần 2', subLabel: '08 - 14', startDay: 8, endDay: 14 },
+        { label: 'Tuần 3', subLabel: '15 - 21', startDay: 15, endDay: 21 },
+        { label: 'Tuần 4', subLabel: `22 - ${lastDayOfMonth}`, startDay: 22, endDay: lastDayOfMonth },
+      ];
+
+      return {
+        title: `Biểu Đồ Doanh Thu Theo Tuần (Tháng ${curMonth + 1}/${curYear})`,
+        subtitle: `Phân bổ doanh thu qua 4 tuần của Tháng ${curMonth + 1}`,
+        gridCols: 'grid-cols-4',
+        items: weeks.map((w) => {
+          const weekOrders = state.orders.filter((o) => {
+            if (!o.createdAt || !o.createdAt.startsWith(monthPrefix)) return false;
+            const d = new Date(o.createdAt);
+            const dateNum = d.getDate();
+            return dateNum >= w.startDay && dateNum <= w.endDay;
+          });
+          const weekRevenue = weekOrders
+            .filter((o) => o.paymentStatus === 'PAID')
+            .reduce((sum, o) => sum + o.totalAmount, 0);
+
+          return {
+            label: w.label,
+            subLabel: w.subLabel,
+            revenue: weekRevenue,
+            orders: weekOrders.length,
+          };
+        }),
+      };
+    }
+
+    // chartPeriod === 'year': 12 tháng của năm hiện tại
+    const months = Array.from({ length: 12 }).map((_, mIdx) => {
+      const monthNum = mIdx + 1;
+      const monthPrefix = `${curYear}-${String(monthNum).padStart(2, '0')}`;
+      const monthOrders = state.orders.filter((o) => o.createdAt && o.createdAt.startsWith(monthPrefix));
+      const monthRevenue = monthOrders
+        .filter((o) => o.paymentStatus === 'PAID')
+        .reduce((sum, o) => sum + o.totalAmount, 0);
+
+      return {
+        label: `T${monthNum}`,
+        subLabel: `Thg ${monthNum}`,
+        revenue: monthRevenue,
+        orders: monthOrders.length,
+      };
+    });
 
     return {
-      label: dayName,
-      day: dayStr,
-      revenue: dayRevenue,
-      orders: dayOrders.length,
+      title: `Biểu Đồ Doanh Thu 12 Tháng Năm ${curYear}`,
+      subtitle: `Biến động doanh thu lũy kế qua 12 tháng năm ${curYear}`,
+      gridCols: 'grid-cols-12',
+      items: months,
     };
-  });
-  const maxDayRevenue = Math.max(...chartDays.map((d) => d.revenue), 100000);
+  };
+
+  const chartData = getChartData();
+  const maxChartRevenue = Math.max(...chartData.items.map((d) => d.revenue), 100000);
+  const chartPeriodTotalRevenue = chartData.items.reduce((sum, d) => sum + d.revenue, 0);
+  const chartPeriodTotalOrders = chartData.items.reduce((sum, d) => sum + d.orders, 0);
 
   // Cơ cấu doanh thu theo phân khúc bó hoa tính toán trực tiếp từ các đơn hàng đã thanh toán thực tế
   const categorySegments = [
@@ -389,76 +507,165 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Interactive Visual Chart: 7-Day Revenue & Volume Trend */}
+          {/* Interactive Visual Chart: Revenue & Volume Trend */}
           <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-2xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-stone-100 gap-2">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-4 border-b border-stone-100 gap-4">
               <div>
-                <h3 className="font-display font-medium text-base text-stone-900 flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-rose-800" />
-                  <span>Biểu Đồ Doanh Thu & Số Lượng Đơn 7 Ngày Gần Nhất</span>
-                </h3>
-                <p className="text-xs text-stone-500">
-                  Tương quan biến động doanh thu (cột đỏ) và lượng đơn hàng (chỉ số phía trên)
-                </p>
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-rose-800" />
+                  <h3 className="font-display font-medium text-base sm:text-lg text-stone-900">
+                    {chartData.title}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2 mt-1 text-xs text-stone-500 flex-wrap">
+                  <span>{chartData.subtitle}</span>
+                  <span className="text-stone-300">·</span>
+                  <span className="font-medium text-stone-700">
+                    Doanh thu kỳ này: <strong className="text-rose-900 font-mono font-bold">{formatVND(chartPeriodTotalRevenue)}</strong>
+                  </span>
+                  <span className="text-stone-300">·</span>
+                  <span className="font-medium text-stone-700">
+                    Tổng đơn: <strong className="text-amber-800 font-bold">{chartPeriodTotalOrders} đơn</strong>
+                  </span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-4 text-xs">
-                <span className="flex items-center gap-1.5 text-stone-600">
-                  <span className="w-3 h-3 rounded-sm bg-rose-800" />
-                  <span>Doanh thu</span>
-                </span>
-                <span className="flex items-center gap-1.5 text-stone-600">
-                  <span className="w-3 h-3 rounded-sm bg-amber-400" />
-                  <span>Đơn hàng</span>
-                </span>
+              {/* View Mode Selector: Ngày | Tuần | Tháng | Năm */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="inline-flex p-1 bg-stone-100 rounded-xl text-xs font-semibold border border-stone-200 shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setChartPeriod('day');
+                      setHoveredChartIndex(null);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      chartPeriod === 'day'
+                        ? 'bg-rose-900 text-white shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    Theo Ngày
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setChartPeriod('week');
+                      setHoveredChartIndex(null);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      chartPeriod === 'week'
+                        ? 'bg-rose-900 text-white shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    Theo Tuần
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setChartPeriod('month');
+                      setHoveredChartIndex(null);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      chartPeriod === 'month'
+                        ? 'bg-rose-900 text-white shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    Theo Tháng
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setChartPeriod('year');
+                      setHoveredChartIndex(null);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      chartPeriod === 'year'
+                        ? 'bg-rose-900 text-white shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    Theo Năm
+                  </button>
+                </div>
+
+                {/* Legend indicator */}
+                <div className="hidden sm:flex items-center gap-3 text-xs pl-2 border-l border-stone-200">
+                  <span className="flex items-center gap-1.5 text-stone-600">
+                    <span className="w-3 h-3 rounded-sm bg-rose-800" />
+                    <span>Doanh thu</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 text-stone-600">
+                    <span className="w-3 h-3 rounded-sm bg-amber-400" />
+                    <span>Đơn hàng</span>
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* SVG Interactive Bar Chart */}
             <div className="pt-4 pb-2">
-              <div className="grid grid-cols-7 gap-2 sm:gap-4 items-end h-56 px-2">
-                {chartDays.map((item, idx) => {
-                  const heightPercent = Math.max(18, Math.round((item.revenue / maxDayRevenue) * 100));
-                  const isHovered = hoveredChartDay === idx;
+              <div className="overflow-x-auto pb-2 scrollbar-none">
+                <div className={`grid ${chartData.gridCols} gap-2 sm:gap-3 items-end h-60 px-2 min-w-[500px] sm:min-w-full`}>
+                  {chartData.items.map((item, idx) => {
+                    const heightPercent =
+                      item.revenue > 0
+                        ? Math.max(16, Math.round((item.revenue / maxChartRevenue) * 100))
+                        : 5;
+                    const isHovered = hoveredChartIndex === idx;
 
-                  return (
-                    <div
-                      key={idx}
-                      onMouseEnter={() => setHoveredChartDay(idx)}
-                      onMouseLeave={() => setHoveredChartDay(null)}
-                      className="flex flex-col items-center h-full justify-end group cursor-pointer relative"
-                    >
-                      {/* Floating tooltip */}
-                      {isHovered && (
-                        <div className="absolute -top-16 z-20 bg-stone-900 text-white text-[11px] py-1.5 px-2.5 rounded-lg shadow-xl pointer-events-none whitespace-nowrap text-center animate-in fade-in zoom-in-95 duration-150">
-                          <span className="font-bold text-amber-300 block">{formatVND(item.revenue)}</span>
-                          <span className="text-stone-300">{item.orders} đơn đặt hàng</span>
+                    return (
+                      <div
+                        key={idx}
+                        onMouseEnter={() => setHoveredChartIndex(idx)}
+                        onMouseLeave={() => setHoveredChartIndex(null)}
+                        className="flex flex-col items-center h-full justify-end group cursor-pointer relative"
+                      >
+                        {/* Floating tooltip */}
+                        {isHovered && (
+                          <div className="absolute -top-16 z-20 bg-stone-900 text-white text-[11px] py-1.5 px-3 rounded-lg shadow-xl pointer-events-none whitespace-nowrap text-center animate-in fade-in zoom-in-95 duration-150">
+                            <span className="font-bold text-amber-300 block">{formatVND(item.revenue)}</span>
+                            <span className="text-stone-300">{item.orders} đơn đặt hàng</span>
+                            <span className="text-[10px] text-stone-400 block">{item.subLabel}</span>
+                          </div>
+                        )}
+
+                        {/* Orders Badge on top of bar */}
+                        {item.orders > 0 ? (
+                          <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1.5 py-0.2 rounded-md mb-1.5 border border-amber-300">
+                            {item.orders}đ
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-stone-400 mb-1.5 opacity-60">0đ</span>
+                        )}
+
+                        {/* Bar Column */}
+                        <div className="w-full max-w-[42px] bg-stone-100 rounded-t-xl h-full flex items-end overflow-hidden p-0.5">
+                          <div
+                            style={{ height: `${heightPercent}%` }}
+                            className={`w-full rounded-t-lg transition-all duration-500 ${
+                              item.revenue > 0
+                                ? isHovered
+                                  ? 'bg-gradient-to-t from-rose-900 to-amber-500 shadow-md'
+                                  : 'bg-gradient-to-t from-rose-950 to-rose-700'
+                                : 'bg-stone-200 group-hover:bg-rose-300'
+                            }`}
+                          />
                         </div>
-                      )}
 
-                      {/* Orders Badge on top of bar */}
-                      <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1.5 py-0.2 rounded-md mb-1.5 border border-amber-300">
-                        {item.orders}đ
-                      </span>
-
-                      {/* Bar Column */}
-                      <div className="w-full max-w-[46px] bg-stone-100 rounded-t-xl h-full flex items-end overflow-hidden p-0.5">
-                        <div
-                          style={{ height: `${heightPercent}%` }}
-                          className={`w-full rounded-t-lg transition-all duration-500 ${
-                            isHovered
-                              ? 'bg-gradient-to-t from-rose-900 to-amber-500 shadow-md'
-                              : 'bg-gradient-to-t from-rose-950 to-rose-700'
-                          }`}
-                        />
+                        {/* X-axis labels */}
+                        <span className="text-xs font-semibold text-stone-800 mt-2 block truncate max-w-full text-center">
+                          {item.label}
+                        </span>
+                        <span className="text-[10px] text-stone-400 font-mono block truncate max-w-full text-center">
+                          {item.subLabel}
+                        </span>
                       </div>
-
-                      {/* X-axis labels */}
-                      <span className="text-xs font-semibold text-stone-800 mt-2 block">{item.label}</span>
-                      <span className="text-[10px] text-stone-400 font-mono block">{item.day}</span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
