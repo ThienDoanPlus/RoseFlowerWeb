@@ -47,6 +47,8 @@ export const AdminDashboard: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'today' | '7days' | 'month' | 'all'>('7days');
   const [chartPeriod, setChartPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [hoveredChartIndex, setHoveredChartIndex] = useState<number | null>(null);
+  const [categoryChartView, setCategoryChartView] = useState<'donut' | 'bars'>('donut');
+  const [hoveredCategoryIndex, setHoveredCategoryIndex] = useState<number | null>(null);
 
   const setActiveTab = (tab: AdminTab) => {
     dispatch({ type: 'SET_ADMIN_TAB', payload: tab });
@@ -217,40 +219,91 @@ export const AdminDashboard: React.FC = () => {
   const chartPeriodTotalRevenue = chartData.items.reduce((sum, d) => sum + d.revenue, 0);
   const chartPeriodTotalOrders = chartData.items.reduce((sum, d) => sum + d.orders, 0);
 
-  // Cơ cấu doanh thu theo phân khúc bó hoa tính toán trực tiếp từ các đơn hàng đã thanh toán thực tế
-  const categorySegments = [
+  // Cơ cấu doanh thu theo 4 phân khúc bó hoa (Mini, Tiêu Chuẩn, Cao Cấp, Đại Khổng Lồ)
+  const categorySegmentsRaw = [
     {
-      name: 'Bó Mini & Xinh Xắn (189k - 259k)',
+      id: 'mini',
+      name: 'Bó Mini & Xinh Xắn',
+      shortName: 'Bó Mini',
+      priceRange: '189k - 259k',
       amount: state.orders
         .filter((o) => o.paymentStatus === 'PAID')
         .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice <= 259000).reduce((s, it) => s + it.unitPrice * it.quantity, 0), 0),
+      quantity: state.orders
+        .filter((o) => o.paymentStatus === 'PAID')
+        .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice <= 259000).reduce((s, it) => s + it.quantity, 0), 0),
       color: 'bg-pink-500',
+      hex: '#ec4899',
     },
     {
-      name: 'Bó Tiêu Chuẩn (279k - 359k)',
+      id: 'standard',
+      name: 'Bó Tiêu Chuẩn',
+      shortName: 'Bó Tiêu Chuẩn',
+      priceRange: '279k - 359k',
       amount: state.orders
         .filter((o) => o.paymentStatus === 'PAID')
         .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice > 259000 && it.unitPrice <= 359000).reduce((s, it) => s + it.unitPrice * it.quantity, 0), 0),
+      quantity: state.orders
+        .filter((o) => o.paymentStatus === 'PAID')
+        .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice > 259000 && it.unitPrice <= 359000).reduce((s, it) => s + it.quantity, 0), 0),
       color: 'bg-rose-600',
+      hex: '#e11d48',
     },
     {
-      name: 'Bó Thiết Kế Cao Cấp (459k - 559k)',
+      id: 'luxury',
+      name: 'Bó Thiết Kế Cao Cấp',
+      shortName: 'Bó Cao Cấp',
+      priceRange: '459k - 559k',
       amount: state.orders
         .filter((o) => o.paymentStatus === 'PAID')
         .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice > 359000 && it.unitPrice <= 559000).reduce((s, it) => s + it.unitPrice * it.quantity, 0), 0),
+      quantity: state.orders
+        .filter((o) => o.paymentStatus === 'PAID')
+        .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice > 359000 && it.unitPrice <= 559000).reduce((s, it) => s + it.quantity, 0), 0),
       color: 'bg-amber-500',
+      hex: '#f59e0b',
     },
     {
-      name: 'Bó Đại Khổng Lồ 99 Bông (679k)',
+      id: 'giant',
+      name: 'Bó Đại Khổng Lồ 99 Bông',
+      shortName: 'Bó 99 Bông',
+      priceRange: '679k',
       amount: state.orders
         .filter((o) => o.paymentStatus === 'PAID')
         .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice > 559000).reduce((s, it) => s + it.unitPrice * it.quantity, 0), 0),
-      color: 'bg-rose-900',
+      quantity: state.orders
+        .filter((o) => o.paymentStatus === 'PAID')
+        .reduce((sum, o) => sum + o.items.filter((it) => it.unitPrice > 559000).reduce((s, it) => s + it.quantity, 0), 0),
+      color: 'bg-rose-950',
+      hex: '#4c0519',
     },
-  ].map((seg) => ({
+  ];
+
+  const totalCategoryRevenue = categorySegmentsRaw.reduce((sum, seg) => sum + seg.amount, 0);
+  const totalCategoryQuantity = categorySegmentsRaw.reduce((sum, seg) => sum + seg.quantity, 0);
+
+  const categorySegments = categorySegmentsRaw.map((seg) => ({
     ...seg,
-    share: totalRevenue > 0 ? Math.round((seg.amount / totalRevenue) * 100) : 0,
+    share: totalCategoryRevenue > 0 ? Math.round((seg.amount / totalCategoryRevenue) * 100) : 0,
   }));
+
+  // SVG Circular Donut Chart Metrics (r = 65, circumference ≈ 408.41)
+  const donutRadius = 65;
+  const donutCircumference = 2 * Math.PI * donutRadius;
+  let runningDonutOffset = 0;
+  const donutSlices = categorySegments.map((seg) => {
+    const fraction = totalCategoryRevenue > 0 ? seg.amount / totalCategoryRevenue : 0;
+    const strokeDash = fraction * donutCircumference;
+    const currentOffset = runningDonutOffset;
+    runningDonutOffset += strokeDash;
+    return {
+      ...seg,
+      fraction,
+      strokeDash,
+      currentOffset,
+    };
+  });
+  const hoveredCategory = hoveredCategoryIndex !== null ? categorySegments[hoveredCategoryIndex] : null;
 
   const tabs: { key: AdminTab; label: string; icon: React.ReactNode; badge?: number }[] = [
     { key: 'overview', label: 'Tổng Quan Tài Chính & KPIs', icon: <TrendingUp className="w-4 h-4" /> },
@@ -673,38 +726,210 @@ export const AdminDashboard: React.FC = () => {
           {/* Grid 2 Columns: Category Revenue Share & Order Pipeline Status */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            {/* Category Revenue Breakdown */}
+            {/* Category Revenue Breakdown - Interactive Circular (Donut) & Bar Chart */}
             <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-2xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+              <div className="flex items-center justify-between pb-3 border-b border-stone-100 flex-wrap gap-2">
                 <div>
-                  <h3 className="font-display font-medium text-base text-stone-900">
-                    Cơ Cấu Doanh Thu Theo Phân Khúc Bó Hoa
+                  <h3 className="font-display font-medium text-base text-stone-900 flex items-center gap-2">
+                    <PieChart className="w-4 h-4 text-rose-800" />
+                    <span>Cơ Cấu Doanh Thu Theo Phân Khúc Bó Hoa</span>
                   </h3>
                   <p className="text-xs text-stone-500">
-                    Tỷ trọng các phân khúc hoa sáp mini, tiêu chuẩn, cao cấp và đại khổng lồ
+                    Tỷ trọng doanh thu & sản lượng 4 phân khúc hoa sáp
                   </p>
                 </div>
-                <PieChart className="w-5 h-5 text-rose-800" />
+
+                <div className="flex items-center gap-1 bg-stone-100 p-0.5 rounded-lg border border-stone-200 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setCategoryChartView('donut')}
+                    title="Biểu đồ hình tròn (Donut)"
+                    className={`px-2.5 py-1 rounded-md transition-all cursor-pointer flex items-center gap-1.5 font-medium ${
+                      categoryChartView === 'donut'
+                        ? 'bg-white text-stone-900 font-bold shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    <PieChart className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Hình Tròn</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCategoryChartView('bars')}
+                    title="Biểu đồ thanh ngang"
+                    className={`px-2.5 py-1 rounded-md transition-all cursor-pointer flex items-center gap-1.5 font-medium ${
+                      categoryChartView === 'bars'
+                        ? 'bg-white text-stone-900 font-bold shadow-2xs'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    <BarChart3 className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Thanh Ngang</span>
+                  </button>
+                </div>
               </div>
 
-              <div className="space-y-3.5 pt-1">
-                {categorySegments.map((seg, idx) => (
-                  <div key={idx} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-stone-700">{seg.name}</span>
-                      <span className="font-mono text-stone-900 font-bold">
-                        {formatVND(seg.amount)} ({seg.share}%)
-                      </span>
-                    </div>
-                    <div className="w-full h-2.5 bg-stone-100 rounded-full overflow-hidden">
-                      <div
-                        style={{ width: `${seg.share}%` }}
-                        className={`h-full ${seg.color} rounded-full transition-all duration-700`}
+              {/* View 1: Interactive SVG Donut (Hình Tròn) */}
+              {categoryChartView === 'donut' && (
+                <div className="flex flex-col sm:flex-row items-center gap-5 pt-1">
+                  {/* Left: SVG Circular Donut Chart */}
+                  <div className="relative w-44 h-44 sm:w-48 sm:h-48 shrink-0 flex items-center justify-center">
+                    <svg
+                      viewBox="0 0 200 200"
+                      className="w-full h-full transform -rotate-90"
+                    >
+                      {/* Background circle track */}
+                      <circle
+                        cx="100"
+                        cy="100"
+                        r={donutRadius}
+                        fill="transparent"
+                        stroke="#f5f5f4"
+                        strokeWidth="22"
                       />
+
+                      {totalCategoryRevenue === 0 ? (
+                        /* Empty state: subtle dashed ring */
+                        <circle
+                          cx="100"
+                          cy="100"
+                          r={donutRadius}
+                          fill="transparent"
+                          stroke="#e7e5e4"
+                          strokeWidth="2"
+                          strokeDasharray="6 4"
+                        />
+                      ) : (
+                        donutSlices.map((seg, idx) => {
+                          if (seg.strokeDash <= 0) return null;
+                          const isHovered = hoveredCategoryIndex === idx;
+                          const isAnyHovered = hoveredCategoryIndex !== null;
+
+                          return (
+                            <circle
+                              key={seg.id}
+                              cx="100"
+                              cy="100"
+                              r={donutRadius}
+                              fill="transparent"
+                              stroke={seg.hex}
+                              strokeWidth={isHovered ? 28 : 22}
+                              strokeDasharray={`${Math.max(0, seg.strokeDash - (donutSlices.filter((s) => s.strokeDash > 0).length > 1 ? 2 : 0))} ${donutCircumference}`}
+                              strokeDashoffset={-seg.currentOffset}
+                              className="transition-all duration-300 cursor-pointer"
+                              style={{
+                                opacity: isAnyHovered && !isHovered ? 0.4 : 1,
+                              }}
+                              onMouseEnter={() => setHoveredCategoryIndex(idx)}
+                              onMouseLeave={() => setHoveredCategoryIndex(null)}
+                            />
+                          );
+                        })
+                      )}
+                    </svg>
+
+                    {/* Donut Center Display */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-3 pointer-events-none select-none">
+                      {hoveredCategory ? (
+                        <div className="animate-in fade-in zoom-in-95 duration-150">
+                          <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider block">
+                            {hoveredCategory.shortName}
+                          </span>
+                          <span className="font-mono text-sm sm:text-base font-bold text-rose-950 block leading-tight mt-0.5">
+                            {formatVND(hoveredCategory.amount)}
+                          </span>
+                          <span className="inline-block text-[10px] font-bold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-full mt-1 border border-rose-200">
+                            {hoveredCategory.share}% ({hoveredCategory.quantity} bó)
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="animate-in fade-in duration-150">
+                          <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider block">
+                            Tổng Cơ Cấu
+                          </span>
+                          <span className="font-mono text-sm sm:text-base font-bold text-stone-900 block leading-tight mt-0.5">
+                            {formatVND(totalCategoryRevenue)}
+                          </span>
+                          <span className="text-[10px] text-stone-500 block mt-0.5">
+                            {totalCategoryQuantity > 0 ? `${totalCategoryQuantity} bó hoa` : 'Chờ đơn hàng'}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  {/* Right: Segment List & Legend */}
+                  <div className="flex-1 w-full space-y-2">
+                    {categorySegments.map((seg, idx) => {
+                      const isHovered = hoveredCategoryIndex === idx;
+                      return (
+                        <div
+                          key={seg.id}
+                          onMouseEnter={() => setHoveredCategoryIndex(idx)}
+                          onMouseLeave={() => setHoveredCategoryIndex(null)}
+                          className={`p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-between text-xs ${
+                            isHovered
+                              ? 'bg-rose-50/70 border-rose-300 shadow-2xs scale-[1.01]'
+                              : 'bg-stone-50/70 hover:bg-stone-50 border-stone-200/70'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span
+                              className="w-3 h-3 rounded-full shrink-0 shadow-2xs transition-transform"
+                              style={{
+                                backgroundColor: seg.hex,
+                                transform: isHovered ? 'scale(1.2)' : 'scale(1)',
+                              }}
+                            />
+                            <div className="min-w-0">
+                              <span className="font-semibold text-stone-800 block truncate">
+                                {seg.name}
+                              </span>
+                              <span className="text-[10px] text-stone-500 block">
+                                {seg.priceRange} · {seg.quantity} bó
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="text-right shrink-0 pl-2">
+                            <span className="font-mono font-bold text-stone-900 block text-xs">
+                              {formatVND(seg.amount)}
+                            </span>
+                            <span className="text-[11px] font-bold text-rose-800">
+                              {seg.share}%
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* View 2: Horizontal Bars (Thanh Ngang) */}
+              {categoryChartView === 'bars' && (
+                <div className="space-y-3.5 pt-1">
+                  {categorySegments.map((seg, idx) => (
+                    <div key={idx} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: seg.hex }} />
+                          <span className="font-medium text-stone-700">{seg.name} ({seg.priceRange})</span>
+                        </div>
+                        <span className="font-mono text-stone-900 font-bold">
+                          {formatVND(seg.amount)} ({seg.share}%)
+                        </span>
+                      </div>
+                      <div className="w-full h-2.5 bg-stone-100 rounded-full overflow-hidden">
+                        <div
+                          style={{ width: `${seg.share}%` }}
+                          className={`h-full ${seg.color} rounded-full transition-all duration-700`}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Order Status Pipeline */}
