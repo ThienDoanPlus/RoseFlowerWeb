@@ -119,7 +119,7 @@ export const OrderTrackingModal: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                 <span className="font-bold flex items-center gap-1.5 text-xs sm:text-sm text-amber-950">
                   <Clock className="w-4 h-4 text-amber-700 shrink-0" />
-                  <span>Đang Chờ Admin Phê Duyệt VietQR</span>
+                  <span>Đang Chờ Admin Rose Phê Duyệt.</span>
                 </span>
                 <span className="font-mono font-bold text-sm sm:text-base text-rose-800 sm:text-right">
                   {formatVND(order.totalAmount)}
@@ -140,7 +140,7 @@ export const OrderTrackingModal: React.FC = () => {
                   className="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-semibold rounded-lg shadow-xs flex items-center justify-center gap-2 cursor-pointer mt-1 text-xs"
                 >
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Admin Phê Duyệt Đã Nhận Tiền</span>
+                  <span>Rose Admin Phê Duyệt Đã Nhận Tiền</span>
                 </button>
               )}
             </div>

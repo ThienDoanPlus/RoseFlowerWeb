@@ -40,7 +40,13 @@ export const CartDrawer: React.FC = () => {
     const found = VOUCHERS.find((v) => v.code === code);
     if (found) {
       dispatch({ type: 'APPLY_VOUCHER', payload: found });
-      const val = validateAndCalculateVoucher(found, subtotal, totalQuantity);
+      const val = validateAndCalculateVoucher(found, subtotal, totalQuantity, {
+        userId: state.user?.id,
+        email: state.user?.email || state.deliveryInfo.recipientEmail,
+        phone: state.user?.phone || state.deliveryInfo.recipientPhone,
+        usedVouchersHistory: state.usedVouchers,
+        currentYear: new Date().getFullYear(),
+      });
       if (val.isValid) {
         dispatch({
           type: 'SHOW_TOAST',

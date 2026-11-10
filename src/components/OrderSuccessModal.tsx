@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { CheckCircle, Mail, Navigation, X, QrCode, ArrowRight, Clock, ShieldCheck } from 'lucide-react';
+import { CheckCircle, Navigation, X, QrCode, ArrowRight, Clock, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useStore } from '../store';
 import { formatVND } from '../utils/calculations';
@@ -61,11 +61,11 @@ export const OrderSuccessModal: React.FC = () => {
             order.paymentStatus === 'PAID' ? 'text-emerald-700' : 'text-amber-700'
           }`}
         >
-          {order.paymentStatus === 'PAID' ? 'Đã Phê Duyệt Thanh Toán' : 'Đã Tiếp Nhận Đơn · Chờ Admin Phê Duyệt'}
+          {order.paymentStatus === 'PAID' ? 'Đã Phê Duyệt Thanh Toán' : 'Đã Tiếp Nhận Đơn · Chờ Rose Phê Duyệt nhé!!!'}
         </span>
 
         <h3 className="text-xl sm:text-2xl font-display font-medium text-rose-950 mb-2">
-          {order.paymentStatus === 'PAID' ? 'Cảm Ơn Bạn Đã Chọn Rose!' : 'Đơn Hoa Đang Chờ Admin Phê Duyệt'}
+          {order.paymentStatus === 'PAID' ? 'Cảm Ơn Bạn Đã Chọn Rose Flower!' : 'Đơn Hoa Đang Chờ Admin Rose Phê Duyệt.'}
         </h3>
 
         <p className="text-xs text-stone-600 mb-5 sm:mb-6 leading-relaxed">
@@ -161,19 +161,8 @@ export const OrderSuccessModal: React.FC = () => {
           <button
             onClick={() => {
               dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } });
-              dispatch({ type: 'SET_MODAL', payload: { modal: 'isGmailOpen', isOpen: true } });
             }}
-            className="w-full py-2.5 px-4 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <Mail className="w-4 h-4 text-rose-700 shrink-0" />
-            <span className="truncate">Xem email xác nhận ({order.deliveryInfo.recipientEmail})</span>
-          </button>
-
-          <button
-            onClick={() => {
-              dispatch({ type: 'SET_MODAL', payload: { modal: 'isOrderSuccessOpen', isOpen: false } });
-            }}
-            className="w-full py-2 px-4 text-stone-600 hover:text-stone-900 text-xs font-medium transition-colors cursor-pointer"
+            className="w-full py-2.5 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
           >
             Tiếp tục dạo xem hoa tươi
           </button>

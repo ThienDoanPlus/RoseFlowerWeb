@@ -3,7 +3,85 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CartItem, Review, Voucher } from '../types';
+import { CartItem, Review, Voucher, UsedVoucherRecord } from '../types';
+
+export interface VoucherValidationContext {
+  userId?: string;
+  email?: string;
+  phone?: string;
+  usedVouchersHistory?: UsedVoucherRecord[];
+  currentYear?: number;
+}
+
+/**
+ * Kiểm tra trạng thái sử dụng của mã voucher theo chính sách của tiệm:
+ * - ROSE10: 1 lần duy nhất vĩnh viễn trên mỗi khách hàng
+ * - Voucher lễ: 1 lần duy nhất trong năm dương lịch hiện tại, mở lại vào năm sau
+ */
+export function checkVoucherUsageStatus(
+  voucher: Voucher,
+  context?: VoucherValidationContext
+): {
+  isUsed: boolean;
+  reason?: string;
+  badgeText?: string;
+  reopenYear?: number;
+} {
+  if (!context?.usedVouchersHistory || context.usedVouchersHistory.length === 0) {
+    return { isUsed: false };
+  }
+
+  const codeUpper = voucher.code.toUpperCase();
+  const currentYear = context.currentYear || new Date().getFullYear();
+
+  const isCustomerMatch = (record: UsedVoucherRecord): boolean => {
+    if (context.userId && record.userId && context.userId === record.userId) return true;
+    if (
+      context.email &&
+      record.customerEmail &&
+      context.email.trim().toLowerCase() === record.customerEmail.trim().toLowerCase()
+    ) {
+      return true;
+    }
+    if (
+      context.phone &&
+      record.customerPhone &&
+      context.phone.trim().replace(/\s+/g, '') === record.customerPhone.trim().replace(/\s+/g, '')
+    ) {
+      return true;
+    }
+    if (!context.userId && !context.email && !context.phone) {
+      return true;
+    }
+    return false;
+  };
+
+  const matchingRecords = context.usedVouchersHistory.filter(
+    (r) => r.code.toUpperCase() === codeUpper && isCustomerMatch(r)
+  );
+
+  if (codeUpper === 'ROSE10' && matchingRecords.length > 0) {
+    return {
+      isUsed: true,
+      reason: 'Mã ROSE10 chỉ được dùng 1 lần duy nhất cho mỗi khách hàng.',
+      badgeText: 'Đã dùng (1 lần duy nhất)',
+    };
+  }
+
+  if (voucher.isHolidaySpecial) {
+    const usedThisYear = matchingRecords.some((r) => r.year === currentYear);
+    if (usedThisYear) {
+      return {
+        isUsed: true,
+        reason: `Mã ưu đãi lễ ${voucher.code} đã dùng trong năm ${currentYear}. Mở lại vào mùa lễ năm sau!`,
+        badgeText: `Đã dùng năm ${currentYear} · Mở lại ${currentYear + 1}`,
+        reopenYear: currentYear + 1,
+      };
+    }
+  }
+
+  return { isUsed: false };
+}
 
 /**
  * Định dạng số tiền sang chuẩn Việt Nam Đồng (VND)
@@ -77,11 +155,15 @@ export function calculateBulkDiscount(items: CartItem[], subtotal: number): {
 
 /**
  * Kiểm tra và áp dụng mã Voucher (khuyến mãi lễ, sự kiện, chào bạn mới)
+ * Hỗ trợ kiểm tra giới hạn sử dụng:
+ * - ROSE10: 1 lần duy nhất trong đời trên mỗi khách hàng
+ * - Voucher lễ: 1 lần duy nhất trong năm hiện tại, sang năm sau mới được dùng lại
  */
 export function validateAndCalculateVoucher(
   voucher: Voucher | null | undefined,
   subtotal: number,
-  totalQuantity: number
+  totalQuantity: number,
+  context?: VoucherValidationContext
 ): {
   isValid: boolean;
   discountAmount: number;
@@ -89,6 +171,18 @@ export function validateAndCalculateVoucher(
 } {
   if (!voucher) {
     return { isValid: false, discountAmount: 0, message: 'Chưa áp dụng voucher' };
+  }
+
+  // 1. Kiểm tra chính sách giới hạn số lần sử dụng voucher
+  if (context?.usedVouchersHistory && context.usedVouchersHistory.length > 0) {
+    const usage = checkVoucherUsageStatus(voucher, context);
+    if (usage.isUsed) {
+      return {
+        isValid: false,
+        discountAmount: 0,
+        message: usage.reason || 'Mã voucher này đã được sử dụng theo giới hạn chính sách.',
+      };
+    }
   }
 
   if (subtotal < voucher.minOrderValue) {

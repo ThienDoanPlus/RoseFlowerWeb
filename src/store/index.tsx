@@ -25,6 +25,7 @@ import {
   StaffTab,
   User,
   Voucher,
+  UsedVoucherRecord,
 } from '../types';
 import {
   calculateBulkDiscount,
@@ -63,6 +64,7 @@ export interface AppState {
   selectedBranch: BranchLocation;
   vouchers: Voucher[];
   activeVoucher: Voucher | null;
+  usedVouchers: UsedVoucherRecord[];
   greetingCardMessage: string;
   senderName: string;
   deliveryDate: string;
@@ -147,6 +149,7 @@ export type Action =
   | { type: 'UPDATE_USER_PROFILE'; payload: Partial<User> }
   | { type: 'UPDATE_USER_ROLE'; payload: { userId: string; role: Role } }
   | { type: 'ADD_USER'; payload: User }
+  | { type: 'RECORD_USED_VOUCHER'; payload: UsedVoucherRecord }
   | { type: 'CREATE_ORDER'; payload: Order }
   | { type: 'APPROVE_ORDER_PAYMENT'; payload: { orderId: string; adminName?: string } }
   | { type: 'UPDATE_ORDER_STATUS'; payload: { orderId: string; status: OrderStatus; floristNotes?: string; assignedStaffName?: string } }
@@ -167,10 +170,10 @@ const initialDeliveryInfo: DeliveryInfo = {
   recipientPhone: '',
   recipientEmail: '',
   address: '294 Phạm Văn Bạch',
-  district: 'Phường Tân Sơn',
+  district: 'Quận Tân Bình',
   city: 'TP. Hồ Chí Minh',
   branchId: BRANCHES[0].id,
-  distanceKm: 1.5,
+  distanceKm: 1.2,
   deliveryDate: new Date().toISOString().split('T')[0],
   deliveryTimeSlot: 'Giao hỏa tốc 45-60 phút',
   cardMessage: 'Chúc em mãi luôn xinh đẹp, rạng rỡ và hạnh phúc như đóa hoa sáp vĩnh cửu này!',
@@ -374,6 +377,18 @@ const loadStoredVoucher = (): Voucher | null => {
   return null;
 };
 
+const loadStoredUsedVouchers = (): UsedVoucherRecord[] => {
+  try {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('rose_used_vouchers');
+      if (saved) return JSON.parse(saved);
+    }
+  } catch {
+    // ignore
+  }
+  return [];
+};
+
 export const getFlowerIdFromCurrentUrl = (): string | null => {
   if (typeof window === 'undefined') return null;
   // 1. Path format: /san-pham/:id or /san-pham/:id/
@@ -427,6 +442,7 @@ const initialState: AppState = {
   selectedBranch: BRANCHES[0],
   vouchers: VOUCHERS,
   activeVoucher: loadStoredVoucher(),
+  usedVouchers: loadStoredUsedVouchers(),
   greetingCardMessage: 'Chúc em một tuổi mới ngập tràn niềm vui, luôn xinh đẹp và rạng rỡ như những đóa hoa sáp vĩnh cửu!',
   senderName: storedUser?.name || '',
   deliveryDate: new Date().toISOString().split('T')[0],
@@ -845,16 +861,59 @@ function appReducer(state: AppState, action: Action): AppState {
       };
     }
 
-    case 'CREATE_ORDER':
+    case 'RECORD_USED_VOUCHER': {
+      const updatedUsedVouchers = [action.payload, ...state.usedVouchers];
+      try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('rose_used_vouchers', JSON.stringify(updatedUsedVouchers));
+        }
+      } catch {
+        // ignore
+      }
       return {
         ...state,
-        orders: [action.payload, ...state.orders],
-        currentOrder: action.payload,
-        trackingOrderId: action.payload.id,
+        usedVouchers: updatedUsedVouchers,
+      };
+    }
+
+    case 'CREATE_ORDER': {
+      const newOrder = action.payload;
+      let updatedUsedVouchers = state.usedVouchers;
+
+      if (newOrder.voucherCode) {
+        const orderYear = new Date(newOrder.createdAt || Date.now()).getFullYear();
+        const usedRecord: UsedVoucherRecord = {
+          code: newOrder.voucherCode.trim().toUpperCase(),
+          usedAt: newOrder.createdAt || new Date().toISOString(),
+          year: orderYear,
+          orderId: newOrder.id,
+          userId: newOrder.userId || state.user?.id,
+          customerEmail: (newOrder.deliveryInfo?.recipientEmail || state.user?.email || '').trim().toLowerCase(),
+          customerPhone: (newOrder.deliveryInfo?.recipientPhone || state.user?.phone || '').trim(),
+        };
+        updatedUsedVouchers = [usedRecord, ...state.usedVouchers];
+        try {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('rose_used_vouchers', JSON.stringify(updatedUsedVouchers));
+            localStorage.removeItem('rose_active_voucher');
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      return {
+        ...state,
+        orders: [newOrder, ...state.orders],
+        currentOrder: newOrder,
+        trackingOrderId: newOrder.id,
         cart: [],
+        activeVoucher: null,
+        usedVouchers: updatedUsedVouchers,
         isCheckoutOpen: false,
         isOrderSuccessOpen: true,
       };
+    }
 
     case 'APPROVE_ORDER_PAYMENT': {
       const { orderId, adminName } = action.payload;
@@ -1254,7 +1313,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const subtotal = calculateCartSubtotal(state.cart);
   const totalQuantity = state.cart.reduce((s, i) => s + i.quantity, 0);
   const bulkDiscountInfo = calculateBulkDiscount(state.cart, subtotal);
-  const voucherValidation = validateAndCalculateVoucher(state.activeVoucher, subtotal, totalQuantity);
+  const voucherValidation = validateAndCalculateVoucher(state.activeVoucher, subtotal, totalQuantity, {
+    userId: state.user?.id,
+    email: state.user?.email || state.deliveryInfo.recipientEmail,
+    phone: state.user?.phone || state.deliveryInfo.recipientPhone,
+    usedVouchersHistory: state.usedVouchers,
+    currentYear: new Date().getFullYear(),
+  });
   const shippingFee = calculateShippingFee(state.deliveryInfo.distanceKm);
   const finalTotal = calculateOrderFinalTotal(
     subtotal,

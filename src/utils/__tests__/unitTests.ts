@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CartItem, Review, TestResult, Voucher, PushNotification, User, Order } from '../../types';
+import { CartItem, Review, TestResult, Voucher, PushNotification, User, Order, UsedVoucherRecord } from '../../types';
 import {
   calculateAverageRating,
   calculateBulkDiscount,
@@ -14,8 +14,10 @@ import {
   canAccessResource,
   formatVND,
   validateAndCalculateVoucher,
+  checkVoucherUsageStatus,
 } from '../calculations';
 import { filterRelevantNotifications } from '../../store';
+import { estimateDeliveryDistance } from '../distanceCalculator';
 
 // Real flower fixture for testing
 const mockFlower = {
@@ -369,6 +371,207 @@ export function runAllUnitTests(): {
       passed,
     };
   });
+
+  // TEST 13: Chính sách voucher ROSE10 - Chỉ được dùng 1 lần duy nhất trong đời trên mỗi khách hàng
+  test(
+    'testVoucherUsagePolicy_Rose10OnceEver',
+    'Khách hàng chỉ được sử dụng mã chào bạn mới ROSE10 đúng 1 lần duy nhất trong đời',
+    () => {
+      const rose10Voucher: Voucher = {
+        code: 'ROSE10',
+        title: 'Chào bạn mới',
+        description: 'Giảm 10% tối đa 100k',
+        discountType: 'PERCENT',
+        discountValue: 10,
+        minOrderValue: 300000,
+        maxDiscountAmount: 100000,
+        validUntil: '2026-12-31',
+      };
+
+      const customerContext = {
+        userId: 'usr-newbie',
+        email: 'newbie@gmail.com',
+        phone: '0908889999',
+        usedVouchersHistory: [] as UsedVoucherRecord[],
+        currentYear: 2026,
+      };
+
+      // Lần 1: Chưa dùng bao giờ -> Hợp lệ
+      const firstTry = validateAndCalculateVoucher(rose10Voucher, 500000, 1, customerContext);
+
+      // Giả lập sau khi đã đặt đơn xong, mã được lưu vào lịch sử
+      const usedHistory: UsedVoucherRecord[] = [
+        {
+          code: 'ROSE10',
+          usedAt: '2026-03-01T10:00:00Z',
+          year: 2026,
+          orderId: 'ROSE-111111',
+          userId: 'usr-newbie',
+          customerEmail: 'newbie@gmail.com',
+          customerPhone: '0908889999',
+        },
+      ];
+
+      // Lần 2: Cùng khách hàng này thử áp dụng lại ROSE10 -> Bị từ chối
+      const secondTry = validateAndCalculateVoucher(rose10Voucher, 600000, 1, {
+        ...customerContext,
+        usedVouchersHistory: usedHistory,
+      });
+
+      const passed =
+        firstTry.isValid === true &&
+        firstTry.discountAmount === 50000 &&
+        secondTry.isValid === false &&
+        secondTry.discountAmount === 0 &&
+        secondTry.message.includes('1 lần duy nhất');
+
+      return {
+        expected: { firstValid: true, secondValid: false },
+        actual: { firstValid: firstTry.isValid, secondValid: secondTry.isValid },
+        passed,
+      };
+    }
+  );
+
+  // TEST 14: Chính sách voucher lễ - Dùng tối đa 1 lần trong năm, mở lại vào năm sau
+  test(
+    'testVoucherUsagePolicy_HolidayOncePerYear',
+    'Voucher lễ chỉ dùng được duy nhất trong năm đó, sang năm sau mới được dùng lại',
+    () => {
+      const holidayVoucher: Voucher = {
+        code: 'WOMENSDAY',
+        title: 'Mừng Quốc Tế Phụ Nữ 8/3',
+        description: 'Giảm 20% tối đa 200k',
+        discountType: 'PERCENT',
+        discountValue: 20,
+        minOrderValue: 500000,
+        maxDiscountAmount: 200000,
+        isHolidaySpecial: true,
+        validUntil: '2026-12-31',
+      };
+
+      // Lịch sử: khách đã dùng WOMENSDAY trong năm 2026
+      const usedIn2026History: UsedVoucherRecord[] = [
+        {
+          code: 'WOMENSDAY',
+          usedAt: '2026-03-08T09:00:00Z',
+          year: 2026,
+          orderId: 'ROSE-888333',
+          userId: 'usr-holiday-lover',
+          customerEmail: 'holiday@gmail.com',
+          customerPhone: '0912999888',
+        },
+      ];
+
+      // Cùng năm 2026 -> Bị từ chối, báo đợi sang năm sau
+      const retrySameYear = validateAndCalculateVoucher(holidayVoucher, 800000, 1, {
+        userId: 'usr-holiday-lover',
+        email: 'holiday@gmail.com',
+        phone: '0912999888',
+        usedVouchersHistory: usedIn2026History,
+        currentYear: 2026,
+      });
+
+      // Sang năm sau (2027) -> Tự động mở lại và hợp lệ!
+      const retryNextYear = validateAndCalculateVoucher(holidayVoucher, 800000, 1, {
+        userId: 'usr-holiday-lover',
+        email: 'holiday@gmail.com',
+        phone: '0912999888',
+        usedVouchersHistory: usedIn2026History,
+        currentYear: 2027,
+      });
+
+      const passed =
+        retrySameYear.isValid === false &&
+        retrySameYear.discountAmount === 0 &&
+        retrySameYear.message.includes('năm sau') &&
+        retryNextYear.isValid === true &&
+        retryNextYear.discountAmount === 160000;
+
+      return {
+        expected: { retrySameYearValid: false, retryNextYearValid: true },
+        actual: { retrySameYearValid: retrySameYear.isValid, retryNextYearValid: retryNextYear.isValid },
+        passed,
+      };
+    }
+  );
+
+  // TEST 15: Thuật toán tính khoảng cách và cước vận chuyển theo địa chỉ giao hàng
+  test(
+    'testDynamicDistanceAndShippingFeeCalculation',
+    'Tính cước vận chuyển thông minh theo địa chỉ/quận huyện, ngăn chặn thất thoát freeship sai quy định',
+    () => {
+      // 1. Quanh tiệm hoa (Phạm Văn Bạch, Cống Lở < 3km) -> Freeship 0₫
+      const nearStore = estimateDeliveryDistance({
+        address: '294 Phạm Văn Bạch, Phường Tân Sơn',
+        district: 'Quận Tân Bình',
+        city: 'TP. Hồ Chí Minh',
+      });
+
+      const congLoStreet = estimateDeliveryDistance({
+        address: '15 Đường Cống Lở, Phường 15',
+        district: 'Quận Tân Bình',
+        city: 'TP. Hồ Chí Minh',
+      });
+
+      // 2. Nội thành trung bình (Phú Nhuận 3 - 10km) -> 25.000₫
+      const phuNhuan = estimateDeliveryDistance({
+        address: '88 Phan Xích Long',
+        district: 'Quận Phú Nhuận',
+        city: 'TP. Hồ Chí Minh',
+      });
+
+      // 3. Trung tâm Quận 1 (10 - 20km) -> 45.000₫
+      const quan1 = estimateDeliveryDistance({
+        address: 'Tòa nhà Bitexco, Bến Nghé',
+        district: 'Quận 1',
+        city: 'TP. Hồ Chí Minh',
+      });
+
+      // 4. Ngoại thành xa (Củ Chi > 20km) -> 70.000₫
+      const cuChi = estimateDeliveryDistance({
+        address: 'Thị trấn Củ Chi',
+        district: 'Huyện Củ Chi',
+        city: 'TP. Hồ Chí Minh',
+      });
+
+      // 5. Liên tỉnh (Hà Nội > 20km) -> 70.000₫
+      const haNoi = estimateDeliveryDistance({
+        address: '18 Tràng Tiền, Hoàn Kiếm',
+        city: 'Hà Nội',
+      });
+
+      const passed =
+        nearStore.shippingFee === 0 &&
+        nearStore.isFreeship === true &&
+        congLoStreet.shippingFee === 0 &&
+        congLoStreet.isFreeship === true &&
+        phuNhuan.shippingFee === 25000 &&
+        quan1.shippingFee === 45000 &&
+        cuChi.shippingFee === 70000 &&
+        haNoi.shippingFee === 70000;
+
+      return {
+        expected: {
+          nearStoreFee: 0,
+          congLoFee: 0,
+          phuNhuanFee: 25000,
+          quan1Fee: 45000,
+          cuChiFee: 70000,
+          haNoiFee: 70000,
+        },
+        actual: {
+          nearStoreFee: nearStore.shippingFee,
+          congLoFee: congLoStreet.shippingFee,
+          phuNhuanFee: phuNhuan.shippingFee,
+          quan1Fee: quan1.shippingFee,
+          cuChiFee: cuChi.shippingFee,
+          haNoiFee: haNoi.shippingFee,
+        },
+        passed,
+      };
+    }
+  );
 
   const totalDurationMs = Number((performance.now() - startTime).toFixed(2));
   const passedCount = results.filter((r) => r.passed).length;

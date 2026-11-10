@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   X,
   CreditCard,
@@ -21,12 +21,15 @@ import {
   Check,
   Maximize2,
   Download,
+  MapPin,
+  Navigation,
 } from 'lucide-react';
 import { useStore } from '../store';
 import { PaymentMethod, Order } from '../types';
 import { BRANCHES, VOUCHERS } from '../data/mockData';
-import { formatVND } from '../utils/calculations';
+import { formatVND, calculateOrderFinalTotal } from '../utils/calculations';
 import { generateVietQRPayload, simulatePaymentVerification, BANK_INFO } from '../services/paymentService';
+import { estimateDeliveryDistance, TPHCM_DISTRICTS } from '../utils/distanceCalculator';
 
 export const CheckoutModal: React.FC = () => {
   const { state, dispatch, subtotal, totalQuantity, bulkDiscountInfo, voucherValidation, shippingFee, finalTotal } = useStore();
@@ -65,6 +68,31 @@ export const CheckoutModal: React.FC = () => {
 
   const currentBranch = state.selectedBranch;
 
+  // Tính toán khoảng cách thực tế và cước vận chuyển dựa trên thuật toán địa lý / Google Maps
+  const distanceEstimate = useMemo(() => {
+    return estimateDeliveryDistance({
+      address,
+      district,
+      city,
+      branchId: currentBranch.id,
+    });
+  }, [address, district, city, currentBranch.id]);
+
+  // Đồng bộ khoảng cách vào store ngay lập tức để cập nhật giỏ hàng và cước phí toàn cục
+  useEffect(() => {
+    if (state.isCheckoutOpen && distanceEstimate.distanceKm !== state.deliveryInfo.distanceKm) {
+      dispatch({
+        type: 'UPDATE_DELIVERY_INFO',
+        payload: {
+          distanceKm: distanceEstimate.distanceKm,
+          address,
+          district,
+          city,
+        },
+      });
+    }
+  }, [state.isCheckoutOpen, distanceEstimate.distanceKm, address, district, city, state.deliveryInfo.distanceKm, dispatch]);
+
   const handleProceedToPayment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!recipientName.trim() || !recipientPhone.trim() || !address.trim()) {
@@ -74,7 +102,7 @@ export const CheckoutModal: React.FC = () => {
       });
       return;
     }
-    // Update delivery info in store
+    // Update delivery info in store với khoảng cách chính xác
     dispatch({
       type: 'UPDATE_DELIVERY_INFO',
       payload: {
@@ -84,6 +112,7 @@ export const CheckoutModal: React.FC = () => {
         address,
         district,
         city,
+        distanceKm: distanceEstimate.distanceKm,
         deliveryDate,
         deliveryTimeSlot,
         cardMessage,
@@ -98,6 +127,13 @@ export const CheckoutModal: React.FC = () => {
 
     const orderId = `ROSE-${Date.now().toString().slice(-6)}`;
     const effectiveDiscount = Math.max(voucherValidation.discountAmount, bulkDiscountInfo.bulkDiscount);
+    const finalShippingFee = distanceEstimate.shippingFee;
+    const computedFinalTotal = calculateOrderFinalTotal(
+      subtotal,
+      voucherValidation.discountAmount,
+      bulkDiscountInfo.bulkDiscount,
+      finalShippingFee
+    );
 
     const newOrder: Order = {
       id: orderId,
@@ -110,7 +146,7 @@ export const CheckoutModal: React.FC = () => {
         district,
         city,
         branchId: currentBranch.id,
-        distanceKm: state.deliveryInfo.distanceKm,
+        distanceKm: distanceEstimate.distanceKm,
         deliveryDate,
         deliveryTimeSlot,
         cardMessage,
@@ -119,8 +155,8 @@ export const CheckoutModal: React.FC = () => {
       subtotal,
       discountAmount: voucherValidation.discountAmount,
       bulkDiscountAmount: bulkDiscountInfo.bulkDiscount,
-      shippingFee,
-      totalAmount: finalTotal,
+      shippingFee: finalShippingFee,
+      totalAmount: computedFinalTotal,
       voucherCode: state.activeVoucher?.code,
       paymentMethod: 'VIETQR',
       paymentStatus: 'UNPAID',
@@ -178,7 +214,7 @@ export const CheckoutModal: React.FC = () => {
       payload: {
         id: `mail-${Date.now()}`,
         to: recipientEmail || state.user?.email || 'customer@example.com',
-        subject: `[Rose] Tiếp nhận đơn #${orderId} - Chờ Admin phê duyệt chuyển khoản VietQR`,
+        subject: `[Rose] Tiếp nhận đơn #${orderId} - Chờ Rose phê duyệt nhé!!!`,
         date: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         orderId,
         totalAmount: finalTotal,
@@ -234,7 +270,7 @@ export const CheckoutModal: React.FC = () => {
             <Lock className="w-4 h-4 text-emerald-700 shrink-0" />
             <h3 className="font-display font-medium text-base sm:text-lg text-stone-900 truncate">
               <span className="sm:hidden">Đặt Hoa & Thanh Toán</span>
-              <span className="hidden sm:inline">Đặt Hoa & Thanh Toán Bảo Mật SSL 256-bit</span>
+              <span className="hidden sm:inline">Đặt Hoa & Thanh Toán</span>
             </h3>
           </div>
           <button
@@ -333,42 +369,77 @@ export const CheckoutModal: React.FC = () => {
 
               {/* Delivery Address & Distance */}
               <div>
-                <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider mb-3">
-                  2. Địa chỉ & Thời gian giao hoa
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                    2. Địa chỉ & Cước vận chuyển giao hoa
+                  </h4>
+                  <span className="text-[11px] text-stone-500 flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-rose-600" />
+                    <span>Xuất phát từ 294 Phạm Văn Bạch, Tân Bình</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-3">
                   <div className="sm:col-span-3">
-                    <label className="block text-xs text-stone-600 mb-1 font-medium">Địa chỉ chi tiết (Số nhà, tên đường, tòa nhà) *</label>
+                    <label className="block text-xs text-stone-600 mb-1 font-medium">
+                      Địa chỉ chi tiết (Số nhà, tên đường, phường/tòa nhà) *
+                    </label>
                     <input
                       type="text"
                       required
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
-                      placeholder="18 Tràng Tiền, Phường Tràng Tiền"
+                      placeholder="Ví dụ: 120 Đường Lê Văn Sỹ, Phường 10 (hoặc 294 Phạm Văn Bạch)"
                       className="w-full text-xs p-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-stone-600 mb-1 font-medium">Quận / Huyện</label>
-                    <input
-                      type="text"
-                      value={district}
-                      onChange={(e) => setDistrict(e.target.value)}
-                      className="w-full text-xs p-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900"
-                    />
+                    <label className="block text-xs text-stone-600 mb-1 font-medium">Tỉnh / Thành phố *</label>
+                    <select
+                      value={city}
+                      onChange={(e) => {
+                        const newCity = e.target.value;
+                        setCity(newCity);
+                        if (newCity === 'TP. Hồ Chí Minh' && !district) {
+                          setDistrict('Quận Tân Bình');
+                        }
+                      }}
+                      className="w-full text-xs p-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 font-medium"
+                    >
+                      <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh (Cửa hàng chính)</option>
+                      <option value="Hà Nội">Hà Nội (Giao hỏa tốc liên tỉnh)</option>
+                      <option value="Bình Dương">Bình Dương</option>
+                      <option value="Đồng Nai">Đồng Nai</option>
+                      <option value="Long An">Long An</option>
+                      <option value="Tỉnh khác">Tỉnh / Thành khác</option>
+                    </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs text-stone-600 mb-1 font-medium">Tỉnh / Thành phố</label>
-                    <select
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-full text-xs p-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900"
-                    >
-                      <option value="Hà Nội">Hà Nội</option>
-                      <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                    </select>
+                    <label className="block text-xs text-stone-600 mb-1 font-medium">Quận / Huyện *</label>
+                    {city === 'TP. Hồ Chí Minh' ? (
+                      <select
+                        value={district}
+                        onChange={(e) => setDistrict(e.target.value)}
+                        className="w-full text-xs p-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 font-medium"
+                      >
+                        <option value="">-- Chọn Quận / Huyện TP.HCM --</option>
+                        {TPHCM_DISTRICTS.map((d) => (
+                          <option key={d.name} value={d.name}>
+                            {d.name} {d.baseDistanceKm <= 3 ? '⚡ (Gần tiệm hoa)' : `(~${d.baseDistanceKm}km)`}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        value={district}
+                        onChange={(e) => setDistrict(e.target.value)}
+                        placeholder="Nhập tên Quận / Huyện"
+                        className="w-full text-xs p-2.5 bg-stone-50 border border-stone-300 rounded-lg text-stone-900 font-medium"
+                      />
+                    )}
                   </div>
 
                   <div>
@@ -388,7 +459,71 @@ export const CheckoutModal: React.FC = () => {
                       ))}
                     </select>
                   </div>
+                </div>
 
+                {/* Real-time Distance & Dynamic Shipping Fee Calculation Card */}
+                <div
+                  className={`p-3.5 rounded-xl border transition-all mb-4 ${
+                    distanceEstimate.isFreeship
+                      ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950'
+                      : 'bg-rose-50/40 border-rose-200 text-stone-900'
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div className="flex items-start gap-2.5">
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                          distanceEstimate.isFreeship ? 'bg-emerald-200 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                        }`}
+                      >
+                        <Truck className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-stone-900">
+                            Khoảng cách giao: {distanceEstimate.distanceKm} km
+                          </span>
+                          <span className="text-[11px] text-stone-500 font-normal">
+                            · Dự kiến giao trong {distanceEstimate.estimatedDurationMinutes} phút
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-stone-600 mt-0.5">
+                          {distanceEstimate.tierDescription} (tính từ 294 Phạm Văn Bạch)
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-left sm:text-right sm:border-l sm:border-stone-200/80 sm:pl-4 shrink-0">
+                      <span className="text-[10px] text-stone-500 uppercase tracking-wider block font-semibold">
+                        Cước vận chuyển
+                      </span>
+                      <div className="text-sm font-bold font-mono">
+                        {distanceEstimate.isFreeship ? (
+                          <span className="text-emerald-700 bg-emerald-100/90 px-2 py-0.5 rounded-md inline-block">
+                            0 ₫ (Miễn phí Freeship)
+                          </span>
+                        ) : (
+                          <span className="text-rose-900">
+                            {formatVND(distanceEstimate.shippingFee)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-2.5 pt-2 border-t border-stone-200/60 text-[10px] text-stone-500 flex items-center justify-between flex-wrap gap-1">
+                    <span>
+                      Chính sách cước: &lt;3km: 0₫ (Freeship) · 3-10km: 25.000₫ · 10-20km: 45.000₫ · &gt;20km: 70.000₫
+                    </span>
+                    {distanceEstimate.isFreeship ? (
+                      <span className="font-semibold text-emerald-700">✓ Đạt chuẩn Freeship tiệm hoa</span>
+                    ) : (
+                      <span className="text-stone-500">Thu theo khoảng cách thực tế</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                   <div>
                     <label className="block text-xs text-stone-600 mb-1 font-medium">Ngày giao hoa</label>
                     <input

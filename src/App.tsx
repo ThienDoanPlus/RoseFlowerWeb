@@ -19,7 +19,6 @@ import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderSuccessModal } from './components/OrderSuccessModal';
 import { OrderTrackingModal } from './components/OrderTrackingModal';
-import { GmailModal } from './components/GmailModal';
 import { AuthModal } from './components/AuthModal';
 import { AccountSettingsModal } from './components/AccountSettingsModal';
 import { ZaloChatWidget } from './components/ZaloChatWidget';
@@ -143,7 +142,6 @@ function AppContent() {
       <CheckoutModal />
       <OrderSuccessModal />
       <OrderTrackingModal />
-      <GmailModal />
       <AuthModal />
       <AccountSettingsModal />
       <ZaloChatWidget />

@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { Tag, Check, Copy, Gift, Sparkles, Percent, Share2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Tag, Check, Copy, Gift, Sparkles, Percent, Share2, AlertCircle, CheckCircle2, Lock, Clock } from 'lucide-react';
 import { useStore } from '../store';
 import { VOUCHERS } from '../data/mockData';
-import { formatVND } from '../utils/calculations';
+import { formatVND, checkVoucherUsageStatus } from '../utils/calculations';
 import { Voucher } from '../types';
 
 export const VoucherSection: React.FC = () => {
@@ -27,6 +27,18 @@ export const VoucherSection: React.FC = () => {
     }
   };
   const sharedUrlVoucher = getUrlVoucherCode();
+
+  // Ngữ cảnh kiểm tra số lần sử dụng voucher của khách hàng
+  const voucherUsageContext = useMemo(
+    () => ({
+      userId: state.user?.id,
+      email: state.user?.email || state.deliveryInfo.recipientEmail,
+      phone: state.user?.phone || state.deliveryInfo.recipientPhone,
+      usedVouchersHistory: state.usedVouchers,
+      currentYear: new Date().getFullYear(),
+    }),
+    [state.user, state.deliveryInfo, state.usedVouchers]
+  );
 
   // Tự động điều hướng và cuộn chính xác đến thẻ mã ưu đãi đó
   useEffect(() => {
@@ -122,6 +134,19 @@ export const VoucherSection: React.FC = () => {
 
   // 3. Áp dụng trực tiếp mã voucher
   const handleApplyVoucher = (voucher: Voucher) => {
+    // Kiểm tra chính sách giới hạn số lần sử dụng
+    const usageStatus = checkVoucherUsageStatus(voucher, voucherUsageContext);
+    if (usageStatus.isUsed) {
+      dispatch({
+        type: 'SHOW_TOAST',
+        payload: {
+          message: usageStatus.reason || 'Mã ưu đãi này đã được sử dụng theo chính sách của tiệm.',
+          type: 'warning',
+        },
+      });
+      return;
+    }
+
     dispatch({ type: 'APPLY_VOUCHER', payload: voucher });
 
     const isMinOrderMet = subtotal >= voucher.minOrderValue;
@@ -179,7 +204,9 @@ export const VoucherSection: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {VOUCHERS.map((voucher) => {
-            const isApplied = currentCode === voucher.code;
+            const usageStatus = checkVoucherUsageStatus(voucher, voucherUsageContext);
+            const isUsed = usageStatus.isUsed;
+            const isApplied = currentCode === voucher.code && !isUsed;
             const isMinOrderMet = subtotal >= voucher.minOrderValue;
             const isMinQtyMet = !voucher.minQuantity || totalQuantity >= voucher.minQuantity;
             const isFullyEligible = isMinOrderMet && isMinQtyMet;
@@ -192,6 +219,8 @@ export const VoucherSection: React.FC = () => {
                 className={`scroll-mt-28 bg-white rounded-2xl p-5 border transition-all flex flex-col justify-between relative group overflow-hidden ${
                   isSharedTarget
                     ? 'ring-4 ring-rose-500 shadow-2xl border-rose-500 scale-[1.02] bg-rose-50/20'
+                    : isUsed
+                    ? 'border-stone-200 bg-stone-50/60'
                     : isApplied
                     ? isFullyEligible
                       ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
@@ -245,7 +274,12 @@ export const VoucherSection: React.FC = () => {
 
                   {/* Condition status badge */}
                   <div className="mb-4">
-                    {isApplied ? (
+                    {isUsed ? (
+                      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-rose-800 bg-rose-50 px-2.5 py-1.5 rounded-lg border border-rose-200">
+                        <Lock className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                        <span>{usageStatus.reason || usageStatus.badgeText}</span>
+                      </div>
+                    ) : isApplied ? (
                       isFullyEligible ? (
                         <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -335,29 +369,40 @@ export const VoucherSection: React.FC = () => {
                   </div>
 
                   {/* Bottom row: Direct Apply Action */}
-                  <button
-                    type="button"
-                    onClick={() => handleApplyVoucher(voucher)}
-                    className={`w-full py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs whitespace-nowrap active:scale-98 ${
-                      isApplied
-                        ? isFullyEligible
-                          ? 'bg-emerald-700 hover:bg-emerald-800 text-white'
-                          : 'bg-amber-600 hover:bg-amber-700 text-white'
-                        : 'bg-stone-900 hover:bg-stone-800 text-white'
-                    }`}
-                  >
-                    {isApplied ? (
-                      <>
-                        <Check className="w-3.5 h-3.5" />
-                        <span>{isFullyEligible ? 'Đã kích hoạt vào giỏ hàng' : 'Đã chọn mã (Chờ đủ điều kiện)'}</span>
-                      </>
-                    ) : (
-                      <>
-                        <Tag className="w-3.5 h-3.5" />
-                        <span>Áp dụng ngay vào giỏ hàng</span>
-                      </>
-                    )}
-                  </button>
+                  {isUsed ? (
+                    <button
+                      type="button"
+                      disabled
+                      className="w-full py-2 px-3 rounded-lg text-xs font-semibold bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed flex items-center justify-center gap-1.5 shadow-2xs whitespace-nowrap"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-stone-400" />
+                      <span>{usageStatus.badgeText || 'Đã sử dụng'}</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleApplyVoucher(voucher)}
+                      className={`w-full py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs whitespace-nowrap active:scale-98 ${
+                        isApplied
+                          ? isFullyEligible
+                            ? 'bg-emerald-700 hover:bg-emerald-800 text-white'
+                            : 'bg-amber-600 hover:bg-amber-700 text-white'
+                          : 'bg-stone-900 hover:bg-stone-800 text-white'
+                      }`}
+                    >
+                      {isApplied ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>{isFullyEligible ? 'Đã kích hoạt vào giỏ hàng' : 'Đã chọn mã (Chờ đủ điều kiện)'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Tag className="w-3.5 h-3.5" />
+                          <span>Áp dụng ngay vào giỏ hàng</span>
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
             );

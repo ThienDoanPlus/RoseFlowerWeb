@@ -75,6 +75,16 @@ export interface Voucher {
   validUntil: string;
 }
 
+export interface UsedVoucherRecord {
+  code: string;
+  usedAt: string;
+  year: number;
+  orderId: string;
+  userId?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+}
+
 export interface BranchLocation {
   id: string;
   name: string;
