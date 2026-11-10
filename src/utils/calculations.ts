@@ -11,10 +11,11 @@ import { CartItem, Review, Voucher } from '../types';
  */
 export function formatVND(amount: number): string {
   if (isNaN(amount) || amount === null || amount === undefined) {
-    return '0 ₫';
+    return '0\u00A0₫';
   }
   const formatted = Math.round(amount).toLocaleString('vi-VN');
-  return `${formatted} ₫`;
+  // Sử dụng khoảng trắng không ngắt dòng (\u00A0) để đảm bảo ký hiệu ₫ không bao giờ bị rớt dòng
+  return `${formatted}\u00A0₫`;
 }
 
 /**

@@ -310,11 +310,11 @@ export const FlowerDetailModal: React.FC = () => {
                         }`}
                       >
                         <div className="w-full">
-                          <div className="mb-1.5">
+                          <div className="flex items-center justify-between sm:flex-col sm:items-start mb-1.5 gap-1">
                             <div className={`text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap leading-snug ${isSelected ? 'text-white' : 'text-stone-900'}`}>
                               {label}
                             </div>
-                            <div className={`text-xs sm:text-sm font-mono font-bold whitespace-nowrap leading-snug mt-0.5 ${isSelected ? 'text-rose-300' : 'text-rose-900'}`}>
+                            <div className={`text-xs sm:text-sm font-mono font-bold whitespace-nowrap leading-snug sm:mt-0.5 shrink-0 ${isSelected ? 'text-rose-300' : 'text-rose-900'}`}>
                               {formatVND(variantPrice)}
                             </div>
                           </div>

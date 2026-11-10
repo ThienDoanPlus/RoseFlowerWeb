@@ -79,8 +79,9 @@ export function runAllUnitTests(): {
   test('testFormatVND', 'Định dạng 850.000 ₫ chuẩn phân cách hàng nghìn tiếng Việt', () => {
     const actual1 = formatVND(850000);
     const actual0 = formatVND(0);
-    const passed = actual1 === '850.000 ₫' && actual0 === '0 ₫';
-    return { expected: '850.000 ₫', actual: actual1, passed };
+    const passed = (actual1 === '850.000\u00A0₫' || actual1.replace(/\u00A0/g, ' ') === '850.000 ₫') &&
+                   (actual0 === '0\u00A0₫' || actual0.replace(/\u00A0/g, ' ') === '0 ₫');
+    return { expected: '850.000 ₫', actual: actual1.replace(/\u00A0/g, ' '), passed };
   });
 
   // TEST 2: calculateCartSubtotal

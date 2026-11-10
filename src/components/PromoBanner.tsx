@@ -23,7 +23,7 @@ export const PromoBanner: React.FC = () => {
             <span className="hidden sm:inline">Rose (294 Phạm Văn Bạch, TP.HCM):</span>
           </span>
           <span className="text-rose-200">
-            Mã <strong className="text-white bg-rose-900 px-1.5 py-0.5 rounded font-mono">ROSE10</strong> giảm 10%
+            Mã <strong className="shine-auto relative inline-block text-white bg-rose-900 px-2 py-0.5 rounded-md font-mono border border-rose-700/60 shadow-2xs">ROSE10</strong> giảm 10%
             <span className="hidden md:inline"> · Hoa sáp thơm lưu hương 3-5 năm · Giao hỏa tốc 45 phút</span>
           </span>
           <button

@@ -26,9 +26,10 @@ export const CraftSection: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8">
           
-          <div className="bg-white p-5 sm:p-7 sm:p-8 rounded-2xl border border-rose-200/90 shadow-xs flex flex-col justify-between">
+          <div className="glossy-card glossy-shine-sweep p-5 sm:p-7 sm:p-8 rounded-2xl border border-rose-200/90 shadow-sm flex flex-col justify-between group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none z-10" />
             <div>
-              <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-800 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-800 mb-6 group-hover:scale-110 transition-transform">
                 <Droplets className="w-6 h-6 text-rose-600" />
               </div>
               <h3 className="font-display font-medium text-lg sm:text-xl text-stone-900 mb-2 sm:mb-3">
@@ -41,9 +42,10 @@ export const CraftSection: React.FC = () => {
             <span className="text-xs font-mono text-rose-400">01 / REALISTIC TOUCH</span>
           </div>
 
-          <div className="bg-white p-5 sm:p-7 sm:p-8 rounded-2xl border border-rose-200/90 shadow-xs flex flex-col justify-between">
+          <div className="glossy-card glossy-shine-sweep p-5 sm:p-7 sm:p-8 rounded-2xl border border-rose-200/90 shadow-sm flex flex-col justify-between group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none z-10" />
             <div>
-              <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-amber-800 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-800 mb-6 group-hover:scale-110 transition-transform">
                 <Feather className="w-6 h-6 text-amber-600" />
               </div>
               <h3 className="font-display font-medium text-lg sm:text-xl text-stone-900 mb-2 sm:mb-3">
@@ -53,12 +55,13 @@ export const CraftSection: React.FC = () => {
                 Được ướp tinh dầu hoa hồng thiên nhiên dịu ngọt, an toàn cho sức khỏe. Đặt trong phòng ngủ hay bàn làm việc giúp không gian luôn thơm mát thư thái.
               </p>
             </div>
-            <span className="text-xs font-mono text-rose-400">02 / LONG-LASTING AROMA</span>
+            <span className="text-xs font-mono text-amber-500">02 / LONG-LASTING AROMA</span>
           </div>
 
-          <div className="bg-white p-5 sm:p-7 sm:p-8 rounded-2xl border border-rose-200/90 shadow-xs flex flex-col justify-between">
+          <div className="glossy-card glossy-shine-sweep p-5 sm:p-7 sm:p-8 rounded-2xl border border-rose-200/90 shadow-sm flex flex-col justify-between group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent pointer-events-none z-10" />
             <div>
-              <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-emerald-800 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-emerald-800 mb-6 group-hover:scale-110 transition-transform">
                 <Clock className="w-6 h-6 text-emerald-600" />
               </div>
               <h3 className="font-display font-medium text-lg sm:text-xl text-stone-900 mb-2 sm:mb-3">
@@ -68,7 +71,7 @@ export const CraftSection: React.FC = () => {
                 Từng bó hoa được nghệ nhân phối giấy lụa Hàn Quốc cao cấp, xếp ly bồng bềnh và thắt nơ satin sang trọng. Tặng kèm thiệp viết tay nắn nót và túi quà trong suốt.
               </p>
             </div>
-            <span className="text-xs font-mono text-rose-400">03 / ATELIER CRAFT</span>
+            <span className="text-xs font-mono text-emerald-600">03 / ATELIER CRAFT</span>
           </div>
 
         </div>

@@ -189,16 +189,23 @@ export const VoucherSection: React.FC = () => {
               <div
                 id={`voucher-${voucher.code.toUpperCase()}`}
                 key={voucher.code}
-                className={`scroll-mt-28 bg-white rounded-2xl p-5 border transition-all flex flex-col justify-between relative ${
+                className={`scroll-mt-28 bg-white rounded-2xl p-5 border transition-all flex flex-col justify-between relative group overflow-hidden ${
                   isSharedTarget
                     ? 'ring-4 ring-rose-500 shadow-2xl border-rose-500 scale-[1.02] bg-rose-50/20'
                     : isApplied
                     ? isFullyEligible
                       ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
                       : 'border-amber-400 ring-2 ring-amber-400/20 shadow-md'
-                    : 'border-stone-200 hover:border-stone-300 hover:shadow-sm'
+                    : 'border-stone-200 hover:border-rose-300 hover:shadow-md'
                 }`}
               >
+                {/* Top Specular Reflection Highlight */}
+                <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-rose-300/80 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-10" />
+
+                {/* Glossy Specular Light Reflection Sweep on Hover */}
+                <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+                  <div className="absolute -top-[100%] -left-[100%] w-[300%] h-[300%] bg-gradient-to-r from-transparent via-white/50 to-transparent -rotate-45 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out opacity-0 group-hover:opacity-100" />
+                </div>
                 <div>
                   {/* Glowing banner for shared voucher */}
                   {isSharedTarget && (

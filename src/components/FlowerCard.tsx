@@ -27,12 +27,20 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Top Specular Edge Light on Hover */}
+      <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-rose-300/80 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20" />
+
       {/* Product Image Container: Click vào ảnh mở Popup Modal xem nhanh */}
       <div
         className="relative aspect-[4/3] w-full overflow-hidden bg-stone-100 cursor-pointer block"
         onClick={() => dispatch({ type: 'SELECT_FLOWER', payload: flower })}
         title="Nhấn để xem nhanh thông tin hoa"
       >
+        {/* Glossy Specular Shine Sweep on Hover */}
+        <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+          <div className="absolute -top-[100%] -left-[100%] w-[300%] h-[300%] bg-gradient-to-r from-transparent via-white/35 to-transparent -rotate-45 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out opacity-0 group-hover:opacity-100" />
+        </div>
+
         {!imageError ? (
           <img
             src={flower.imageUrl}
