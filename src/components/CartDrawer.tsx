@@ -18,13 +18,26 @@ export const CartDrawer: React.FC = () => {
   const handleApplyCustomVoucher = (e: React.FormEvent) => {
     e.preventDefault();
     const code = voucherInput.trim().toUpperCase();
+    if (!code) return;
+
     const found = VOUCHERS.find((v) => v.code === code);
     if (found) {
       dispatch({ type: 'APPLY_VOUCHER', payload: found });
-      dispatch({ type: 'SHOW_TOAST', payload: { message: `Đã áp dụng mã ${found.code}`, type: 'success' } });
+      const val = validateAndCalculateVoucher(found, subtotal, totalQuantity);
+      if (val.isValid) {
+        dispatch({
+          type: 'SHOW_TOAST',
+          payload: { message: `Đã áp dụng mã ${found.code}: giảm ${formatVND(val.discountAmount)}`, type: 'success' },
+        });
+      } else {
+        dispatch({
+          type: 'SHOW_TOAST',
+          payload: { message: `Đã lưu mã ${found.code}. ${val.message}`, type: 'warning' },
+        });
+      }
       setVoucherInput('');
     } else {
-      dispatch({ type: 'SHOW_TOAST', payload: { message: `Mã "${code}" không hợp lệ`, type: 'error' } });
+      dispatch({ type: 'SHOW_TOAST', payload: { message: `Mã ưu đãi "${code}" không tồn tại`, type: 'error' } });
     }
   };
 
@@ -182,14 +195,20 @@ export const CartDrawer: React.FC = () => {
 
             {/* Active Voucher Tag */}
             {state.activeVoucher && (
-              <div className="flex items-center justify-between text-xs bg-rose-50 text-rose-800 p-2 rounded-md border border-rose-200">
-                <span className="flex items-center gap-1.5 font-medium truncate">
-                  <Tag className="w-3.5 h-3.5 shrink-0" />
-                  Mã {state.activeVoucher.code}: {voucherValidation.message}
+              <div className={`flex items-center justify-between text-xs p-2.5 rounded-lg border ${
+                voucherValidation.isValid
+                  ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                  : 'bg-amber-50 text-amber-900 border-amber-200'
+              }`}>
+                <span className="flex items-center gap-1.5 font-medium truncate min-w-0">
+                  <Tag className={`w-3.5 h-3.5 shrink-0 ${voucherValidation.isValid ? 'text-emerald-700' : 'text-amber-700'}`} />
+                  <span className="truncate">
+                    Mã {state.activeVoucher.code}: {voucherValidation.message}
+                  </span>
                 </span>
                 <button
                   onClick={() => dispatch({ type: 'APPLY_VOUCHER', payload: null })}
-                  className="text-stone-400 hover:text-stone-700 ml-2 cursor-pointer"
+                  className="text-stone-400 hover:text-stone-700 ml-2 cursor-pointer shrink-0"
                   title="Hủy voucher"
                 >
                   <X className="w-3.5 h-3.5" />

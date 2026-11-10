@@ -265,8 +265,8 @@ for p_key in ['189k', '259k', '279k', '359k', '459k', '559k', '679k']:
             'bloomSeason': 'Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)',
             'flowerCountDescription': {
                 'standard': f'Mẫu chuẩn {color_name_vi} ({style_name})',
-                'deluxe': f'Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai',
-                'premium': f'Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim'
+                'deluxe': f'',
+                'premium': f''
             }
         }
         products.append(product)

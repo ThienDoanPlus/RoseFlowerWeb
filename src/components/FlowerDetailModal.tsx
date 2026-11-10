@@ -301,22 +301,22 @@ export const FlowerDetailModal: React.FC = () => {
                         key={variant}
                         type="button"
                         onClick={() => setSelectedVariant(variant)}
-                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between h-full relative ${
+                        className={`p-2.5 sm:p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between h-full relative ${
                           isSelected
                             ? 'border-stone-900 bg-stone-900 text-white shadow-md ring-1 ring-stone-900'
                             : 'border-stone-200 bg-white hover:border-stone-300 text-stone-800 hover:bg-stone-50'
                         }`}
                       >
                         <div className="w-full">
-                          <div className="flex items-baseline justify-between gap-1.5 mb-1.5">
-                            <span className={`text-xs font-bold tracking-wide ${isSelected ? 'text-white' : 'text-stone-900'}`}>
+                          <div className="mb-1.5">
+                            <div className={`text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap leading-snug ${isSelected ? 'text-white' : 'text-stone-900'}`}>
                               {label}
-                            </span>
-                            <span className={`text-[11px] font-mono font-semibold ${isSelected ? 'text-rose-200' : 'text-rose-800'}`}>
+                            </div>
+                            <div className={`text-xs sm:text-sm font-mono font-bold whitespace-nowrap leading-snug mt-0.5 ${isSelected ? 'text-rose-300' : 'text-rose-900'}`}>
                               {formatVND(variantPrice)}
-                            </span>
+                            </div>
                           </div>
-                          <p className={`text-[11px] leading-relaxed break-words ${isSelected ? 'text-stone-300' : 'text-stone-600'}`}>
+                          <p className={`text-[10px] sm:text-[11px] leading-relaxed break-words ${isSelected ? 'text-stone-300' : 'text-stone-600'}`}>
                             {desc}
                           </p>
                         </div>
@@ -417,29 +417,29 @@ export const FlowerDetailModal: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                <div className="text-xs text-stone-600 font-mono">
-                  Tạm tính: <strong className="text-rose-900 text-sm font-bold">{formatVND(currentUnitPrice * quantity)}</strong>
+                <div className="text-xs text-stone-600 font-mono whitespace-nowrap">
+                  Tạm tính: <strong className="text-rose-900 text-sm font-bold whitespace-nowrap">{formatVND(currentUnitPrice * quantity)}</strong>
                 </div>
               </div>
             </div>
 
             {/* CTAs */}
             <div className="space-y-2 pt-3 border-t border-stone-200">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  className="w-full py-3 px-4 bg-white border border-stone-900 text-stone-900 hover:bg-stone-100 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer text-center active:scale-98 shadow-xs"
+                  className="w-full py-3 px-2 sm:px-3 bg-white border border-stone-900 text-stone-900 hover:bg-stone-100 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer text-center active:scale-98 shadow-xs whitespace-nowrap"
                 >
                   Thêm vào giỏ hàng
                 </button>
                 <button
                   type="button"
                   onClick={handleBuyNow}
-                  className="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer text-center shadow-md active:scale-98 flex items-center justify-center gap-1.5"
+                  className="w-full py-3 px-2 sm:px-3 bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer text-center shadow-md active:scale-98 flex items-center justify-center gap-1 whitespace-nowrap"
                 >
-                  <span>Mua ngay</span>
-                  <span className="font-mono">({formatVND(currentUnitPrice * quantity)})</span>
+                  <span className="whitespace-nowrap">Mua ngay</span>
+                  <span className="font-mono whitespace-nowrap">({formatVND(currentUnitPrice * quantity)})</span>
                 </button>
               </div>
 

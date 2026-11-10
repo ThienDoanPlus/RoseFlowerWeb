@@ -383,15 +383,15 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ flower }) 
                         }`}
                       >
                         <div className="w-full">
-                          <div className="flex items-baseline justify-between gap-1.5 mb-1.5">
-                            <span className={`text-xs font-bold tracking-wide ${isSelected ? 'text-white' : 'text-stone-900'}`}>
+                          <div className="mb-1.5">
+                            <div className={`text-xs sm:text-sm font-bold tracking-tight whitespace-nowrap leading-snug ${isSelected ? 'text-white' : 'text-stone-900'}`}>
                               {label}
-                            </span>
-                            <span className={`text-[11px] font-mono font-semibold ${isSelected ? 'text-rose-200' : 'text-rose-800'}`}>
+                            </div>
+                            <div className={`text-xs sm:text-sm font-mono font-bold whitespace-nowrap leading-snug mt-0.5 ${isSelected ? 'text-rose-300' : 'text-rose-900'}`}>
                               {formatVND(variantPrice)}
-                            </span>
+                            </div>
                           </div>
-                          <p className={`text-[11px] leading-relaxed break-words ${isSelected ? 'text-stone-300' : 'text-stone-600'}`}>
+                          <p className={`text-[10px] sm:text-[11px] leading-relaxed break-words ${isSelected ? 'text-stone-300' : 'text-stone-600'}`}>
                             {desc}
                           </p>
                         </div>
@@ -490,8 +490,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ flower }) 
                   </button>
                 </div>
 
-                <div className="text-xs text-stone-500 font-mono">
-                  Tổng tạm tính: <strong className="text-stone-900 font-bold">{formatVND(currentUnitPrice * quantity)}</strong>
+                <div className="text-xs text-stone-500 font-mono whitespace-nowrap">
+                  Tổng tạm tính: <strong className="text-stone-900 font-bold whitespace-nowrap">{formatVND(currentUnitPrice * quantity)}</strong>
                 </div>
               </div>
             </div>
@@ -501,17 +501,18 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ flower }) 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   onClick={handleAddToCart}
-                  className="w-full py-3.5 px-4 bg-white border-2 border-stone-900 text-stone-900 hover:bg-stone-50 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer text-center shadow-2xs active:scale-98 flex items-center justify-center gap-2"
+                  className="w-full py-3.5 px-3 bg-white border-2 border-stone-900 text-stone-900 hover:bg-stone-50 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer text-center shadow-2xs active:scale-98 flex items-center justify-center gap-2 whitespace-nowrap"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Thêm Vào Giỏ Hàng</span>
                 </button>
                 <button
                   onClick={handleBuyNow}
-                  className="w-full py-3.5 px-4 bg-rose-900 hover:bg-rose-800 text-white text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer text-center shadow-lg active:scale-98 flex items-center justify-center gap-2"
+                  className="w-full py-3.5 px-3 bg-rose-900 hover:bg-rose-800 text-white text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer text-center shadow-lg active:scale-98 flex items-center justify-center gap-1.5 whitespace-nowrap"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>Mua Ngay ({formatVND(currentUnitPrice * quantity)})</span>
+                  <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+                  <span className="whitespace-nowrap">Mua Ngay</span>
+                  <span className="font-mono whitespace-nowrap">({formatVND(currentUnitPrice * quantity)})</span>
                 </button>
               </div>
 

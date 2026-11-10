@@ -77,8 +77,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -122,8 +122,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -167,9 +167,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -211,9 +211,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -258,9 +258,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -304,9 +304,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -347,8 +347,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -390,9 +390,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -434,9 +434,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -479,9 +479,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -525,9 +525,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -571,9 +571,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -614,8 +614,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -659,9 +659,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -706,8 +706,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -748,8 +748,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -793,9 +793,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -836,8 +836,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -881,8 +881,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -927,8 +927,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -976,8 +976,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1025,8 +1025,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Chậu hoa sáp decor cao cấp bền lâu)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1070,9 +1070,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1116,8 +1116,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1164,8 +1164,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1209,8 +1209,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Chậu hoa sáp decor cao cấp bền lâu)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1252,9 +1252,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1296,8 +1296,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1342,9 +1342,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1389,8 +1389,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Chậu hoa sáp decor cao cấp bền lâu)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1436,8 +1436,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1485,9 +1485,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1532,8 +1532,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1580,8 +1580,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Chậu hoa sáp decor cao cấp bền lâu)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1626,8 +1626,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1675,8 +1675,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1725,8 +1725,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1776,8 +1776,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Chậu hoa sáp decor cao cấp bền lâu)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1828,8 +1828,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1874,8 +1874,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1920,9 +1920,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -1967,8 +1967,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Chậu hoa sáp decor cao cấp bền lâu)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2012,9 +2012,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2061,8 +2061,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2107,8 +2107,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2155,8 +2155,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Chậu hoa sáp decor cao cấp bền lâu)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2204,8 +2204,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2250,8 +2250,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2296,8 +2296,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2341,8 +2341,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2392,8 +2392,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Hộp hoa / Giỏ hoa để bàn sang trọng (Flower Box))",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2442,8 +2442,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Chậu hoa sáp decor cao cấp bền lâu)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2488,8 +2488,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2542,8 +2542,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2587,8 +2587,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Hộp hoa / Giỏ hoa để bàn sang trọng (Flower Box))",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2635,8 +2635,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2679,8 +2679,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2725,8 +2725,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Hộp hoa / Giỏ hoa để bàn sang trọng (Flower Box))",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2772,8 +2772,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2822,8 +2822,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Cam Đào Tươi Trẻ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2869,8 +2869,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Hộp hoa / Giỏ hoa để bàn sang trọng (Flower Box))",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2916,9 +2916,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -2963,9 +2963,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3012,8 +3012,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Hộp hoa / Giỏ hoa để bàn sang trọng (Flower Box))",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3059,8 +3059,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3106,9 +3106,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3157,8 +3157,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Hộp hoa / Giỏ hoa để bàn sang trọng (Flower Box))",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3203,8 +3203,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Lẵng hoa chúc mừng sự kiện)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3248,8 +3248,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3296,8 +3296,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3340,8 +3340,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Hồng Pastel Dịu Ngọt (Lẵng hoa chúc mừng sự kiện)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3384,8 +3384,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3426,9 +3426,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3471,8 +3471,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Lẵng hoa chúc mừng sự kiện)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3513,9 +3513,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3557,9 +3557,9 @@ export const FLOWERS: Flower[] = [
     "isFeatured": false,
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
-      "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "standard": "",
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3602,8 +3602,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Đỏ Nhung Quyến Rũ (Lẵng hoa chúc mừng sự kiện)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   },
   {
@@ -3646,8 +3646,8 @@ export const FLOWERS: Flower[] = [
     "bloomSeason": "Hoa sáp vĩnh cửu (Độ bền 3 - 5 năm)",
     "flowerCountDescription": {
       "standard": "Mẫu chuẩn Xanh Dương Hy Vọng (Bó hoa cầm tay)",
-      "deluxe": "Mẫu chuẩn + đèn LED đom đóm 3 chế độ + vương miện ngọc trai",
-      "premium": "Phiên bản nâng cấp VIP cỡ đại + hộp thiệp da ép kim"
+      "deluxe": "",
+      "premium": ""
     }
   }
 ];

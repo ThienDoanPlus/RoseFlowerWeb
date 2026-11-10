@@ -437,6 +437,15 @@ const loadStoredNotifications = (): PushNotification[] => {
 const loadStoredVoucher = (): Voucher | null => {
   try {
     if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const voucherCode = params.get('voucher') || params.get('magiamgia') || params.get('code') || params.get('coupon');
+      if (voucherCode) {
+        const found = VOUCHERS.find((v) => v.code.toUpperCase() === voucherCode.trim().toUpperCase());
+        if (found) {
+          localStorage.setItem('rose_active_voucher', JSON.stringify(found));
+          return found;
+        }
+      }
       const raw = localStorage.getItem('rose_active_voucher');
       if (raw) return JSON.parse(raw);
     }
@@ -1268,6 +1277,32 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       window.removeEventListener('popstate', syncStateFromUrl);
     };
   }, [state.flowers]);
+
+  // 3. Tự động nhận diện và thông báo mã ưu đãi từ Link chia sẻ (?voucher=... hoặc ?magiamgia=...)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const voucherCode = params.get('voucher') || params.get('magiamgia') || params.get('code') || params.get('coupon');
+      if (voucherCode) {
+        const matched = state.vouchers.find((v) => v.code.toUpperCase() === voucherCode.trim().toUpperCase());
+        if (matched) {
+          dispatch({ type: 'APPLY_VOUCHER', payload: matched });
+          const discountStr = matched.discountType === 'PERCENT' ? `${matched.discountValue}%` : formatVND(matched.discountValue);
+          dispatch({
+            type: 'SHOW_TOAST',
+            payload: {
+              message: `🎉 Bạn đã nhận được mã ưu đãi ${matched.code} (Giảm ${discountStr}) từ link chia sẻ! (Áp dụng khi đơn đạt từ ${formatVND(matched.minOrderValue)})`,
+              type: 'info',
+            },
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, [state.vouchers]);
 
   // Computed values
   const subtotal = calculateCartSubtotal(state.cart);
