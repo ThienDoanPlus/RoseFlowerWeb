@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { X, Trash2, ArrowRight, Tag, Percent, Sparkles, Check, ShoppingBag } from 'lucide-react';
 import { useStore } from '../store';
 import { VOUCHERS } from '../data/mockData';
-import { formatVND } from '../utils/calculations';
+import { formatVND, validateAndCalculateVoucher } from '../utils/calculations';
 
 export const CartDrawer: React.FC = () => {
   const { state, dispatch, subtotal, totalQuantity, bulkDiscountInfo, voucherValidation, shippingFee, finalTotal } = useStore();

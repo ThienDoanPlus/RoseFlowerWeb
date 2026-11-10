@@ -32,6 +32,7 @@ import {
   calculateOrderFinalTotal,
   calculateShippingFee,
   validateAndCalculateVoucher,
+  formatVND,
 } from '../utils/calculations';
 
 export interface AppState {
@@ -86,7 +87,7 @@ export interface AppState {
 
   // Notifications
   notifications: PushNotification[];
-  toast: { message: string; type: 'success' | 'info' | 'error' } | null;
+  toast: { message: string; type: 'success' | 'info' | 'error' | 'warning' } | null;
 
   // Gmail Inbox Simulation
   gmailEmails: GmailEmail[];
@@ -157,7 +158,7 @@ export type Action =
   | { type: 'ADD_GMAIL_EMAIL'; payload: GmailEmail }
   | { type: 'ADD_REVIEW'; payload: Review }
   | { type: 'MODERATE_REVIEW'; payload: { flowerId: string; reviewId: string; action: 'approve' | 'hide' | 'delete' } }
-  | { type: 'SHOW_TOAST'; payload: { message: string; type: 'success' | 'info' | 'error' } | null }
+  | { type: 'SHOW_TOAST'; payload: { message: string; type: 'success' | 'info' | 'error' | 'warning' } | null }
   | { type: 'SET_MODAL'; payload: { modal: keyof AppState; isOpen: boolean } };
 
 const initialDeliveryInfo: DeliveryInfo = {
@@ -485,15 +486,7 @@ const storedUser = loadStoredUser();
 
 const initialState: AppState = {
   currentRole: storedUser ? storedUser.role : 'CUSTOMER',
-  activeView: initialFlower
-    ? 'product-detail'
-    : storedUser
-    ? storedUser.role === 'ADMIN'
-      ? 'admin'
-      : storedUser.role === 'STAFF'
-      ? 'staff'
-      : 'storefront'
-    : 'storefront',
+  activeView: initialFlower ? 'product-detail' : 'storefront',
   staffActiveTab: 'kanban',
   adminActiveTab: 'overview',
 
@@ -1257,7 +1250,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           }
         } else {
           // Nếu URL là trang chủ và đang ở product-detail thì quay về storefront
-          if (window.location.pathname === '/' || window.location.pathname === '') {
+          if (window.location.pathname === '/' || window.location.pathname === '' || window.location.pathname.endsWith('/index.html')) {
             if (state.activeView === 'product-detail') {
               dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
             }

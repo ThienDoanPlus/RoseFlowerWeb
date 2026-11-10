@@ -34,6 +34,64 @@ import { OrderStatusUpdater } from './components/staff/OrderStatusUpdater';
 import { CustomerChatDrawer } from './components/staff/CustomerChatDrawer';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Unhandled UI error caught by ErrorBoundary:', error, errorInfo);
+  }
+
+  handleReload = () => {
+    try {
+      localStorage.removeItem('rose_active_voucher');
+    } catch {
+      // ignore
+    }
+    window.location.href = '/';
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#FFF5F7] flex flex-col items-center justify-center p-6 text-center">
+          <div className="w-16 h-16 rounded-full bg-rose-100 text-rose-800 flex items-center justify-center mb-4">
+            <span className="text-2xl font-serif">R</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-serif text-rose-950 font-bold mb-2">
+            Rose Flowers - Đang làm mới dữ liệu
+          </h1>
+          <p className="text-xs sm:text-sm text-stone-600 max-w-md mb-6 leading-relaxed">
+            Hệ thống đã tự động khôi phục dữ liệu an toàn. Vui lòng bấm nút bên dưới để xem đầy đủ bộ sưu tập hoa sáp 294 Phạm Văn Bạch.
+          </p>
+          <button
+            onClick={this.handleReload}
+            className="px-6 py-2.5 bg-rose-900 hover:bg-rose-800 text-white text-xs font-semibold rounded-xl shadow-md transition-all cursor-pointer"
+          >
+            Về Trang Chủ Cửa Hàng
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function AppContent() {
   const { state } = useStore();
 
@@ -102,8 +160,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <StoreProvider>
-      <AppContent />
-    </StoreProvider>
+    <ErrorBoundary>
+      <StoreProvider>
+        <AppContent />
+      </StoreProvider>
+    </ErrorBoundary>
   );
 }

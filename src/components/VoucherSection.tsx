@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tag, Check, Copy, Gift, Sparkles, Percent, Share2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useStore } from '../store';
 import { VOUCHERS } from '../data/mockData';
