@@ -49,9 +49,14 @@ export const MobileBottomBar: React.FC = () => {
           </button>
         ) : (
           <a
-            href="#collection"
+            href="/#collection"
             onClick={() => {
-              if (state.selectedFlower) {
+              if (state.activeView === 'product-detail') {
+                dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+                if (typeof window !== 'undefined') {
+                  window.history.pushState({}, '', '/#collection');
+                }
+              } else if (state.selectedFlower) {
                 dispatch({ type: 'SELECT_FLOWER', payload: null });
               }
             }}

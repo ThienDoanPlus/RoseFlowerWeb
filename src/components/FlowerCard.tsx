@@ -27,18 +27,11 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Product Image Container */}
-      <a
-        href={`/san-pham/${flower.id}`}
+      {/* Product Image Container: Click vào ảnh mở Popup Modal xem nhanh */}
+      <div
         className="relative aspect-[4/3] w-full overflow-hidden bg-stone-100 cursor-pointer block"
-        onClick={(e) => {
-          e.preventDefault();
-          dispatch({ type: 'SELECT_FLOWER', payload: flower });
-          if (typeof window !== 'undefined') {
-            window.history.pushState({ flowerId: flower.id }, '', `/san-pham/${flower.id}`);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-        }}
+        onClick={() => dispatch({ type: 'SELECT_FLOWER', payload: flower })}
+        title="Nhấn để xem nhanh thông tin hoa"
       >
         {!imageError ? (
           <img
@@ -58,19 +51,20 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
 
         {/* Hover Quick Action Overlay */}
         <div className="absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
+          {/* Nút Chi tiết: Chuyển sang trang trắng đơn lẻ kèm mục Có Thể Bạn Cũng Thích */}
           <a
             href={`/san-pham/${flower.id}`}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              dispatch({ type: 'SELECT_FLOWER', payload: flower });
+              dispatch({ type: 'NAVIGATE_TO_PRODUCT_PAGE', payload: flower });
               if (typeof window !== 'undefined') {
                 window.history.pushState({ flowerId: flower.id }, '', `/san-pham/${flower.id}`);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }
             }}
             className="px-3.5 py-2 bg-white/95 hover:bg-white text-stone-900 text-xs font-medium rounded-lg shadow-md transition-transform hover:scale-105 flex items-center gap-1.5 cursor-pointer"
-            title="Xem chi tiết & ý nghĩa hoa"
+            title="Xem trang chi tiết đầy đủ sản phẩm & gợi ý hoa liên quan"
           >
             <Eye className="w-3.5 h-3.5" />
             <span>Chi tiết</span>
@@ -94,7 +88,7 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
             <span>Chọn nhanh</span>
           </button>
         </div>
-      </a>
+      </div>
 
       {/* Card Content */}
       <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
@@ -111,22 +105,16 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
             </div>
           </div>
 
-          {/* Product Name */}
+          {/* Product Name: Click vào tên mở Popup Modal xem nhanh */}
           <h3 className="font-medium text-stone-900 text-base leading-snug line-clamp-1 mb-1">
-            <a
-              href={`/san-pham/${flower.id}`}
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch({ type: 'SELECT_FLOWER', payload: flower });
-                if (typeof window !== 'undefined') {
-                  window.history.pushState({ flowerId: flower.id }, '', `/san-pham/${flower.id}`);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-              }}
-              className="hover:text-rose-900 transition-colors"
+            <button
+              type="button"
+              onClick={() => dispatch({ type: 'SELECT_FLOWER', payload: flower })}
+              className="hover:text-rose-900 transition-colors cursor-pointer text-left w-full"
+              title="Nhấn để xem nhanh thông tin hoa"
             >
               {flower.name}
-            </a>
+            </button>
           </h3>
 
           {/* Botanical subtitle */}

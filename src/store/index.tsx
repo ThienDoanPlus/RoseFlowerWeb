@@ -55,6 +55,7 @@ export interface AppState {
   priceRange: [number, number];
   sortBy: 'popular' | 'price-asc' | 'price-desc' | 'rating';
   selectedFlower: Flower | null;
+  productPageFlower: Flower | null;
 
   // Cart
   cart: CartItem[];
@@ -128,6 +129,7 @@ export type Action =
   | { type: 'SET_PRICE_RANGE'; payload: [number, number] }
   | { type: 'SET_SORT'; payload: 'popular' | 'price-asc' | 'price-desc' | 'rating' }
   | { type: 'SELECT_FLOWER'; payload: Flower | null }
+  | { type: 'NAVIGATE_TO_PRODUCT_PAGE'; payload: Flower }
   | { type: 'ADD_TO_CART'; payload: { flower: Flower; sizeVariant: SizeVariant; quantity: number; cardMessage?: string } }
   | { type: 'UPDATE_CART_QTY'; payload: { itemId: string; quantity: number } }
   | { type: 'REMOVE_FROM_CART'; payload: { itemId: string } }
@@ -474,7 +476,9 @@ const storedUser = loadStoredUser();
 
 const initialState: AppState = {
   currentRole: storedUser ? storedUser.role : 'CUSTOMER',
-  activeView: storedUser
+  activeView: initialFlower
+    ? 'product-detail'
+    : storedUser
     ? storedUser.role === 'ADMIN'
       ? 'admin'
       : storedUser.role === 'STAFF'
@@ -496,7 +500,8 @@ const initialState: AppState = {
   searchQuery: '',
   priceRange: [0, 5000000],
   sortBy: 'popular',
-  selectedFlower: initialFlower,
+  selectedFlower: null,
+  productPageFlower: initialFlower,
 
   cart: loadStoredCart(),
   selectedBranch: BRANCHES[0],
@@ -578,7 +583,11 @@ function appReducer(state: AppState, action: Action): AppState {
           },
         };
       }
-      return { ...state, activeView: targetView };
+      return {
+        ...state,
+        activeView: targetView,
+        productPageFlower: targetView === 'product-detail' ? state.productPageFlower : null,
+      };
     }
 
     case 'SET_STAFF_TAB':
@@ -656,6 +665,14 @@ function appReducer(state: AppState, action: Action): AppState {
 
     case 'SELECT_FLOWER':
       return { ...state, selectedFlower: action.payload };
+
+    case 'NAVIGATE_TO_PRODUCT_PAGE':
+      return {
+        ...state,
+        activeView: 'product-detail',
+        productPageFlower: action.payload,
+        selectedFlower: null,
+      };
 
     case 'ADD_TO_CART': {
       const { flower, sizeVariant, quantity, cardMessage } = action.payload;
@@ -1193,18 +1210,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, []);
 
-  // 1. Đồng bộ URL và Document Title theo Selected Flower (/san-pham/:id)
+  // 1. Đồng bộ URL và Document Title theo Dedicated Product Page (/san-pham/:id)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     try {
-      if (state.selectedFlower) {
-        const targetPath = `/san-pham/${state.selectedFlower.id}`;
+      if (state.activeView === 'product-detail' && state.productPageFlower) {
+        const targetPath = `/san-pham/${state.productPageFlower.id}`;
         if (window.location.pathname !== targetPath) {
-          window.history.pushState({ flowerId: state.selectedFlower.id }, '', targetPath);
+          window.history.pushState({ flowerId: state.productPageFlower.id }, '', targetPath);
         }
-        document.title = `${state.selectedFlower.name} | Tiệm Hoa Sáp Rose - 294 Phạm Văn Bạch`;
-      } else {
+        document.title = `${state.productPageFlower.name} | Tiệm Hoa Sáp Rose - 294 Phạm Văn Bạch`;
+      } else if (state.activeView === 'storefront') {
         if (window.location.pathname.startsWith('/san-pham/')) {
           window.history.pushState({}, '', '/');
         }
@@ -1213,9 +1230,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // ignore
     }
-  }, [state.selectedFlower]);
+  }, [state.activeView, state.productPageFlower]);
 
-  // 2. Tự động mở modal hoa khi truy cập link /san-pham/:id hoặc khi bấm Back/Forward trình duyệt
+  // 2. Tự động chuyển tới trang chi tiết khi vào qua link /san-pham/:id hoặc bấm Back/Forward trình duyệt
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -1225,14 +1242,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (targetFlowerId) {
           const matched = state.flowers.find((f) => f.id === targetFlowerId);
           if (matched) {
-            if (!state.selectedFlower || state.selectedFlower.id !== matched.id) {
-              dispatch({ type: 'SELECT_FLOWER', payload: matched });
+            if (!state.productPageFlower || state.productPageFlower.id !== matched.id || state.activeView !== 'product-detail') {
+              dispatch({ type: 'NAVIGATE_TO_PRODUCT_PAGE', payload: matched });
             }
           }
         } else {
-          // Nếu URL về trang chủ mà modal đang mở thì tự động đóng lại
-          if (state.selectedFlower) {
-            dispatch({ type: 'SELECT_FLOWER', payload: null });
+          // Nếu URL là trang chủ và đang ở product-detail thì quay về storefront
+          if (window.location.pathname === '/' || window.location.pathname === '') {
+            if (state.activeView === 'product-detail') {
+              dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+            }
           }
         }
       } catch {
