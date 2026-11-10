@@ -200,10 +200,10 @@ export const FlowerAPI = {
         ],
         priceRanges: [
           { id: 'tat-ca', name: 'Tất cả mức giá', min: 0, max: 99999999 },
-          { id: 'duoi-300k', name: 'Dưới 300.000đ (Học sinh, sinh viên, tặng bạn bè)', min: 0, max: 299999 },
-          { id: '300k-500k', name: '300.000đ – 500.000đ (Phổ biến, dễ mua)', min: 300000, max: 500000 },
-          { id: '500k-1tr', name: '500.000đ – 1.000.000đ (Đẹp, trang trọng)', min: 500000, max: 1000000 },
-          { id: 'tren-1tr', name: 'Trên 1.000.000đ (Cao cấp, hoa đại tiệc)', min: 1000001, max: 99999999 },
+          { id: '189k-259k', name: '189.000đ – 259.000đ (Bó mini xinh xắn)', min: 170000, max: 260000 },
+          { id: '279k-359k', name: '279.000đ – 359.000đ (Bó tiêu chuẩn bán chạy)', min: 261000, max: 370000 },
+          { id: '459k-559k', name: '459.000đ – 559.000đ (Bó thiết kế cao cấp)', min: 430000, max: 580000 },
+          { id: '679k', name: '679.000đ (Bó hoa đại tiệc 99 bông)', min: 640000, max: 99999999 },
         ],
         colorTones: [
           { id: 'tat-ca', name: 'Tất cả tone màu' },

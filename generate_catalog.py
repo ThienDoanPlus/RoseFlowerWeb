@@ -134,23 +134,31 @@ for p_key in ['189k', '259k', '279k', '359k', '459k', '559k', '679k']:
         prod_id = f"rose-{p_key}-{f_name}"
         flower_num = f_name.replace('flower', '')
         
-        # Determine price category
-        if price_val < 300000:
-            price_range_cat = 'duoi-300k'
+        # Determine price category and size name matching real price tiers
+        if p_key in ['189k', '259k']:
+            # Bó Hoa Sáp Mini & Xinh Xắn (189k - 259k)
             category_id = 'bo-hoa-mini'
+            price_range_cat = '189k-259k'
             size_name = 'Bó hoa sáp mini nhỏ gọn, xinh xắn'
-        elif price_val <= 500000:
-            price_range_cat = '300k-500k'
+        elif p_key in ['279k', '359k']:
+            # Bó Hoa Sáp Tiêu Chuẩn (279k - 359k)
             category_id = 'bo-hoa-tieu-chuan'
+            price_range_cat = '279k-359k'
             size_name = 'Bó hoa sáp tiêu chuẩn thanh lịch'
-        elif price_val <= 1000000:
-            price_range_cat = '500k-1tr'
-            category_id = 'bo-hoa-cao-cap' if price_val < 600000 else 'bo-hoa-dai-tiec'
-            size_name = 'Bó hoa sáp thiết kế cao cấp phối nơ lụa' if price_val < 600000 else 'Bó hoa sáp đại tiệc khổng lồ 99 bông'
-        else:
-            price_range_cat = 'tren-1tr'
+        elif p_key in ['459k', '559k']:
+            # Bó Hoa Sáp Thiết Kế Cao Cấp (459k - 559k)
+            category_id = 'bo-hoa-cao-cap'
+            price_range_cat = '459k-559k'
+            size_name = 'Bó hoa sáp thiết kế cao cấp phối nơ lụa'
+        elif p_key == '679k':
+            # Bó Hoa Sáp Đại Khổng Lồ 99 Bông (679k)
             category_id = 'bo-hoa-dai-tiec'
-            size_name = 'Bó hoa sáp đại tiệc sang trọng bậc nhất'
+            price_range_cat = '679k'
+            size_name = 'Bó hoa sáp đại tiệc khổng lồ 99 bông'
+        else:
+            category_id = 'bo-hoa-mini'
+            price_range_cat = '189k-259k'
+            size_name = 'Bó hoa sáp nghệ thuật cao cấp'
 
         # Specific tone classification refinement:
         # Soft tones can also be tagged 'pastel'

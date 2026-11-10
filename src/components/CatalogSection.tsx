@@ -52,10 +52,10 @@ export const DESIGN_STYLES_LIST = [
 
 export const PRICE_RANGES_LIST = [
   { id: 'tat-ca', label: 'Tất cả mức giá', min: 0, max: 99999999 },
-  { id: 'duoi-300k', label: 'Dưới 300.000đ', subtitle: 'Phù hợp học sinh, sinh viên, tặng bạn bè', min: 0, max: 299999 },
-  { id: '300k-500k', label: '300.000đ – 500.000đ', subtitle: 'Phổ biến, dễ mua, bán chạy nhất', min: 300000, max: 500000 },
-  { id: '500k-1tr', label: '500.000đ – 1.000.000đ', subtitle: 'Đẹp, trang trọng, số lượng bông lớn', min: 500000, max: 1000000 },
-  { id: 'tren-1tr', label: 'Trên 1.000.000đ', subtitle: 'Cao cấp, 99 bông đại tiệc, thiết kế riêng', min: 1000001, max: 99999999 },
+  { id: '189k-259k', label: '189.000đ – 259.000đ', subtitle: 'Bó mini nhỏ gọn, quà tốt nghiệp, học sinh sinh viên', min: 170000, max: 260000 },
+  { id: '279k-359k', label: '279.000đ – 359.000đ', subtitle: 'Bó tiêu chuẩn bán chạy nhất, sinh nhật & hẹn hò', min: 261000, max: 370000 },
+  { id: '459k-559k', label: '459.000đ – 559.000đ', subtitle: 'Bó thiết kế cao cấp, giấy xòe Hàn Quốc nơ lụa', min: 430000, max: 580000 },
+  { id: '679k', label: '679.000đ (Bó đại 99 bông)', subtitle: 'Bó đại VIP 99 bông khổng lồ ôm trọn vòng tay', min: 640000, max: 99999999 },
 ];
 
 export const COLOR_TONES_LIST = [
@@ -160,8 +160,9 @@ export const CatalogSection: React.FC = () => {
       const rangeDef = PRICE_RANGES_LIST.find((r) => r.id === selectedPriceRangeId);
       if (rangeDef) {
         list = list.filter((f) => {
-          const p = f.salePrice || f.basePrice;
-          return p >= rangeDef.min && p <= rangeDef.max;
+          const base = f.basePrice;
+          const sale = f.salePrice || f.basePrice;
+          return (base >= rangeDef.min && base <= rangeDef.max) || (sale >= rangeDef.min && sale <= rangeDef.max);
         });
       }
     }
