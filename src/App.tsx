@@ -38,7 +38,7 @@ function AppContent() {
   const { state } = useStore();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF5F7] text-stone-900 font-sans selection:bg-rose-200 selection:text-rose-900 pb-16 md:pb-0 overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen flex flex-col bg-[#FFF5F7] text-stone-900 font-sans selection:bg-rose-200 selection:text-rose-900 pb-16 md:pb-0 w-full max-w-full">
       {/* Promotional announcement banner */}
       <PromoBanner />
 

@@ -15,6 +15,23 @@ export const CartDrawer: React.FC = () => {
 
   if (!state.isCartOpen) return null;
 
+  const handlePasteCode = async () => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          setVoucherInput(text.trim().toUpperCase());
+          dispatch({
+            type: 'SHOW_TOAST',
+            payload: { message: `Đã dán mã "${text.trim().toUpperCase()}"`, type: 'info' },
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+  };
+
   const handleApplyCustomVoucher = (e: React.FormEvent) => {
     e.preventDefault();
     const code = voucherInput.trim().toUpperCase();
@@ -178,16 +195,26 @@ export const CartDrawer: React.FC = () => {
           <div className="p-4 sm:p-5 border-t border-stone-200 bg-[#FAF8F5] space-y-4">
             {/* Voucher input form */}
             <form onSubmit={handleApplyCustomVoucher} className="flex gap-2">
-              <input
-                type="text"
-                value={voucherInput}
-                onChange={(e) => setVoucherInput(e.target.value)}
-                placeholder="Nhập mã voucher (vd: PHUNUVN2010)"
-                className="flex-1 text-xs uppercase px-3 py-2 bg-white border border-stone-300 rounded-lg text-stone-900 placeholder:normal-case placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-900"
-              />
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={voucherInput}
+                  onChange={(e) => setVoucherInput(e.target.value)}
+                  placeholder="Nhập hoặc dán mã voucher (vd: PHUNUVN2010)"
+                  className="w-full text-xs uppercase px-3 py-2 pr-12 bg-white border border-stone-300 rounded-lg text-stone-900 placeholder:normal-case placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-900"
+                />
+                <button
+                  type="button"
+                  onClick={handlePasteCode}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 px-2 py-1 text-[10px] text-stone-500 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 rounded font-medium cursor-pointer transition-colors"
+                  title="Dán mã vừa sao chép từ bộ nhớ tạm"
+                >
+                  Dán
+                </button>
+              </div>
               <button
                 type="submit"
-                className="px-3 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium rounded-lg cursor-pointer transition-colors"
+                className="px-3.5 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium rounded-lg cursor-pointer transition-colors whitespace-nowrap"
               >
                 Áp dụng
               </button>

@@ -1297,6 +1297,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               type: 'info',
             },
           });
+
+          // Nếu URL có kèm #vouchers hoặc là link chia sẻ voucher, cuộn mượt đến mục ưu đãi
+          setTimeout(() => {
+            const el = document.getElementById('vouchers');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 350);
         }
       }
     } catch {

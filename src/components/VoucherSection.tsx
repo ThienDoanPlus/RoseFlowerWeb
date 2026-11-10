@@ -14,18 +14,45 @@ export const VoucherSection: React.FC = () => {
   const { state, dispatch, subtotal, totalQuantity } = useStore();
   const currentCode = state.activeVoucher?.code;
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [copiedLinkCode, setCopiedLinkCode] = useState<string | null>(null);
 
+  // 1. Sao chép trực tiếp mã voucher để dán vào giỏ hàng hoặc thanh toán
+  const handleCopyVoucherCode = (code: string) => {
+    if (typeof window === 'undefined') return;
+    try {
+      navigator.clipboard.writeText(code).then(() => {
+        setCopiedCode(code);
+        setTimeout(() => setCopiedCode(null), 2500);
+        dispatch({
+          type: 'SHOW_TOAST',
+          payload: {
+            message: `Đã chép mã "${code}"! Bạn có thể dán vào ô nhập mã trong giỏ hàng hoặc bước thanh toán.`,
+            type: 'success',
+          },
+        });
+      }).catch(() => {
+        dispatch({
+          type: 'SHOW_TOAST',
+          payload: { message: `Mã ưu đãi của bạn: ${code}`, type: 'info' },
+        });
+      });
+    } catch {
+      // ignore
+    }
+  };
+
+  // 2. Sao chép link chia sẻ riêng biệt cho từng mã voucher (mỗi mã có 1 URL riêng)
   const handleShareVoucher = (voucher: Voucher) => {
     if (typeof window === 'undefined') return;
     const shareUrl = `${window.location.origin}/?voucher=${encodeURIComponent(voucher.code)}#vouchers`;
     try {
       navigator.clipboard.writeText(shareUrl).then(() => {
-        setCopiedCode(voucher.code);
-        setTimeout(() => setCopiedCode(null), 2000);
+        setCopiedLinkCode(voucher.code);
+        setTimeout(() => setCopiedLinkCode(null), 2500);
         dispatch({
           type: 'SHOW_TOAST',
           payload: {
-            message: `Đã sao chép link ưu đãi: Mã ${voucher.code}! (Đơn tối thiểu ${formatVND(voucher.minOrderValue)})`,
+            message: `Đã sao chép link riêng cho mã ${voucher.code}! Gửi link này cho bạn bè để nhận ưu đãi (Đơn từ ${formatVND(voucher.minOrderValue)}).`,
             type: 'success',
           },
         });
@@ -33,7 +60,7 @@ export const VoucherSection: React.FC = () => {
         dispatch({
           type: 'SHOW_TOAST',
           payload: {
-            message: `Link ưu đãi: ${shareUrl}`,
+            message: `Link ưu đãi mã ${voucher.code}: ${shareUrl}`,
             type: 'info',
           },
         });
@@ -43,6 +70,7 @@ export const VoucherSection: React.FC = () => {
     }
   };
 
+  // 3. Áp dụng trực tiếp mã voucher
   const handleApplyVoucher = (voucher: Voucher) => {
     dispatch({ type: 'APPLY_VOUCHER', payload: voucher });
 
@@ -179,48 +207,83 @@ export const VoucherSection: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-stone-100">
-                  <div className="font-mono text-xs font-bold text-stone-900 bg-stone-100 px-2.5 py-1.5 rounded-lg border border-stone-200 select-all">
-                    {voucher.code}
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    {/* Share Link Button */}
+                <div className="space-y-2.5 pt-4 border-t border-stone-100">
+                  {/* Top row: Voucher code & Copy button, and Share link button */}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <button
                       type="button"
-                      onClick={() => handleShareVoucher(voucher)}
-                      className="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-stone-300 hover:border-stone-400 bg-white hover:bg-stone-50 text-stone-700 transition-all cursor-pointer flex items-center gap-1 shadow-2xs whitespace-nowrap"
-                      title="Sao chép link chia sẻ mã ưu đãi này"
-                    >
-                      <Share2 className="w-3.5 h-3.5 text-rose-700" />
-                      <span className="hidden xs:inline sm:inline">Chia sẻ</span>
-                    </button>
-
-                    {/* Apply Button */}
-                    <button
-                      type="button"
-                      onClick={() => handleApplyVoucher(voucher)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 shadow-xs whitespace-nowrap ${
-                        isApplied
-                          ? isFullyEligible
-                            ? 'bg-emerald-700 hover:bg-emerald-800 text-white'
-                            : 'bg-amber-600 hover:bg-amber-700 text-white'
-                          : 'bg-stone-900 hover:bg-stone-800 text-white'
+                      onClick={() => handleCopyVoucherCode(voucher.code)}
+                      className={`font-mono text-xs font-bold px-2.5 py-1.5 rounded-lg border transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                        copiedCode === voucher.code
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-300 ring-2 ring-emerald-400/30'
+                          : 'bg-stone-100 hover:bg-stone-200 text-stone-900 border-stone-300'
                       }`}
+                      title="Bấm để sao chép mã và dán vào giỏ hàng hoặc bước thanh toán"
                     >
-                      {isApplied ? (
+                      {copiedCode === voucher.code ? (
                         <>
-                          <Check className="w-3.5 h-3.5" />
-                          <span>{isFullyEligible ? 'Đã kích hoạt' : 'Đã chọn mã'}</span>
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>{voucher.code}</span>
+                          <span className="text-[10px] font-sans font-normal text-emerald-700 ml-1">Đã chép!</span>
                         </>
                       ) : (
                         <>
-                          <Tag className="w-3.5 h-3.5" />
-                          <span>Áp dụng ngay</span>
+                          <Copy className="w-3.5 h-3.5 text-stone-500" />
+                          <span>{voucher.code}</span>
+                          <span className="text-[10px] font-sans font-normal text-stone-500 ml-0.5">Chép mã</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Share Unique Link Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleShareVoucher(voucher)}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs whitespace-nowrap active:scale-95 ${
+                        copiedLinkCode === voucher.code
+                          ? 'bg-rose-50 text-rose-800 border-rose-300 ring-1 ring-rose-300'
+                          : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-300 hover:border-stone-400'
+                      }`}
+                      title={`Sao chép link riêng cho mã ${voucher.code} để chia sẻ cho người khác`}
+                    >
+                      {copiedLinkCode === voucher.code ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-rose-700" />
+                          <span className="text-rose-900 font-semibold text-[11px]">Đã chép link!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Share2 className="w-3.5 h-3.5 text-rose-700" />
+                          <span className="text-[11px]">Chia sẻ link</span>
                         </>
                       )}
                     </button>
                   </div>
+
+                  {/* Bottom row: Direct Apply Action */}
+                  <button
+                    type="button"
+                    onClick={() => handleApplyVoucher(voucher)}
+                    className={`w-full py-2 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs whitespace-nowrap active:scale-98 ${
+                      isApplied
+                        ? isFullyEligible
+                          ? 'bg-emerald-700 hover:bg-emerald-800 text-white'
+                          : 'bg-amber-600 hover:bg-amber-700 text-white'
+                        : 'bg-stone-900 hover:bg-stone-800 text-white'
+                    }`}
+                  >
+                    {isApplied ? (
+                      <>
+                        <Check className="w-3.5 h-3.5" />
+                        <span>{isFullyEligible ? 'Đã kích hoạt vào giỏ hàng' : 'Đã chọn mã (Chờ đủ điều kiện)'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Tag className="w-3.5 h-3.5" />
+                        <span>Áp dụng ngay vào giỏ hàng</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             );
