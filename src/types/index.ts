@@ -5,7 +5,7 @@
 
 export type Role = 'CUSTOMER' | 'STAFF' | 'ADMIN';
 
-export type AppView = 'storefront' | 'product-detail' | 'staff' | 'admin';
+export type AppView = 'storefront' | 'staff' | 'admin';
 export type StaffTab = 'kanban' | 'chat' | 'inventory';
 export type AdminTab = 'overview' | 'flowers' | 'vouchers' | 'users' | 'reviews';
 

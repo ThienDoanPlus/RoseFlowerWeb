@@ -45,6 +45,9 @@ export const Navbar: React.FC = () => {
           <button
             onClick={() => {
               dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
+              if (state.selectedFlower) {
+                dispatch({ type: 'SELECT_FLOWER', payload: null });
+              }
               if (typeof window !== 'undefined') {
                 window.history.pushState({}, '', '/');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -66,30 +69,13 @@ export const Navbar: React.FC = () => {
 
         {/* Zone 2: Navigation Links (Adaptive per View) */}
         <nav className="hidden lg:flex items-center gap-5 text-xs sm:text-sm font-medium text-stone-700">
-          {state.activeView === 'storefront' || state.activeView === 'product-detail' ? (
+          {state.activeView === 'storefront' ? (
             <>
-              {state.activeView === 'product-detail' && (
-                <button
-                  onClick={() => {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                    if (typeof window !== 'undefined') {
-                      window.history.pushState({}, '', '/');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                  }}
-                  className="text-rose-900 font-bold hover:underline flex items-center gap-1 cursor-pointer mr-2"
-                >
-                  <span>&larr; Về Cửa Hàng</span>
-                </button>
-              )}
               <a
-                href="/#collection"
+                href="#collection"
                 onClick={() => {
-                  if (state.activeView === 'product-detail') {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                    if (typeof window !== 'undefined') {
-                      window.history.pushState({}, '', '/#collection');
-                    }
+                  if (state.selectedFlower) {
+                    dispatch({ type: 'SELECT_FLOWER', payload: null });
                   }
                 }}
                 className="hover:text-rose-900 transition-colors whitespace-nowrap"
@@ -97,13 +83,10 @@ export const Navbar: React.FC = () => {
                 Bộ Sưu Tập Hoa
               </a>
               <a
-                href="/#vouchers"
+                href="#vouchers"
                 onClick={() => {
-                  if (state.activeView === 'product-detail') {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                    if (typeof window !== 'undefined') {
-                      window.history.pushState({}, '', '/#vouchers');
-                    }
+                  if (state.selectedFlower) {
+                    dispatch({ type: 'SELECT_FLOWER', payload: null });
                   }
                 }}
                 className="hover:text-rose-900 transition-colors whitespace-nowrap"
@@ -111,13 +94,10 @@ export const Navbar: React.FC = () => {
                 Ưu Đãi Dịp Lễ
               </a>
               <a
-                href="/#craft"
+                href="#craft"
                 onClick={() => {
-                  if (state.activeView === 'product-detail') {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                    if (typeof window !== 'undefined') {
-                      window.history.pushState({}, '', '/#craft');
-                    }
+                  if (state.selectedFlower) {
+                    dispatch({ type: 'SELECT_FLOWER', payload: null });
                   }
                 }}
                 className="hover:text-rose-900 transition-colors whitespace-nowrap"
@@ -125,13 +105,10 @@ export const Navbar: React.FC = () => {
                 Đặc Tính Hoa Sáp
               </a>
               <a
-                href="/#branches"
+                href="#branches"
                 onClick={() => {
-                  if (state.activeView === 'product-detail') {
-                    dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'storefront' });
-                    if (typeof window !== 'undefined') {
-                      window.history.pushState({}, '', '/#branches');
-                    }
+                  if (state.selectedFlower) {
+                    dispatch({ type: 'SELECT_FLOWER', payload: null });
                   }
                 }}
                 className="hover:text-rose-900 transition-colors whitespace-nowrap"

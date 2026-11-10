@@ -74,7 +74,7 @@ export const Footer: React.FC = () => {
             </h4>
             <div className="space-y-2 text-xs text-rose-300">
               <div>
-             https://scontent.fsgn2-6.fna.fbcdn.net/v/t39.30808-6/892255153_1158324637180437_4440753215310423620_n.jpg?stp=dst-jpg_tt6&cstp=mx1592x782&ctp=s1592x782&_nc_cat=104&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=aa7b47&_nc_eui2=AeFoKM1j1vxTQ6B0piCFJpq7wKQdRPsaAM7ApB1E-xoAzv6xC54i1z3sK7ZFvCGeNP0U7r-N-wi-iJ4dYZ4uVrlJ&_nc_ohc=pTKJKtgjsVIQ7kNvwH5I4e0&_nc_oc=AdqxbauHvhB2xyVpPfKDGpGqOddqZ2eRIbGVRhfa0sVoWOBt7Ke-QLiQYF2A2MR5SiXW6ozNuFq_6D_Q6lSJEuGO&_nc_zt=23&_nc_ht=scontent.fsgn2-6.fna&_nc_gid=TlVq3XJbCSunQ7Z9Yif90A&_nc_ss=7b2a8&oh=00_AQSf87oY21q8IdhdwIcSGUJhm94Dnn8h1T22xpwdAQBsBg&oe=6AF50970   Hotline/Zalo: <a href="https://zalo.me/0888208306" target="_blank" rel="noreferrer" className="text-white font-mono hover:underline font-bold">0888 208 306</a>
+                Hotline/Zalo: <a href="https://zalo.me/0888208306" target="_blank" rel="noreferrer" className="text-white font-mono hover:underline font-bold">0888 208 306</a>
               </div>
               <div>
                 Email: <a href="mailto:nguyenthiendoan2@gmail.com" className="text-white font-mono hover:underline">nguyenthiendoan2@gmail.com</a>

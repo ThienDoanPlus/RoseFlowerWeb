@@ -474,9 +474,7 @@ const storedUser = loadStoredUser();
 
 const initialState: AppState = {
   currentRole: storedUser ? storedUser.role : 'CUSTOMER',
-  activeView: initialFlower
-    ? 'product-detail'
-    : storedUser
+  activeView: storedUser
     ? storedUser.role === 'ADMIN'
       ? 'admin'
       : storedUser.role === 'STAFF'
@@ -580,11 +578,7 @@ function appReducer(state: AppState, action: Action): AppState {
           },
         };
       }
-      return {
-        ...state,
-        activeView: targetView,
-        selectedFlower: targetView === 'product-detail' ? state.selectedFlower : null,
-      };
+      return { ...state, activeView: targetView };
     }
 
     case 'SET_STAFF_TAB':
@@ -661,11 +655,7 @@ function appReducer(state: AppState, action: Action): AppState {
       return { ...state, sortBy: action.payload };
 
     case 'SELECT_FLOWER':
-      return {
-        ...state,
-        selectedFlower: action.payload,
-        activeView: action.payload ? 'product-detail' : 'storefront',
-      };
+      return { ...state, selectedFlower: action.payload };
 
     case 'ADD_TO_CART': {
       const { flower, sizeVariant, quantity, cardMessage } = action.payload;
@@ -1203,18 +1193,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, []);
 
-  // 1. Đồng bộ URL và Document Title theo View và Selected Flower (/san-pham/:id)
+  // 1. Đồng bộ URL và Document Title theo Selected Flower (/san-pham/:id)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     try {
-      if (state.activeView === 'product-detail' && state.selectedFlower) {
+      if (state.selectedFlower) {
         const targetPath = `/san-pham/${state.selectedFlower.id}`;
         if (window.location.pathname !== targetPath) {
           window.history.pushState({ flowerId: state.selectedFlower.id }, '', targetPath);
         }
         document.title = `${state.selectedFlower.name} | Tiệm Hoa Sáp Rose - 294 Phạm Văn Bạch`;
-      } else if (state.activeView === 'storefront') {
+      } else {
         if (window.location.pathname.startsWith('/san-pham/')) {
           window.history.pushState({}, '', '/');
         }
@@ -1223,9 +1213,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // ignore
     }
-  }, [state.activeView, state.selectedFlower]);
+  }, [state.selectedFlower]);
 
-  // 2. Tự động chuyển tới trang chi tiết khi vào qua link /san-pham/:id hoặc bấm Back/Forward trình duyệt
+  // 2. Tự động mở modal hoa khi truy cập link /san-pham/:id hoặc khi bấm Back/Forward trình duyệt
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -1235,16 +1225,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (targetFlowerId) {
           const matched = state.flowers.find((f) => f.id === targetFlowerId);
           if (matched) {
-            if (!state.selectedFlower || state.selectedFlower.id !== matched.id || state.activeView !== 'product-detail') {
+            if (!state.selectedFlower || state.selectedFlower.id !== matched.id) {
               dispatch({ type: 'SELECT_FLOWER', payload: matched });
             }
           }
         } else {
-          // Nếu URL là trang chủ và đang ở product-detail thì quay về storefront
-          if (window.location.pathname === '/' || window.location.pathname === '') {
-            if (state.activeView === 'product-detail') {
-              dispatch({ type: 'SELECT_FLOWER', payload: null });
-            }
+          // Nếu URL về trang chủ mà modal đang mở thì tự động đóng lại
+          if (state.selectedFlower) {
+            dispatch({ type: 'SELECT_FLOWER', payload: null });
           }
         }
       } catch {
@@ -1260,7 +1248,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => {
       window.removeEventListener('popstate', syncStateFromUrl);
     };
-  }, [state.flowers, state.activeView, state.selectedFlower]);
+  }, [state.flowers]);
 
   // Computed values
   const subtotal = calculateCartSubtotal(state.cart);
