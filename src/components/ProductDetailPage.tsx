@@ -48,6 +48,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ flower }) 
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [isAddedSuccess, setIsAddedSuccess] = useState(false);
 
   // Reset image index when flower changes
   useEffect(() => {
@@ -84,8 +85,11 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ flower }) 
         sizeVariant: selectedVariant,
         quantity,
         cardMessage: personalCardMessage,
+        openCart: false,
       },
     });
+    setIsAddedSuccess(true);
+    setTimeout(() => setIsAddedSuccess(false), 2200);
   };
 
   const handleBuyNow = () => {
@@ -501,10 +505,23 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ flower }) 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   onClick={handleAddToCart}
-                  className="w-full py-3.5 px-3 bg-white border-2 border-stone-900 text-stone-900 hover:bg-stone-50 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer text-center shadow-2xs active:scale-98 flex items-center justify-center gap-2 whitespace-nowrap"
+                  className={`w-full py-3.5 px-3 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer text-center shadow-2xs active:scale-98 flex items-center justify-center gap-2 whitespace-nowrap ${
+                    isAddedSuccess
+                      ? 'bg-emerald-50 border-2 border-emerald-600 text-emerald-900 ring-2 ring-emerald-300'
+                      : 'bg-white border-2 border-stone-900 text-stone-900 hover:bg-stone-50'
+                  }`}
                 >
-                  <Plus className="w-4 h-4" />
-                  <span>Thêm Vào Giỏ Hàng</span>
+                  {isAddedSuccess ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-700 animate-in zoom-in-75 duration-150" />
+                      <span className="text-emerald-800">Đã Thêm Vào Giỏ (+{quantity})</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      <span>Thêm Vào Giỏ Hàng</span>
+                    </>
+                  )}
                 </button>
                 <button
                   onClick={handleBuyNow}

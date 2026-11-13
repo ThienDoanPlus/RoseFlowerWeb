@@ -65,6 +65,7 @@ export interface AppState {
   vouchers: Voucher[];
   activeVoucher: Voucher | null;
   usedVouchers: UsedVoucherRecord[];
+  lastCartAddedAt?: number;
   greetingCardMessage: string;
   senderName: string;
   deliveryDate: string;
@@ -133,7 +134,7 @@ export type Action =
   | { type: 'SET_SORT'; payload: 'popular' | 'price-asc' | 'price-desc' | 'rating' }
   | { type: 'SELECT_FLOWER'; payload: Flower | null }
   | { type: 'NAVIGATE_TO_PRODUCT_PAGE'; payload: Flower }
-  | { type: 'ADD_TO_CART'; payload: { flower: Flower; sizeVariant: SizeVariant; quantity: number; cardMessage?: string } }
+  | { type: 'ADD_TO_CART'; payload: { flower: Flower; sizeVariant: SizeVariant; quantity: number; cardMessage?: string; openCart?: boolean } }
   | { type: 'UPDATE_CART_QTY'; payload: { itemId: string; quantity: number } }
   | { type: 'REMOVE_FROM_CART'; payload: { itemId: string } }
   | { type: 'CLEAR_CART' }
@@ -417,7 +418,7 @@ const initialFlower = initialFlowerId ? FLOWERS.find((f) => f.id === initialFlow
 
 const storedUser = loadStoredUser();
 
-const initialState: AppState = {
+export const initialState: AppState = {
   currentRole: storedUser ? storedUser.role : 'CUSTOMER',
   activeView: initialFlower ? 'product-detail' : 'storefront',
   staffActiveTab: 'kanban',
@@ -486,7 +487,7 @@ const initialState: AppState = {
   isAccountSettingsOpen: false,
 };
 
-function appReducer(state: AppState, action: Action): AppState {
+export function appReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'SET_CURRENT_ROLE': {
       // Role is now strictly determined by the logged-in user account.
@@ -651,8 +652,10 @@ function appReducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         cart: newCart,
-        isCartOpen: true,
-        toast: { message: `Đã thêm "${flower.name}" vào giỏ hàng`, type: 'success' },
+        lastCartAddedAt: Date.now(),
+        // Không tự động chuyển trang / mở giỏ để khách hàng thoải mái chọn thêm bó hoa tiếp theo
+        isCartOpen: action.payload.openCart === true ? true : false,
+        toast: { message: `Đã thêm "${flower.name}" vào giỏ hoa của bạn`, type: 'success' },
       };
     }
 

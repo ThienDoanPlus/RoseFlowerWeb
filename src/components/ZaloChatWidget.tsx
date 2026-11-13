@@ -345,6 +345,7 @@ Mình cũng vừa soạn sẵn một lời chúc thiệp ngọt ngào cho bạn 
                                         flower: m.recommendedFlower!,
                                         sizeVariant: 'standard',
                                         quantity: 1,
+                                        openCart: false,
                                       },
                                     })
                                   }

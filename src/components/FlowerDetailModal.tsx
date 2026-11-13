@@ -62,6 +62,7 @@ export const FlowerDetailModal: React.FC = () => {
         sizeVariant: selectedVariant,
         quantity,
         cardMessage: personalCardMessage,
+        openCart: false,
       },
     });
     dispatch({ type: 'SELECT_FLOWER', payload: null });

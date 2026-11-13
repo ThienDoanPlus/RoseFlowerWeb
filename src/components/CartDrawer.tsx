@@ -4,10 +4,11 @@
  */
 
 import React, { useState } from 'react';
-import { X, Trash2, ArrowRight, Tag, Percent, Sparkles, Check, ShoppingBag } from 'lucide-react';
+import { X, Trash2, ArrowRight, Tag, Percent, Sparkles, Check, ShoppingBag, Eye, ExternalLink } from 'lucide-react';
 import { useStore } from '../store';
 import { VOUCHERS } from '../data/mockData';
 import { formatVND, validateAndCalculateVoucher } from '../utils/calculations';
+import { Flower } from '../types';
 
 export const CartDrawer: React.FC = () => {
   const { state, dispatch, subtotal, totalQuantity, bulkDiscountInfo, voucherValidation, shippingFee, finalTotal } = useStore();
@@ -61,6 +62,20 @@ export const CartDrawer: React.FC = () => {
       setVoucherInput('');
     } else {
       dispatch({ type: 'SHOW_TOAST', payload: { message: `Mã ưu đãi "${code}" không tồn tại`, type: 'error' } });
+    }
+  };
+
+  const handleOpenProductDetail = (flower: Flower) => {
+    // 1. Đóng ngăn kéo giỏ hàng
+    dispatch({ type: 'SET_MODAL', payload: { modal: 'isCartOpen', isOpen: false } });
+
+    // 2. Chuyển sang màn hình chi tiết sản phẩm
+    dispatch({ type: 'NAVIGATE_TO_PRODUCT_PAGE', payload: flower });
+
+    // 3. Đẩy URL và cuộn mượt lên đầu trang
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ flowerId: flower.id }, '', `/san-pham/${flower.id}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -127,26 +142,63 @@ export const CartDrawer: React.FC = () => {
                 return (
                   <div key={item.id} className="p-3.5 bg-white rounded-xl border border-stone-200 shadow-2xs space-y-2">
                     <div className="flex gap-3">
-                      <img
-                        src={item.flower.imageUrl}
-                        alt={item.flower.name}
-                        referrerPolicy="no-referrer"
-                        className="w-16 h-16 rounded-lg object-cover bg-stone-100 shrink-0 border border-stone-200"
-                      />
+                      {/* Bấm vào ảnh để mở trang chi tiết hoa */}
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleOpenProductDetail(item.flower)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            handleOpenProductDetail(item.flower);
+                          }
+                        }}
+                        className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-stone-200 cursor-pointer group/img bg-stone-100"
+                        title={`Xem trang chi tiết "${item.flower.name}"`}
+                      >
+                        <img
+                          src={item.flower.imageUrl}
+                          alt={item.flower.name}
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-stone-950/35 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                          <Eye className="w-4 h-4 text-white drop-shadow-sm" />
+                        </div>
+                      </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-1">
-                          <h4 className="font-semibold text-xs text-stone-900 truncate">{item.flower.name}</h4>
+                          {/* Bấm vào tên bó hoa để xem trang chi tiết */}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenProductDetail(item.flower)}
+                            className="text-left font-semibold text-xs text-stone-900 hover:text-rose-800 transition-colors truncate cursor-pointer flex items-center gap-1 group/title"
+                            title={`Xem chi tiết ${item.flower.name}`}
+                          >
+                            <span className="truncate group-hover/title:underline">{item.flower.name}</span>
+                            <ExternalLink className="w-3 h-3 text-stone-400 group-hover/title:text-rose-800 shrink-0 opacity-70 group-hover/title:opacity-100 transition-opacity" />
+                          </button>
+
                           <button
                             onClick={() => dispatch({ type: 'REMOVE_FROM_CART', payload: { itemId: item.id } })}
-                            className="text-stone-400 hover:text-rose-600 p-0.5 cursor-pointer transition-colors"
+                            className="text-stone-400 hover:text-rose-600 p-0.5 cursor-pointer transition-colors shrink-0"
                             title="Xóa khỏi giỏ"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
 
-                        <span className="text-[11px] text-stone-500 block">{variantLabel}</span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[11px] text-stone-500">{variantLabel}</span>
+                          <span className="text-stone-300">·</span>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenProductDetail(item.flower)}
+                            className="text-[11px] text-rose-700 hover:text-rose-900 font-medium hover:underline cursor-pointer"
+                          >
+                            Xem chi tiết hoa
+                          </button>
+                        </div>
 
                         <div className="flex items-center justify-between mt-2">
                           <span className="font-mono text-xs font-bold text-stone-900 tabular-nums">

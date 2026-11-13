@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   ShoppingBag,
   Bell,
@@ -25,6 +25,15 @@ export const Navbar: React.FC = () => {
   const { state, dispatch, totalQuantity, unreadNotifsCount, relevantNotifications } = useStore();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCartBumping, setIsCartBumping] = useState(false);
+
+  useEffect(() => {
+    if (state.lastCartAddedAt) {
+      setIsCartBumping(true);
+      const timer = setTimeout(() => setIsCartBumping(false), 950);
+      return () => clearTimeout(timer);
+    }
+  }, [state.lastCartAddedAt]);
 
   const pendingTransfersCount = useMemo(() => {
     return state.orders.filter(
@@ -312,14 +321,26 @@ export const Navbar: React.FC = () => {
           {state.currentRole !== 'ADMIN' && (
             <button
               onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isCartOpen', isOpen: true } })}
-              className="relative flex items-center justify-center p-2.5 bg-rose-900 hover:bg-rose-800 text-white rounded-full transition-transform active:scale-95 cursor-pointer shadow-sm mr-1"
-              title="Xem giỏ hàng"
-              aria-label="Giỏ hàng"
+              className={`relative flex items-center justify-center p-2.5 bg-rose-900 hover:bg-rose-800 text-white rounded-full transition-all active:scale-95 cursor-pointer shadow-sm mr-1 ${
+                isCartBumping ? 'cart-bump ring-4 ring-rose-300 scale-105' : ''
+              }`}
+              title="Xem giỏ hoa của bạn"
+              aria-label="Giỏ hoa của bạn"
             >
               <ShoppingBag className="w-5 h-5" />
               {totalQuantity > 0 && (
-                <span className="absolute -top-1 -right-1 bg-white text-rose-900 text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md border border-rose-200">
+                <span
+                  key={totalQuantity}
+                  className={`absolute -top-1 -right-1 bg-white text-rose-900 text-[11px] font-bold min-w-5 h-5 px-1 rounded-full flex items-center justify-center shadow-md border border-rose-200 transition-transform ${
+                    isCartBumping ? 'badge-pop ring-2 ring-rose-400' : ''
+                  }`}
+                >
                   {totalQuantity}
+                </span>
+              )}
+              {isCartBumping && (
+                <span className="absolute -bottom-7 right-0 bg-rose-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md fly-item-anim pointer-events-none whitespace-nowrap z-50">
+                  +1 Giỏ hoa 🌹
                 </span>
               )}
             </button>

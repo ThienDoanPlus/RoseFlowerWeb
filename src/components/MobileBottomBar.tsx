@@ -3,12 +3,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, Flower2, ShoppingBag, LayoutDashboard, ShieldCheck, MessageSquare, Phone, QrCode, Users } from 'lucide-react';
 import { useStore } from '../store';
 
 export const MobileBottomBar: React.FC = () => {
   const { state, dispatch, totalQuantity } = useStore();
+  const [isBumping, setIsBumping] = useState(false);
+
+  useEffect(() => {
+    if (state.lastCartAddedAt) {
+      setIsBumping(true);
+      const timer = setTimeout(() => setIsBumping(false), 950);
+      return () => clearTimeout(timer);
+    }
+  }, [state.lastCartAddedAt]);
 
   // Role ADMIN có thanh điều hướng chuyên biệt phục vụ điều hành, không có giỏ hoa của khách hay chatbot
   if (state.currentRole === 'ADMIN') {
@@ -179,18 +188,38 @@ export const MobileBottomBar: React.FC = () => {
 
         {/* 3. Shopping Cart Bag */}
         <button
+          id="mobile-cart-btn"
           onClick={() => dispatch({ type: 'SET_MODAL', payload: { modal: 'isCartOpen', isOpen: true } })}
-          className="flex flex-col items-center justify-center py-1 text-stone-600 hover:text-rose-900 transition-colors relative cursor-pointer"
+          className={`flex flex-col items-center justify-center py-1 transition-all relative cursor-pointer ${
+            isBumping ? 'text-rose-900 scale-105' : 'text-stone-600 hover:text-rose-900'
+          }`}
+          title="Xem giỏ hoa của bạn"
+          aria-label="Giỏ hoa của bạn"
         >
           <div className="relative">
-            <ShoppingBag className="w-5 h-5 text-stone-600" />
+            <ShoppingBag
+              className={`w-5 h-5 transition-transform ${isBumping ? 'cart-bump text-rose-800' : 'text-stone-600'}`}
+            />
             {totalQuantity > 0 && (
-              <span className="absolute -top-1.5 -right-2 bg-rose-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+              <span
+                key={totalQuantity}
+                className={`absolute -top-1.5 -right-2.5 bg-rose-600 text-white text-[9px] font-bold min-w-4 h-4 px-1 rounded-full flex items-center justify-center shadow-xs transition-transform ${
+                  isBumping ? 'badge-pop ring-2 ring-rose-300' : ''
+                }`}
+              >
                 {totalQuantity}
               </span>
             )}
+            {/* Hiệu ứng bay bổng +1 khi bỏ hàng vào giỏ */}
+            {isBumping && (
+              <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-rose-900 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md fly-item-anim pointer-events-none whitespace-nowrap z-50">
+                +1 🌹
+              </span>
+            )}
           </div>
-          <span className="text-[10px] font-medium mt-0.5">Giỏ hàng</span>
+          <span className={`text-[10px] mt-0.5 transition-colors ${isBumping ? 'text-rose-900 font-bold' : 'font-medium'}`}>
+            Giỏ hoa
+          </span>
         </button>
 
         {/* 4. Slot 4: Tư vấn Chatbot */}

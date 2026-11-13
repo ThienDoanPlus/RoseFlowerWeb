@@ -17,9 +17,25 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
   const { dispatch } = useStore();
   const [imageError, setImageError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
 
   const displayPrice = flower.salePrice || flower.basePrice;
   const hasDiscount = Boolean(flower.salePrice && flower.salePrice < flower.basePrice);
+
+  const handleQuickAdd = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch({
+      type: 'ADD_TO_CART',
+      payload: {
+        flower,
+        sizeVariant: 'standard',
+        quantity: 1,
+        openCart: false,
+      },
+    });
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1400);
+  };
 
   return (
     <article
@@ -78,22 +94,25 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
             <span>Chi tiết</span>
           </a>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              dispatch({
-                type: 'ADD_TO_CART',
-                payload: {
-                  flower,
-                  sizeVariant: 'standard',
-                  quantity: 1,
-                },
-              });
-            }}
-            className="px-3.5 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium rounded-lg shadow-md transition-transform hover:scale-105 flex items-center gap-1.5 cursor-pointer"
-            title="Thêm nhanh vào giỏ"
+            onClick={handleQuickAdd}
+            className={`px-3.5 py-2 text-xs font-medium rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer ${
+              justAdded
+                ? 'bg-emerald-800 text-white scale-105 ring-2 ring-emerald-300'
+                : 'bg-stone-900 hover:bg-stone-800 text-white hover:scale-105'
+            }`}
+            title="Thêm nhanh vào giỏ hoa của bạn"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Chọn nhanh</span>
+            {justAdded ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-200" />
+                <span className="font-semibold text-emerald-100">Đã thêm ✓</span>
+              </>
+            ) : (
+              <>
+                <Plus className="w-3.5 h-3.5" />
+                <span>Chọn nhanh</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -184,23 +203,29 @@ export const FlowerCard: React.FC<FlowerCardProps> = ({ flower }) => {
             )}
           </div>
 
-          <button
-            onClick={() => {
-              dispatch({
-                type: 'ADD_TO_CART',
-                payload: {
-                  flower,
-                  sizeVariant: 'standard',
-                  quantity: 1,
-                },
-              });
-            }}
-            className="p-2 text-stone-700 hover:text-stone-950 hover:bg-stone-100 rounded-lg transition-colors cursor-pointer"
-            title="Thêm vào giỏ"
-            aria-label="Thêm vào giỏ"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
+          <div className="relative">
+            <button
+              onClick={handleQuickAdd}
+              className={`p-2 rounded-lg transition-all cursor-pointer ${
+                justAdded
+                  ? 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-300 scale-110'
+                  : 'text-stone-700 hover:text-stone-950 hover:bg-stone-100'
+              }`}
+              title="Thêm vào giỏ hoa của bạn"
+              aria-label="Thêm vào giỏ hoa của bạn"
+            >
+              {justAdded ? (
+                <Check className="w-5 h-5 text-emerald-700 animate-in zoom-in-75 duration-150" />
+              ) : (
+                <Plus className="w-5 h-5" />
+              )}
+            </button>
+            {justAdded && (
+              <span className="absolute -top-7 right-0 bg-rose-900 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md fly-item-anim pointer-events-none whitespace-nowrap z-20">
+                +1 vào giỏ 🌹
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </article>

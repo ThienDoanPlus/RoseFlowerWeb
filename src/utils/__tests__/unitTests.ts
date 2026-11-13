@@ -16,7 +16,7 @@ import {
   validateAndCalculateVoucher,
   checkVoucherUsageStatus,
 } from '../calculations';
-import { filterRelevantNotifications } from '../../store';
+import { filterRelevantNotifications, appReducer, initialState } from '../../store';
 import { estimateDeliveryDistance } from '../distanceCalculator';
 
 // Real flower fixture for testing
@@ -567,6 +567,48 @@ export function runAllUnitTests(): {
           quan1Fee: quan1.shippingFee,
           cuChiFee: cuChi.shippingFee,
           haNoiFee: haNoi.shippingFee,
+        },
+        passed,
+      };
+    }
+  );
+
+  // TEST 16: Thêm vào giỏ không tự ý bật trang Giỏ hàng và cập nhật hiệu ứng tăng số lượng
+  test(
+    'testAddToCartDoesNotAutoOpenCartDrawer',
+    'Thêm vào giỏ không tự động mở ngăn kéo giỏ hàng (isCartOpen: false) và ghi nhận timestamp hiệu ứng',
+    () => {
+      const stateBefore = {
+        ...initialState,
+        cart: [],
+        isCartOpen: false,
+      };
+
+      const action = {
+        type: 'ADD_TO_CART' as const,
+        payload: {
+          flower: mockFlower,
+          sizeVariant: 'standard' as const,
+          quantity: 2,
+          openCart: false,
+        },
+      };
+
+      const stateAfter = appReducer(stateBefore, action);
+
+      const passed =
+        stateAfter.cart.length === 1 &&
+        stateAfter.cart[0].quantity === 2 &&
+        stateAfter.isCartOpen === false &&
+        typeof stateAfter.lastCartAddedAt === 'number' &&
+        stateAfter.lastCartAddedAt > 0;
+
+      return {
+        expected: { isCartOpen: false, quantity: 2, hasBumpTimestamp: true },
+        actual: {
+          isCartOpen: stateAfter.isCartOpen,
+          quantity: stateAfter.cart[0]?.quantity,
+          hasBumpTimestamp: typeof stateAfter.lastCartAddedAt === 'number',
         },
         passed,
       };
